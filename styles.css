@@ -555,15 +555,44 @@ button {
 
 .card-meta .sep { color: var(--line); }
 
-.card-allergens {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--chile);
+.card-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
   border-top: 1px dashed var(--line);
   padding-top: 9px;
 }
 
+.card-allergens {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--chile);
+}
+
 .card-allergens.none { color: var(--kale); }
+
+/* sits above the card's stretched title button */
+.plan-btn {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  border: 1px solid var(--ink);
+  background: var(--ticket);
+  padding: 8px 10px;
+  min-height: 36px;
+}
+
+.plan-btn:hover { background: var(--tape); }
+
+.plan-btn.on {
+  background: var(--kale);
+  border-color: var(--kale);
+  color: #F4F8F0;
+}
 
 /* ---------- empty state ---------- */
 
@@ -777,6 +806,171 @@ button {
   margin-bottom: 4px;
 }
 
+/* ---------- weekly plan ---------- */
+
+.plan-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 35;
+  background: var(--ink);
+  border-top: 2px solid var(--kale);
+}
+
+.plan-bar-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  width: 100%;
+  min-height: 54px;
+  padding: 8px var(--pad);
+  color: var(--paper);
+  text-align: left;
+}
+
+#plan-bar-label { font-weight: 600; font-size: 15px; }
+
+.plan-bar-cta {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--tape);
+}
+
+.has-plan .results { padding-bottom: 110px; }
+.has-plan .footer { padding-bottom: 90px; }
+
+.plan-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.plan-tool {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  border: 1px solid var(--ink);
+  padding: 10px 12px;
+  min-height: 44px;
+}
+
+.plan-tool:hover { background: var(--tape); }
+
+.plan-sub {
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: var(--faded);
+  margin-bottom: 20px;
+}
+
+.plan-rows { margin-bottom: 26px; }
+
+.plan-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  padding: 10px 0;
+  border-bottom: 1px dashed var(--line);
+}
+
+.plan-row-name {
+  font-weight: 650;
+  font-size: 16px;
+  letter-spacing: -0.01em;
+  text-align: left;
+  flex: 1 1 240px;
+}
+
+.plan-row-name:hover { color: var(--kale-deep); text-decoration: underline; }
+
+.plan-row-controls { display: flex; align-items: center; gap: 8px; }
+
+.plan-row-controls .stepper button { width: 40px; min-height: 40px; font-size: 17px; }
+.plan-row-controls .stepper output { min-width: 64px; font-size: 12px; }
+
+.plan-remove {
+  min-width: 40px;
+  min-height: 40px;
+  font-size: 20px;
+  line-height: 1;
+  border: 1px solid var(--line);
+  color: var(--faded);
+}
+
+.plan-remove:hover { border-color: var(--chile); color: var(--chile); }
+
+.shop-list { list-style: none; margin-bottom: 8px; }
+
+.shop-list li {
+  display: grid;
+  grid-template-columns: 16px 110px 1fr;
+  gap: 10px;
+  align-items: baseline;
+  padding: 6px 0;
+  border-bottom: 1px dashed var(--line);
+  font-size: 14.5px;
+  font-family: var(--font-body);
+}
+
+.shop-list .sq {
+  width: 12px;
+  height: 12px;
+  border: 1px solid var(--ink);
+  align-self: center;
+}
+
+.shop-list .amt {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--kale-deep);
+  text-align: right;
+}
+
+.shop-pantry {
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  color: var(--faded);
+  margin: 10px 0 26px;
+}
+
+.plan-recipe {
+  border-top: 1px solid var(--ink);
+  padding: 20px 0 8px;
+  margin-top: 8px;
+}
+
+.plan-recipe h3 {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin-bottom: 4px;
+}
+
+.plan-recipe-meta {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--faded);
+  margin-bottom: 14px;
+}
+
+.plan-method-title { margin-top: 18px; }
+
+.plan-recipe .modal-storage { margin-top: 16px; margin-bottom: 8px; }
+
+.plan-empty {
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: var(--faded);
+  padding: 10px 0 20px;
+}
+
 /* ---------- footer ---------- */
 
 .footer {
@@ -866,16 +1060,18 @@ button {
 @media print {
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 
-  /* Print only the open recipe, not the page behind it */
+  /* Print only the open dialog (recipe or plan), not the page behind it */
   body { border-top: none; }
-  body > *:not(#recipe-modal) { display: none !important; }
+  body > *:not(dialog) { display: none !important; }
+  dialog:not([open]) { display: none !important; }
 
-  .modal {
+  .modal[open] {
     position: static;
     display: block;
     width: auto;
     max-width: none;
     max-height: none;
+    overflow: visible;
     margin: 0;
     border: none;
     background: #fff;
@@ -886,5 +1082,14 @@ button {
 
   /* Hide interactive chrome that has no meaning on paper */
   .modal-actions,
+  .plan-head-actions,
+  .plan-remove,
   .stepper button { display: none; }
+
+  .stepper { border: none; }
+  .stepper output { border: none; justify-content: flex-start; }
+
+  /* Shopping list on page one, then each recipe on its own page */
+  .plan-recipe { break-before: page; }
+  .shop-list li, .plan-row { break-inside: avoid; }
 }

@@ -55,6 +55,32 @@
 
   var $ = function (sel) { return document.querySelector(sel); };
 
+  /* ---------- the week's plan (persisted) ---------- */
+
+  var PLAN_KEY = "mise-plan";
+
+  function loadPlan() {
+    var m = new Map();
+    try {
+      JSON.parse(localStorage.getItem(PLAN_KEY) || "[]").forEach(function (e) {
+        if (RECIPES.some(function (r) { return r.id === e.id; })) {
+          m.set(e.id, Math.max(1, Math.min(12, parseInt(e.servings, 10) || 4)));
+        }
+      });
+    } catch (e) { /* private mode etc. — plan just won't persist */ }
+    return m;
+  }
+
+  function savePlan() {
+    try {
+      localStorage.setItem(PLAN_KEY, JSON.stringify(
+        Array.from(plan, function (p) { return { id: p[0], servings: p[1] }; })
+      ));
+    } catch (e) { /* ignore */ }
+  }
+
+  var plan = loadPlan();
+
   var cardsEl = $("#cards");
   var countEl = $("#count");
   var mobileCountEl = $("#mobile-count");
@@ -164,7 +190,12 @@
           "<span>KEEPS " + r.fridgeDays + " DAYS</span>" +
           (r.freezerFriendly ? '<span class="sep">/</span><span>FREEZES</span>' : "") +
         "</p>" +
-        '<p class="card-allergens' + (r.allergens.length ? "" : " none") + '">' + esc(contains) + "</p>" +
+        '<div class="card-foot">' +
+          '<p class="card-allergens' + (r.allergens.length ? "" : " none") + '">' + esc(contains) + "</p>" +
+          '<button class="plan-btn' + (plan.has(r.id) ? " on" : "") + '" data-plan="' + esc(r.id) + '" aria-pressed="' + plan.has(r.id) + '">' +
+            (plan.has(r.id) ? "&#10003; PLANNED" : "+ PLAN") +
+          "</button>" +
+        "</div>" +
       "</li>"
     );
   }
@@ -313,8 +344,8 @@
     };
   }
 
-  function openModal(r) {
-    var servings = state.servings;
+  function openModal(r, servingsOverride) {
+    var servings = servingsOverride || state.servings;
     var total = r.prepMinutes + r.cookMinutes;
     var contains = r.allergens.length
       ? "CONTAINS: " + r.allergens.join(" · ").toUpperCase()
@@ -324,6 +355,9 @@
       '<div class="modal-top">' +
         '<span class="modal-tape">' + esc(proteinLabel(r.protein)).toUpperCase() + "</span>" +
         '<div class="modal-actions">' +
+          '<button class="plan-tool" id="modal-plan" type="button" aria-pressed="' + plan.has(r.id) + '">' +
+            (plan.has(r.id) ? "&#10003; ON THE PLAN" : "+ ADD TO PLAN") +
+          "</button>" +
           '<button class="modal-tool" id="modal-download" type="button" aria-label="Download recipe as PDF" title="Download PDF">' +
             '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' +
               '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />' +
@@ -390,6 +424,12 @@
     );
 
     $("#modal-close").addEventListener("click", function () { modalEl.close(); });
+    $("#modal-plan").addEventListener("click", function () {
+      togglePlan(r.id, null);
+      var on = plan.has(r.id);
+      this.innerHTML = on ? "&#10003; ON THE PLAN" : "+ ADD TO PLAN";
+      this.setAttribute("aria-pressed", String(on));
+    });
     $("#modal-print").addEventListener("click", function () { window.print(); });
     $("#modal-download").addEventListener("click", function () {
       MisePDF.download(recipeToPDFModel(r, mServings), r.id + ".pdf");
@@ -410,6 +450,11 @@
   });
 
   cardsEl.addEventListener("click", function (e) {
+    var planBtn = e.target.closest(".plan-btn");
+    if (planBtn) {
+      togglePlan(planBtn.getAttribute("data-plan"), planBtn);
+      return;
+    }
     var btn = e.target.closest(".card-btn");
     if (!btn) {
       var card = e.target.closest(".card");
@@ -419,6 +464,174 @@
     var id = btn.getAttribute("data-id");
     var recipe = RECIPES.find(function (r) { return r.id === id; });
     if (recipe) { openerBtn = btn; openModal(recipe); }
+  });
+
+  /* ---------- weekly plan UI ---------- */
+
+  var planModal = $("#plan-modal");
+  var planBody = $("#plan-body");
+  var planBarEl = $("#plan-bar");
+
+  function updatePlanUI() {
+    var n = plan.size;
+    planBarEl.hidden = n === 0;
+    document.body.classList.toggle("has-plan", n > 0);
+    $("#plan-bar-label").textContent = n + (n === 1 ? " recipe" : " recipes") + " planned";
+  }
+
+  function togglePlan(id, cardBtn) {
+    if (plan.has(id)) plan.delete(id);
+    else plan.set(id, state.servings);
+    savePlan();
+    var on = plan.has(id);
+    var btn = cardBtn || document.querySelector('.plan-btn[data-plan="' + id + '"]');
+    if (btn) {
+      btn.classList.toggle("on", on);
+      btn.setAttribute("aria-pressed", String(on));
+      btn.innerHTML = on ? "&#10003; PLANNED" : "+ PLAN";
+    }
+    updatePlanUI();
+  }
+
+  function planEntries() {
+    return Array.from(plan, function (p) {
+      var r = RECIPES.find(function (x) { return x.id === p[0]; });
+      return r ? { r: r, servings: p[1] } : null;
+    }).filter(Boolean);
+  }
+
+  function buildShoppingList(entries) {
+    var measured = {};
+    var pantry = {};
+    entries.forEach(function (e) {
+      var factor = e.servings / e.r.baseServings;
+      e.r.ingredients.forEach(function (ing) {
+        var name = ing.item.toLowerCase();
+        if (ing.qty == null) { pantry[name] = true; return; }
+        var key = name + "|" + (ing.unit || "");
+        if (!measured[key]) measured[key] = { item: name, unit: ing.unit, qty: 0 };
+        measured[key].qty += ing.qty * factor;
+      });
+    });
+    var byItem = {};
+    Object.keys(measured).forEach(function (k) {
+      var m = measured[k];
+      (byItem[m.item] = byItem[m.item] || []).push(m);
+    });
+    var items = Object.keys(byItem).sort().map(function (item) {
+      var amount = byItem[item].map(function (m) {
+        return formatQty(m.qty) + (m.unit ? " " + formatUnit(m.unit, m.qty) : "");
+      }).join(" + ");
+      return { item: item, amount: amount };
+    });
+    return { items: items, pantry: Object.keys(pantry).sort() };
+  }
+
+  function renderPlanBody() {
+    var entries = planEntries();
+    var head =
+      '<div class="modal-top">' +
+        '<span class="modal-tape">THE WEEK&rsquo;S PLAN</span>' +
+        '<div class="plan-head-actions">' +
+          (entries.length ? '<button class="plan-tool" id="plan-print" type="button">PRINT / SAVE PDF</button>' : "") +
+          (entries.length ? '<button class="plan-tool" id="plan-clear" type="button">CLEAR PLAN</button>' : "") +
+          '<button class="modal-close" id="plan-close" aria-label="Close plan">&times;</button>' +
+        "</div>" +
+      "</div>" +
+      '<h2 id="plan-title">Plan &amp; shopping list</h2>';
+
+    if (!entries.length) {
+      planBody.innerHTML = head +
+        '<p class="plan-empty">Nothing planned yet &mdash; tap &ldquo;+ PLAN&rdquo; on any recipe ticket to start your week.</p>';
+      return;
+    }
+
+    var totalServings = entries.reduce(function (n, e) { return n + e.servings; }, 0);
+    var list = buildShoppingList(entries);
+
+    planBody.innerHTML = head +
+      '<p class="plan-sub">' + entries.length + (entries.length === 1 ? " recipe" : " recipes") +
+        " &middot; " + totalServings + " servings across the week. Adjust servings here and the shopping list updates.</p>" +
+      '<div class="plan-rows">' +
+        entries.map(function (e) {
+          return '<div class="plan-row">' +
+            '<button class="plan-row-name" data-open="' + esc(e.r.id) + '">' + esc(e.r.name) + "</button>" +
+            '<div class="plan-row-controls">' +
+              '<div class="stepper" role="group" aria-label="Servings for ' + esc(e.r.name) + '">' +
+                '<button type="button" class="p-down" data-id="' + esc(e.r.id) + '" aria-label="Fewer servings">&minus;</button>' +
+                '<output class="mono">' + e.servings + " SERV</output>" +
+                '<button type="button" class="p-up" data-id="' + esc(e.r.id) + '" aria-label="More servings">+</button>' +
+              "</div>" +
+              '<button class="plan-remove" data-id="' + esc(e.r.id) + '" aria-label="Remove ' + esc(e.r.name) + ' from plan">&times;</button>' +
+            "</div>" +
+          "</div>";
+        }).join("") +
+      "</div>" +
+      '<p class="modal-section-title">Shopping list</p>' +
+      '<ul class="shop-list">' +
+        list.items.map(function (it) {
+          return '<li><span class="sq" aria-hidden="true"></span><span class="amt">' + esc(it.amount) + "</span><span>" + esc(it.item) + "</span></li>";
+        }).join("") +
+      "</ul>" +
+      (list.pantry.length ? '<p class="shop-pantry">From the pantry, to taste: ' + esc(list.pantry.join(", ")) + ".</p>" : "") +
+      '<p class="modal-section-title">The recipes</p>' +
+      entries.map(function (e) {
+        var r = e.r;
+        return '<div class="plan-recipe">' +
+          "<h3>" + esc(r.name) + "</h3>" +
+          '<p class="plan-recipe-meta">SCALED FOR ' + e.servings + " SERVINGS (WRITTEN FOR " + r.baseServings + ") &middot; PREP " +
+            r.prepMinutes + " MIN &middot; COOK " + r.cookMinutes + " MIN &middot; " + r.caloriesPerServing + " CAL/SERV" +
+            (r.allergens.length ? " &middot; CONTAINS " + esc(r.allergens.join(", ").toUpperCase()) : "") + "</p>" +
+          '<ul class="ing-list">' + ingredientRows(r, e.servings) + "</ul>" +
+          '<p class="modal-section-title plan-method-title">Method</p>' +
+          '<ol class="step-list">' + r.steps.map(function (s) { return "<li>" + esc(s) + "</li>"; }).join("") + "</ol>" +
+          '<div class="modal-storage"><span class="mono">STORAGE</span>' + esc(r.storageNote) + "</div>" +
+        "</div>";
+      }).join("");
+  }
+
+  planBody.addEventListener("click", function (e) {
+    if (e.target.closest("#plan-close")) { planModal.close(); return; }
+    if (e.target.closest("#plan-print")) { window.print(); return; }
+    if (e.target.closest("#plan-clear")) {
+      plan.clear(); savePlan(); updatePlanUI(); render(); renderPlanBody();
+      return;
+    }
+    var step = e.target.closest(".p-up, .p-down");
+    if (step) {
+      var id = step.getAttribute("data-id");
+      var up = step.classList.contains("p-up");
+      var v = plan.get(id) || 4;
+      v = up ? Math.min(12, v + 1) : Math.max(1, v - 1);
+      plan.set(id, v);
+      savePlan();
+      renderPlanBody();
+      var again = planBody.querySelector((up ? ".p-up" : ".p-down") + '[data-id="' + id + '"]');
+      if (again) again.focus();
+      return;
+    }
+    var rm = e.target.closest(".plan-remove");
+    if (rm) {
+      plan.delete(rm.getAttribute("data-id"));
+      savePlan(); updatePlanUI(); render(); renderPlanBody();
+      return;
+    }
+    var open = e.target.closest(".plan-row-name");
+    if (open) {
+      var rid = open.getAttribute("data-open");
+      var recipe = RECIPES.find(function (r) { return r.id === rid; });
+      if (recipe) { planModal.close(); openModal(recipe, plan.get(rid)); }
+    }
+  });
+
+  $("#open-plan").addEventListener("click", function () {
+    renderPlanBody();
+    planModal.showModal();
+    planModal.scrollTop = 0;
+  });
+
+  planModal.addEventListener("click", function (e) {
+    if (e.target === planModal) planModal.close();
   });
 
   /* ---------- mobile rail ---------- */
@@ -438,6 +651,7 @@
   document.addEventListener("keydown", function (e) {
     if (e.key !== "Escape") return;
     if (modalEl.open) { modalEl.close(); return; }
+    if (planModal.open) { planModal.close(); return; }
     if (railEl.classList.contains("open") && window.innerWidth < 1024) setRail(false);
   });
 
@@ -510,4 +724,5 @@
   });
 
   render();
+  updatePlanUI();
 })();
