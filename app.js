@@ -430,9 +430,13 @@
       this.innerHTML = on ? "&#10003; ON THE PLAN" : "+ ADD TO PLAN";
       this.setAttribute("aria-pressed", String(on));
     });
-    $("#modal-print").addEventListener("click", function () { window.print(); });
+    $("#modal-print").addEventListener("click", function () {
+      showAdThen("PRINT NOW", function () { window.print(); });
+    });
     $("#modal-download").addEventListener("click", function () {
-      MisePDF.download(recipeToPDFModel(r, mServings), r.id + ".pdf");
+      showAdThen("DOWNLOAD NOW", function () {
+        MisePDF.download(recipeToPDFModel(r, mServings), r.id + ".pdf");
+      });
     });
     modalEl.showModal();
     modalEl.scrollTop = 0;
@@ -464,6 +468,73 @@
     var id = btn.getAttribute("data-id");
     var recipe = RECIPES.find(function (r) { return r.id === id; });
     if (recipe) { openerBtn = btn; openModal(recipe); }
+  });
+
+  /* ---------- pre-print sponsored interstitial ---------- */
+
+  var adModal = $("#ad-modal");
+  var adBody = $("#ad-body");
+  var adTimer = null;
+
+  function houseAdsHTML() {
+    if (typeof PRODUCTS === "undefined") return "";
+    var flat = [];
+    PRODUCTS.forEach(function (g) { g.items.forEach(function (p) { flat.push(p); }); });
+    var a = flat[Math.floor(Math.random() * flat.length)];
+    var b = flat[Math.floor(Math.random() * flat.length)];
+    while (b === a && flat.length > 1) b = flat[Math.floor(Math.random() * flat.length)];
+    return (
+      '<div class="house-ads">' +
+        [a, b].map(function (p) {
+          return '<a class="house-ad" href="' + esc(productUrl(p)) + '" target="_blank" rel="sponsored noopener">' +
+            "<strong>" + esc(p.name) + "</strong>" +
+            '<span class="house-ad-price mono">' + esc(p.priceBand) + " &middot; VIEW ON AMAZON &rarr;</span>" +
+          "</a>";
+        }).join("") +
+      "</div>" +
+      '<a class="house-ad-more mono" href="products.html">SEE ALL PREP GEAR &rarr;</a>'
+    );
+  }
+
+  function showAdThen(actionLabel, fn) {
+    var slot = (typeof NETWORK_AD_HTML !== "undefined" && NETWORK_AD_HTML) ? NETWORK_AD_HTML : houseAdsHTML();
+    adBody.innerHTML =
+      '<div class="modal-top">' +
+        '<span class="modal-tape">SPONSORED</span>' +
+        '<button class="modal-close" id="ad-close" aria-label="Cancel and close">&times;</button>' +
+      "</div>" +
+      '<h2 id="ad-title" class="ad-title">A word while your pages get ready</h2>' +
+      '<div class="ad-slot">' + slot + "</div>" +
+      '<button class="ad-continue" id="ad-continue" disabled>READY IN 3&hellip;</button>';
+
+    var count = 3;
+    var btn = $("#ad-continue");
+    adTimer = setInterval(function () {
+      count--;
+      if (count > 0) { btn.innerHTML = "READY IN " + count + "&hellip;"; return; }
+      clearInterval(adTimer);
+      adTimer = null;
+      btn.disabled = false;
+      btn.textContent = actionLabel;
+      btn.classList.add("go");
+    }, 1000);
+
+    btn.addEventListener("click", function () {
+      if (btn.disabled) return;
+      adModal.close();
+      fn();
+    });
+    $("#ad-close").addEventListener("click", function () { adModal.close(); });
+    adModal.showModal();
+  }
+
+  adModal.addEventListener("close", function () {
+    if (adTimer) { clearInterval(adTimer); adTimer = null; }
+    adBody.innerHTML = "";
+  });
+
+  adModal.addEventListener("click", function (e) {
+    if (e.target === adModal) adModal.close();
   });
 
   /* ---------- weekly plan UI ---------- */
@@ -592,7 +663,10 @@
 
   planBody.addEventListener("click", function (e) {
     if (e.target.closest("#plan-close")) { planModal.close(); return; }
-    if (e.target.closest("#plan-print")) { window.print(); return; }
+    if (e.target.closest("#plan-print")) {
+      showAdThen("PRINT NOW", function () { window.print(); });
+      return;
+    }
     if (e.target.closest("#plan-clear")) {
       plan.clear(); savePlan(); updatePlanUI(); render(); renderPlanBody();
       return;
@@ -650,6 +724,7 @@
 
   document.addEventListener("keydown", function (e) {
     if (e.key !== "Escape") return;
+    if (adModal.open) { adModal.close(); return; }
     if (modalEl.open) { modalEl.close(); return; }
     if (planModal.open) { planModal.close(); return; }
     if (railEl.classList.contains("open") && window.innerWidth < 1024) setRail(false);

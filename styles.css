@@ -1083,6 +1083,86 @@ button {
   .gear-grid { grid-template-columns: repeat(3, 1fr); }
 }
 
+/* ---------- pre-print sponsored interstitial ---------- */
+
+.ad-modal { width: min(560px, calc(100vw - 32px)); }
+
+.ad-modal h2.ad-title {
+  font-size: 22px;
+  margin: 10px 0 16px;
+}
+
+.ad-slot { margin-bottom: 20px; }
+
+.house-ads {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.house-ad {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border: 1px solid var(--ink);
+  background: var(--paper);
+  padding: 14px 16px;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.house-ad:hover { background: var(--tape); }
+
+.house-ad strong {
+  font-size: 15.5px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+.house-ad-price {
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  color: var(--kale-deep);
+}
+
+.house-ad-more {
+  display: inline-block;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--faded);
+  text-decoration: none;
+  border-bottom: 1px dashed var(--faded);
+  padding-bottom: 2px;
+}
+
+.house-ad-more:hover { color: var(--kale); border-bottom-color: var(--kale); }
+
+.ad-continue {
+  width: 100%;
+  border: 1px solid var(--ink);
+  background: var(--ticket);
+  color: var(--faded);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  padding: 14px;
+  min-height: 50px;
+}
+
+.ad-continue.go {
+  background: var(--kale);
+  border-color: var(--kale);
+  color: #F4F8F0;
+  cursor: pointer;
+}
+
+.ad-continue:disabled { cursor: wait; }
+
+@media (min-width: 560px) {
+  .house-ads { grid-template-columns: 1fr 1fr; }
+}
+
 /* ---------- footer ---------- */
 
 .footer {
