@@ -1,4 +1,4 @@
-/* Mise recipe data - 100 recipes. Generated + allergen-audited. difficulty: 1 easy, 2 moderate, 3 involved (scored from ingredients, steps, prep time). */
+/* Mise recipe data - 115 recipes. Generated + allergen-audited. difficulty: 1 easy, 2 moderate, 3 involved (scored from ingredients, steps, prep time). */
 var RECIPES = [
   {
     "id": "greek-chicken-souvlaki-bowls",
@@ -11585,6 +11585,94 @@ var RECIPES = [
     "difficulty": 3
   },
   {
+    "id": "slow-cooker-pot-roast",
+    "name": "Slow-Cooker Pot Roast with Potatoes and Carrots",
+    "description": "Chuck roast, potatoes, and carrots braised together in one pot while you do something else all day. The classic set-and-forget Sunday prep.",
+    "protein": "beef",
+    "cuisine": "American",
+    "tags": [
+      "slow-cooker",
+      "gluten-free",
+      "dairy-free"
+    ],
+    "baseServings": 6,
+    "prepMinutes": 15,
+    "cookMinutes": 480,
+    "caloriesPerServing": 455,
+    "proteinGrams": 36,
+    "carbsGrams": 28,
+    "fatGrams": 22,
+    "fridgeDays": 4,
+    "freezerFriendly": true,
+    "allergens": [],
+    "ingredients": [
+      {
+        "qty": 2.5,
+        "unit": "lb",
+        "item": "chuck roast",
+        "note": "trimmed",
+        "allergens": []
+      },
+      {
+        "qty": 1.5,
+        "unit": "lb",
+        "item": "baby potatoes",
+        "note": "left whole",
+        "allergens": []
+      },
+      {
+        "qty": 1,
+        "unit": "lb",
+        "item": "carrots",
+        "note": "cut into chunks",
+        "allergens": []
+      },
+      {
+        "qty": 1,
+        "unit": null,
+        "item": "yellow onion",
+        "note": "quartered",
+        "allergens": []
+      },
+      {
+        "qty": 2,
+        "unit": "cup",
+        "item": "beef broth",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": 2,
+        "unit": "tbsp",
+        "item": "tomato paste",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": 1,
+        "unit": "tsp",
+        "item": "dried thyme",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": null,
+        "unit": null,
+        "item": "salt and black pepper",
+        "note": "to taste",
+        "allergens": []
+      }
+    ],
+    "steps": [
+      "Season the roast generously with salt and pepper and set it in the slow cooker.",
+      "Add the potatoes, carrots, and onion, then whisk the broth with the tomato paste and thyme and pour it over.",
+      "Cook on low for 8 hours, until the beef shreds with a fork.",
+      "Break the beef into chunks and portion with the vegetables and a spoonful of cooking liquid into 6 containers."
+    ],
+    "storageNote": "Keeps 4 days refrigerated in airtight containers; freezes up to 3 months.",
+    "difficulty": 1
+  },
+  {
     "id": "lemongrass-chicken-vermicelli-bowls",
     "name": "Lemongrass Chicken Vermicelli Bowls",
     "description": "Seared lemongrass chicken over rice vermicelli with quick-pickled carrots, cucumber, fresh herbs, and a nuoc cham dressing. The bowls are eaten cold or at room temperature, so nothing degrades from reheating.",
@@ -11714,6 +11802,97 @@ var RECIPES = [
     "difficulty": 3
   },
   {
+    "id": "cheeseburger-bowls",
+    "name": "Cheeseburger Bowls",
+    "description": "Seasoned ground beef over roasted potatoes with cheddar, pickles, and a mustard-ketchup drizzle. All the burger, none of the soggy bun.",
+    "protein": "beef",
+    "cuisine": "American",
+    "tags": [
+      "gluten-free",
+      "high-protein"
+    ],
+    "baseServings": 4,
+    "prepMinutes": 10,
+    "cookMinutes": 25,
+    "caloriesPerServing": 515,
+    "proteinGrams": 38,
+    "carbsGrams": 32,
+    "fatGrams": 26,
+    "fridgeDays": 4,
+    "freezerFriendly": false,
+    "allergens": [
+      "dairy"
+    ],
+    "ingredients": [
+      {
+        "qty": 1.5,
+        "unit": "lb",
+        "item": "ground beef (90% lean)",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": 1.5,
+        "unit": "lb",
+        "item": "yukon gold potatoes",
+        "note": "diced small",
+        "allergens": []
+      },
+      {
+        "qty": 1,
+        "unit": "cup",
+        "item": "shredded cheddar cheese",
+        "note": null,
+        "allergens": [
+          "dairy"
+        ]
+      },
+      {
+        "qty": 0.5,
+        "unit": "cup",
+        "item": "dill pickles",
+        "note": "chopped",
+        "allergens": []
+      },
+      {
+        "qty": 2,
+        "unit": "tbsp",
+        "item": "ketchup",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": 1,
+        "unit": "tbsp",
+        "item": "yellow mustard",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": 1,
+        "unit": null,
+        "item": "yellow onion",
+        "note": "diced",
+        "allergens": []
+      },
+      {
+        "qty": null,
+        "unit": null,
+        "item": "salt and black pepper",
+        "note": "to taste",
+        "allergens": []
+      }
+    ],
+    "steps": [
+      "Roast the diced potatoes with salt at 425F for 25 minutes, until browned.",
+      "Meanwhile, brown the beef with the onion, drain, and season with salt and pepper.",
+      "Stir the ketchup and mustard together for the drizzle.",
+      "Portion the potatoes and beef into 4 containers, top with cheddar and pickles, and pack the drizzle in small cups."
+    ],
+    "storageNote": "Keeps 4 days refrigerated in airtight containers; skip the freezer — the potatoes turn mealy.",
+    "difficulty": 1
+  },
+  {
     "id": "chicken-and-wild-rice-soup",
     "name": "Chicken and Wild Rice Soup",
     "description": "A creamy one-pot soup of shredded chicken breast, wild rice blend, and aromatic vegetables, thickened with cornstarch rather than flour. Like most brothy dishes it improves on day two, and the wild rice keeps its chew through reheating.",
@@ -11838,6 +12017,100 @@ var RECIPES = [
     "difficulty": 1
   },
   {
+    "id": "one-pot-beef-and-shells",
+    "name": "One-Pot Beef and Shells",
+    "description": "Ground beef and pasta shells simmered in one pot of tomatoey broth with cheddar melted in. The homemade version of the boxed classic, in the same single pot.",
+    "protein": "beef",
+    "cuisine": "American",
+    "tags": [
+      "one-pot",
+      "kid-friendly"
+    ],
+    "baseServings": 6,
+    "prepMinutes": 10,
+    "cookMinutes": 25,
+    "caloriesPerServing": 480,
+    "proteinGrams": 30,
+    "carbsGrams": 45,
+    "fatGrams": 20,
+    "fridgeDays": 4,
+    "freezerFriendly": true,
+    "allergens": [
+      "wheat",
+      "dairy"
+    ],
+    "ingredients": [
+      {
+        "qty": 1.5,
+        "unit": "lb",
+        "item": "ground beef (90% lean)",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": 12,
+        "unit": "oz",
+        "item": "medium pasta shells",
+        "note": "dry",
+        "allergens": [
+          "wheat"
+        ]
+      },
+      {
+        "qty": 1,
+        "unit": "can (14 oz)",
+        "item": "crushed tomatoes",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": 2.5,
+        "unit": "cup",
+        "item": "beef broth",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": 1,
+        "unit": "cup",
+        "item": "shredded cheddar cheese",
+        "note": null,
+        "allergens": [
+          "dairy"
+        ]
+      },
+      {
+        "qty": 1,
+        "unit": "tbsp",
+        "item": "italian seasoning",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": 1,
+        "unit": null,
+        "item": "yellow onion",
+        "note": "diced",
+        "allergens": []
+      },
+      {
+        "qty": null,
+        "unit": null,
+        "item": "salt and black pepper",
+        "note": "to taste",
+        "allergens": []
+      }
+    ],
+    "steps": [
+      "Brown the beef with the onion in a large pot, then drain and season.",
+      "Add the shells, crushed tomatoes, broth, and italian seasoning and simmer covered, stirring now and then, until the pasta is tender, about 12 minutes.",
+      "Turn off the heat and stir in the cheddar until melted.",
+      "Cool briefly, then portion into 6 containers and refrigerate."
+    ],
+    "storageNote": "Keeps 4 days refrigerated; freezes up to 2 months — reheat with a splash of water.",
+    "difficulty": 1
+  },
+  {
     "id": "chicken-enchilada-bake",
     "name": "Chicken Enchilada Bake",
     "description": "Layers of corn tortillas, shredded chicken, black beans, and red enchilada sauce baked under melted cheese, casserole-style rather than rolled. It reheats evenly and freezes well as individual portions.",
@@ -11943,6 +12216,88 @@ var RECIPES = [
     ],
     "storageNote": "Keeps 4 days refrigerated; wrap individual portions and freeze up to 3 months, reheating covered at 350°F or in the microwave.",
     "difficulty": 2
+  },
+  {
+    "id": "steak-bites-and-potatoes-sheet-pan",
+    "name": "Steak Bites and Potatoes Sheet Pan",
+    "description": "Sirloin cubes and baby potatoes roasted hot with steak seasoning and garlic, plus zucchini for the vegetable. High-heat, hands-off, and done in half an hour.",
+    "protein": "beef",
+    "cuisine": "American",
+    "tags": [
+      "sheet-pan",
+      "gluten-free",
+      "dairy-free",
+      "high-protein"
+    ],
+    "baseServings": 4,
+    "prepMinutes": 15,
+    "cookMinutes": 25,
+    "caloriesPerServing": 450,
+    "proteinGrams": 40,
+    "carbsGrams": 32,
+    "fatGrams": 18,
+    "fridgeDays": 4,
+    "freezerFriendly": true,
+    "allergens": [],
+    "ingredients": [
+      {
+        "qty": 1.5,
+        "unit": "lb",
+        "item": "sirloin steak",
+        "note": "cut into 1-inch cubes",
+        "allergens": []
+      },
+      {
+        "qty": 1.5,
+        "unit": "lb",
+        "item": "baby potatoes",
+        "note": "halved",
+        "allergens": []
+      },
+      {
+        "qty": 2,
+        "unit": null,
+        "item": "zucchini",
+        "note": "cut into half-moons",
+        "allergens": []
+      },
+      {
+        "qty": 2,
+        "unit": "tbsp",
+        "item": "olive oil",
+        "note": "divided",
+        "allergens": []
+      },
+      {
+        "qty": 1,
+        "unit": "tbsp",
+        "item": "montreal-style steak seasoning",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": 3,
+        "unit": "clove",
+        "item": "garlic",
+        "note": "minced",
+        "allergens": []
+      },
+      {
+        "qty": null,
+        "unit": null,
+        "item": "salt",
+        "note": "to taste",
+        "allergens": []
+      }
+    ],
+    "steps": [
+      "Roast the potatoes with half the oil and a pinch of salt at 450F for 15 minutes.",
+      "Toss the steak and zucchini with the remaining oil, the steak seasoning, and garlic.",
+      "Add them to the pan and roast 8 to 10 minutes, until the steak is browned but still pink inside.",
+      "Portion into 4 containers and refrigerate."
+    ],
+    "storageNote": "Keeps 4 days refrigerated; freezes up to 2 months. Reheat gently so the steak stays tender.",
+    "difficulty": 1
   },
   {
     "id": "tuscan-chicken-and-rice-with-sun-dried-tomatoes",
@@ -12058,6 +12413,94 @@ var RECIPES = [
       "Slice the chicken and portion it over the creamy rice in 4 containers, letting everything cool before sealing."
     ],
     "storageNote": "Keeps 4 days refrigerated; reheat covered with a spoonful of water or broth to bring the sauce back together — not recommended for freezing.",
+    "difficulty": 1
+  },
+  {
+    "id": "slow-cooker-shredded-beef-tacos",
+    "name": "Slow-Cooker Shredded Beef Tacos",
+    "description": "Chuck roast cooked down in salsa and spices, shredded, and packed with charred corn tortillas. The beef only gets better sitting in its juices all week.",
+    "protein": "beef",
+    "cuisine": "Mexican",
+    "tags": [
+      "slow-cooker",
+      "gluten-free",
+      "dairy-free"
+    ],
+    "baseServings": 6,
+    "prepMinutes": 10,
+    "cookMinutes": 480,
+    "caloriesPerServing": 450,
+    "proteinGrams": 38,
+    "carbsGrams": 30,
+    "fatGrams": 20,
+    "fridgeDays": 4,
+    "freezerFriendly": true,
+    "allergens": [],
+    "ingredients": [
+      {
+        "qty": 2.5,
+        "unit": "lb",
+        "item": "chuck roast",
+        "note": "trimmed",
+        "allergens": []
+      },
+      {
+        "qty": 1,
+        "unit": "cup",
+        "item": "jarred salsa",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": 1,
+        "unit": "tbsp",
+        "item": "chili powder",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": 1,
+        "unit": "tbsp",
+        "item": "ground cumin",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": 1,
+        "unit": null,
+        "item": "yellow onion",
+        "note": "sliced",
+        "allergens": []
+      },
+      {
+        "qty": 12,
+        "unit": null,
+        "item": "corn tortillas",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": 2,
+        "unit": null,
+        "item": "limes",
+        "note": "cut into wedges",
+        "allergens": []
+      },
+      {
+        "qty": null,
+        "unit": null,
+        "item": "salt",
+        "note": "to taste",
+        "allergens": []
+      }
+    ],
+    "steps": [
+      "Rub the roast with the chili powder, cumin, and salt and set it over the onion in the slow cooker.",
+      "Pour the salsa on top and cook on low for 8 hours, until it shreds easily.",
+      "Shred the beef into the juices and taste for salt.",
+      "Char the tortillas briefly over a flame or dry skillet, then portion the beef into 6 containers with tortillas wrapped separately in foil and a lime wedge each."
+    ],
+    "storageNote": "Keeps 4 days refrigerated; the beef freezes up to 3 months — char tortillas fresh.",
     "difficulty": 1
   },
   {
@@ -12190,6 +12633,106 @@ var RECIPES = [
     "difficulty": 3
   },
   {
+    "id": "salisbury-beef-patties-with-mash",
+    "name": "Salisbury-Style Beef Patties with Mashed Potatoes",
+    "description": "Simple beef patties simmered in a mushroom-onion gravy thickened with cornstarch, over buttery mash. Diner comfort food that reheats like it was made for it.",
+    "protein": "beef",
+    "cuisine": "American",
+    "tags": [
+      "gluten-free",
+      "kid-friendly"
+    ],
+    "baseServings": 4,
+    "prepMinutes": 15,
+    "cookMinutes": 25,
+    "caloriesPerServing": 530,
+    "proteinGrams": 34,
+    "carbsGrams": 40,
+    "fatGrams": 26,
+    "fridgeDays": 4,
+    "freezerFriendly": true,
+    "allergens": [
+      "dairy"
+    ],
+    "ingredients": [
+      {
+        "qty": 1.5,
+        "unit": "lb",
+        "item": "ground beef (90% lean)",
+        "note": "formed into 8 small patties",
+        "allergens": []
+      },
+      {
+        "qty": 2,
+        "unit": "lb",
+        "item": "russet potatoes",
+        "note": "peeled and cubed",
+        "allergens": []
+      },
+      {
+        "qty": 3,
+        "unit": "tbsp",
+        "item": "butter",
+        "note": null,
+        "allergens": [
+          "dairy"
+        ]
+      },
+      {
+        "qty": 0.5,
+        "unit": "cup",
+        "item": "whole milk",
+        "note": "warmed",
+        "allergens": [
+          "dairy"
+        ]
+      },
+      {
+        "qty": 8,
+        "unit": "oz",
+        "item": "mushrooms",
+        "note": "sliced",
+        "allergens": []
+      },
+      {
+        "qty": 1,
+        "unit": null,
+        "item": "yellow onion",
+        "note": "sliced",
+        "allergens": []
+      },
+      {
+        "qty": 1.5,
+        "unit": "cup",
+        "item": "beef broth",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": 1,
+        "unit": "tbsp",
+        "item": "cornstarch",
+        "note": "stirred into the broth",
+        "allergens": []
+      },
+      {
+        "qty": null,
+        "unit": null,
+        "item": "salt and black pepper",
+        "note": "to taste",
+        "allergens": []
+      }
+    ],
+    "steps": [
+      "Boil the potatoes in salted water until tender, then mash with the butter, warm milk, salt, and pepper.",
+      "Sear the seasoned patties in a large skillet, 3 minutes per side, and set aside.",
+      "Cook the mushrooms and onion in the same skillet until soft, then add the cornstarch-broth mixture and simmer until it thickens into gravy.",
+      "Return the patties to the gravy for 2 minutes, then portion the mash and patties into 4 containers with gravy spooned over."
+    ],
+    "storageNote": "Keeps 4 days refrigerated in airtight containers; freezes up to 2 months.",
+    "difficulty": 1
+  },
+  {
     "id": "orange-chicken-with-jasmine-rice-and-snap-peas",
     "name": "Orange Chicken with Jasmine Rice and Snap Peas",
     "description": "Cornstarch-crusted chicken breast seared and tossed in a sticky orange-soy glaze, portioned over jasmine rice with blanched snap peas. The glaze clings to the chicken and keeps it from drying out on reheating.",
@@ -12320,6 +12863,103 @@ var RECIPES = [
     ],
     "storageNote": "Keeps 4 days refrigerated in airtight containers; the cornstarch-thickened sauce can weep when frozen, so this one is best not frozen.",
     "difficulty": 3
+  },
+  {
+    "id": "beef-and-cabbage-stir-fry",
+    "name": "Beef and Cabbage Stir-Fry",
+    "description": "Ground beef and half a head of cabbage stir-fried with garlic, ginger, and soy over rice. Cabbage keeps its bite through a week of reheats better than most vegetables.",
+    "protein": "beef",
+    "cuisine": "Chinese-inspired",
+    "tags": [
+      "under-30-min",
+      "dairy-free",
+      "high-protein"
+    ],
+    "baseServings": 4,
+    "prepMinutes": 15,
+    "cookMinutes": 15,
+    "caloriesPerServing": 565,
+    "proteinGrams": 34,
+    "carbsGrams": 58,
+    "fatGrams": 22,
+    "fridgeDays": 4,
+    "freezerFriendly": false,
+    "allergens": [
+      "soy",
+      "wheat",
+      "sesame"
+    ],
+    "ingredients": [
+      {
+        "qty": 1.5,
+        "unit": "lb",
+        "item": "ground beef (90% lean)",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": 1,
+        "unit": null,
+        "item": "small green cabbage",
+        "note": "half, thinly sliced",
+        "allergens": []
+      },
+      {
+        "qty": 3,
+        "unit": "tbsp",
+        "item": "soy sauce",
+        "note": null,
+        "allergens": [
+          "soy",
+          "wheat"
+        ]
+      },
+      {
+        "qty": 1,
+        "unit": "tbsp",
+        "item": "sesame oil",
+        "note": null,
+        "allergens": [
+          "sesame"
+        ]
+      },
+      {
+        "qty": 3,
+        "unit": "clove",
+        "item": "garlic",
+        "note": "minced",
+        "allergens": []
+      },
+      {
+        "qty": 1,
+        "unit": "tbsp",
+        "item": "fresh ginger",
+        "note": "grated",
+        "allergens": []
+      },
+      {
+        "qty": 1.5,
+        "unit": "cup",
+        "item": "jasmine rice",
+        "note": "dry",
+        "allergens": []
+      },
+      {
+        "qty": 3,
+        "unit": null,
+        "item": "scallions",
+        "note": "sliced",
+        "allergens": []
+      }
+    ],
+    "steps": [
+      "Cook the rice according to package directions.",
+      "Brown the beef in a large skillet or wok, then push it aside and briefly fry the garlic and ginger.",
+      "Add the cabbage and soy sauce and stir-fry 4 to 5 minutes, until the cabbage wilts but keeps some crunch, then finish with sesame oil.",
+      "Portion the rice and stir-fry into 4 containers and top with scallions."
+    ],
+    "storageNote": "Keeps 4 days refrigerated in airtight containers; the cabbage goes soft if frozen.",
+    "difficulty": 1
   },
   {
     "id": "chicken-tinga-tacos",
@@ -12716,5 +13356,694 @@ var RECIPES = [
     ],
     "storageNote": "Keeps 4 days refrigerated in airtight containers; chicken and rice freeze together up to 2 months.",
     "difficulty": 2
+  },
+  {
+    "id": "slow-cooker-salsa-chicken-bowls",
+    "name": "Slow-Cooker Salsa Chicken Bowls",
+    "description": "Chicken breasts cooked in jarred salsa until they shred themselves, served over rice with black beans and corn. Three minutes of morning effort; the slow cooker does the rest.",
+    "protein": "chicken",
+    "cuisine": "Mexican",
+    "tags": [
+      "slow-cooker",
+      "gluten-free",
+      "dairy-free",
+      "high-protein"
+    ],
+    "baseServings": 6,
+    "prepMinutes": 10,
+    "cookMinutes": 240,
+    "caloriesPerServing": 490,
+    "proteinGrams": 52,
+    "carbsGrams": 57,
+    "fatGrams": 6,
+    "fridgeDays": 4,
+    "freezerFriendly": true,
+    "allergens": [],
+    "ingredients": [
+      {
+        "qty": 2,
+        "unit": "lb",
+        "item": "boneless skinless chicken breast",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": 2,
+        "unit": "cup",
+        "item": "jarred salsa",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": 1,
+        "unit": "tsp",
+        "item": "ground cumin",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": 1.5,
+        "unit": "cup",
+        "item": "long-grain white rice",
+        "note": "dry",
+        "allergens": []
+      },
+      {
+        "qty": 1,
+        "unit": "can (14 oz)",
+        "item": "black beans",
+        "note": "drained and rinsed",
+        "allergens": []
+      },
+      {
+        "qty": 1.5,
+        "unit": "cup",
+        "item": "frozen corn",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": 0.25,
+        "unit": "cup",
+        "item": "fresh cilantro",
+        "note": "chopped",
+        "allergens": []
+      },
+      {
+        "qty": null,
+        "unit": null,
+        "item": "salt",
+        "note": "to taste",
+        "allergens": []
+      }
+    ],
+    "steps": [
+      "Put the chicken, salsa, cumin, and a big pinch of salt in the slow cooker and cook on high for 4 hours (or low for 7).",
+      "Near the end, cook the rice according to package directions.",
+      "Shred the chicken right in the sauce with two forks, then stir in the beans and corn to warm through.",
+      "Portion the rice and salsa chicken into 6 containers and top with cilantro."
+    ],
+    "storageNote": "Keeps 4 days refrigerated in airtight containers; freezes up to 3 months.",
+    "difficulty": 1
+  },
+  {
+    "id": "bbq-chicken-and-sweet-potato-sheet-pan",
+    "name": "BBQ Chicken and Sweet Potato Sheet Pan",
+    "description": "Chicken thighs brushed with barbecue sauce roasted alongside sweet potatoes and broccoli on one pan. One pan, one sauce, no marinating.",
+    "protein": "chicken",
+    "cuisine": "American",
+    "tags": [
+      "sheet-pan",
+      "gluten-free",
+      "dairy-free"
+    ],
+    "baseServings": 4,
+    "prepMinutes": 15,
+    "cookMinutes": 30,
+    "caloriesPerServing": 550,
+    "proteinGrams": 32,
+    "carbsGrams": 60,
+    "fatGrams": 20,
+    "fridgeDays": 4,
+    "freezerFriendly": true,
+    "allergens": [],
+    "ingredients": [
+      {
+        "qty": 1.5,
+        "unit": "lb",
+        "item": "boneless skinless chicken thighs",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": 0.5,
+        "unit": "cup",
+        "item": "barbecue sauce",
+        "note": "divided",
+        "allergens": []
+      },
+      {
+        "qty": 2,
+        "unit": "lb",
+        "item": "sweet potatoes",
+        "note": "cut into 1-inch cubes",
+        "allergens": []
+      },
+      {
+        "qty": 1,
+        "unit": "lb",
+        "item": "broccoli florets",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": 2,
+        "unit": "tbsp",
+        "item": "olive oil",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": 1,
+        "unit": "tsp",
+        "item": "smoked paprika",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": null,
+        "unit": null,
+        "item": "salt and black pepper",
+        "note": "to taste",
+        "allergens": []
+      }
+    ],
+    "steps": [
+      "Toss the sweet potatoes with half the oil, the paprika, and salt on a sheet pan and roast at 425F for 10 minutes.",
+      "Push the potatoes to one side, add the chicken brushed with half the barbecue sauce and the broccoli tossed in the remaining oil, and roast 20 minutes more.",
+      "Brush the chicken with the remaining sauce and broil 2 minutes until sticky.",
+      "Slice the chicken and portion everything into 4 containers."
+    ],
+    "storageNote": "Keeps 4 days refrigerated in airtight containers; chicken and sweet potatoes freeze up to 2 months.",
+    "difficulty": 1
+  },
+  {
+    "id": "italian-dressing-chicken-and-potatoes",
+    "name": "Italian-Dressing Chicken with Baby Potatoes",
+    "description": "Bottled Italian dressing works as marinade and sauce for chicken thighs roasted with baby potatoes and green beans. The shortest possible ingredient list for a complete roast dinner.",
+    "protein": "chicken",
+    "cuisine": "American",
+    "tags": [
+      "sheet-pan",
+      "gluten-free",
+      "dairy-free"
+    ],
+    "baseServings": 4,
+    "prepMinutes": 10,
+    "cookMinutes": 35,
+    "caloriesPerServing": 480,
+    "proteinGrams": 35,
+    "carbsGrams": 35,
+    "fatGrams": 22,
+    "fridgeDays": 4,
+    "freezerFriendly": true,
+    "allergens": [],
+    "ingredients": [
+      {
+        "qty": 1.75,
+        "unit": "lb",
+        "item": "boneless skinless chicken thighs",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": 0.75,
+        "unit": "cup",
+        "item": "bottled italian dressing",
+        "note": "divided",
+        "allergens": []
+      },
+      {
+        "qty": 1.5,
+        "unit": "lb",
+        "item": "baby potatoes",
+        "note": "halved",
+        "allergens": []
+      },
+      {
+        "qty": 1,
+        "unit": "lb",
+        "item": "green beans",
+        "note": "trimmed",
+        "allergens": []
+      },
+      {
+        "qty": 1,
+        "unit": "tbsp",
+        "item": "olive oil",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": 0.5,
+        "unit": "tsp",
+        "item": "black pepper",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": null,
+        "unit": null,
+        "item": "salt",
+        "note": "to taste",
+        "allergens": []
+      }
+    ],
+    "steps": [
+      "Toss the chicken with half the dressing and let it sit while the oven heats to 425F.",
+      "Toss the potatoes with the oil and salt on a sheet pan and roast 15 minutes.",
+      "Add the chicken and green beans and roast 20 minutes more, until the chicken reaches 165F.",
+      "Drizzle everything with the remaining dressing and portion into 4 containers."
+    ],
+    "storageNote": "Keeps 4 days refrigerated in airtight containers; freezes up to 2 months, though the green beans soften.",
+    "difficulty": 1
+  },
+  {
+    "id": "rotisserie-chicken-burrito-bowls",
+    "name": "Rotisserie Chicken Burrito Bowls",
+    "description": "A store-bought rotisserie chicken pulled over rice, black beans, corn, and salsa. Zero cooking beyond warming the rice — the fastest full week of lunches in the library.",
+    "protein": "chicken",
+    "cuisine": "Mexican",
+    "tags": [
+      "under-30-min",
+      "gluten-free",
+      "dairy-free",
+      "no-cook"
+    ],
+    "baseServings": 4,
+    "prepMinutes": 15,
+    "cookMinutes": 0,
+    "caloriesPerServing": 485,
+    "proteinGrams": 42,
+    "carbsGrams": 48,
+    "fatGrams": 14,
+    "fridgeDays": 3,
+    "freezerFriendly": false,
+    "allergens": [],
+    "ingredients": [
+      {
+        "qty": 1,
+        "unit": null,
+        "item": "rotisserie chicken",
+        "note": "meat pulled, skin discarded",
+        "allergens": []
+      },
+      {
+        "qty": 4,
+        "unit": "cup",
+        "item": "cooked white rice",
+        "note": "microwave pouches work",
+        "allergens": []
+      },
+      {
+        "qty": 1,
+        "unit": "can (14 oz)",
+        "item": "black beans",
+        "note": "drained and rinsed",
+        "allergens": []
+      },
+      {
+        "qty": 1.5,
+        "unit": "cup",
+        "item": "frozen corn",
+        "note": "thawed",
+        "allergens": []
+      },
+      {
+        "qty": 1,
+        "unit": "cup",
+        "item": "jarred salsa",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": 1,
+        "unit": null,
+        "item": "lime",
+        "note": "cut into wedges",
+        "allergens": []
+      },
+      {
+        "qty": 0.25,
+        "unit": "cup",
+        "item": "fresh cilantro",
+        "note": "chopped",
+        "allergens": []
+      }
+    ],
+    "steps": [
+      "Pull all the meat from the rotisserie chicken while it is still warm.",
+      "Divide the rice among 4 containers and top with beans, corn, and chicken.",
+      "Spoon salsa over each bowl and scatter with cilantro.",
+      "Pack a lime wedge in each container and refrigerate."
+    ],
+    "storageNote": "Keeps 3 days refrigerated; eat within the rotisserie chicken’s use-by window and do not freeze.",
+    "difficulty": 1
+  },
+  {
+    "id": "chicken-caprese-orzo-bowls",
+    "name": "Chicken Caprese Orzo Bowls",
+    "description": "Seared chicken over orzo with cherry tomatoes, mozzarella pearls, basil, and balsamic glaze. Eaten cold or gently warmed, so nothing is lost in the reheat.",
+    "protein": "chicken",
+    "cuisine": "Italian",
+    "tags": [
+      "high-protein",
+      "vegetarian-adjacent",
+      "under-40-min"
+    ],
+    "baseServings": 4,
+    "prepMinutes": 15,
+    "cookMinutes": 20,
+    "caloriesPerServing": 545,
+    "proteinGrams": 45,
+    "carbsGrams": 42,
+    "fatGrams": 22,
+    "fridgeDays": 4,
+    "freezerFriendly": false,
+    "allergens": [
+      "wheat",
+      "dairy"
+    ],
+    "ingredients": [
+      {
+        "qty": 1.5,
+        "unit": "lb",
+        "item": "boneless skinless chicken breast",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": 1.25,
+        "unit": "cup",
+        "item": "orzo",
+        "note": "dry",
+        "allergens": [
+          "wheat"
+        ]
+      },
+      {
+        "qty": 2,
+        "unit": "cup",
+        "item": "cherry tomatoes",
+        "note": "halved",
+        "allergens": []
+      },
+      {
+        "qty": 8,
+        "unit": "oz",
+        "item": "mozzarella pearls",
+        "note": "drained",
+        "allergens": [
+          "dairy"
+        ]
+      },
+      {
+        "qty": 0.25,
+        "unit": "cup",
+        "item": "fresh basil",
+        "note": "torn",
+        "allergens": []
+      },
+      {
+        "qty": 2,
+        "unit": "tbsp",
+        "item": "balsamic glaze",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": 2,
+        "unit": "tbsp",
+        "item": "olive oil",
+        "note": "divided",
+        "allergens": []
+      },
+      {
+        "qty": null,
+        "unit": null,
+        "item": "salt and black pepper",
+        "note": "to taste",
+        "allergens": []
+      }
+    ],
+    "steps": [
+      "Cook the orzo in salted water, drain, and toss with half the olive oil to keep it loose.",
+      "Season the chicken and sear in the remaining oil over medium-high heat, about 6 minutes per side, then rest and slice.",
+      "Toss the orzo with the tomatoes and a pinch of salt.",
+      "Portion the orzo, chicken, and mozzarella into 4 containers, scatter with basil, and drizzle with balsamic glaze."
+    ],
+    "storageNote": "Keeps 4 days refrigerated in airtight containers; do not freeze the fresh mozzarella.",
+    "difficulty": 1
+  },
+  {
+    "id": "chicken-sausage-and-veggie-sheet-pan",
+    "name": "Chicken Sausage and Veggie Sheet Pan",
+    "description": "Pre-cooked chicken sausage roasted with peppers, red onion, and baby potatoes. Since the sausage is already cooked and seasoned, the pan needs almost nothing from you.",
+    "protein": "chicken",
+    "cuisine": "American",
+    "tags": [
+      "sheet-pan",
+      "gluten-free",
+      "dairy-free"
+    ],
+    "baseServings": 4,
+    "prepMinutes": 10,
+    "cookMinutes": 25,
+    "caloriesPerServing": 430,
+    "proteinGrams": 24,
+    "carbsGrams": 30,
+    "fatGrams": 24,
+    "fridgeDays": 4,
+    "freezerFriendly": true,
+    "allergens": [],
+    "ingredients": [
+      {
+        "qty": 1.5,
+        "unit": "lb",
+        "item": "pre-cooked chicken sausage links",
+        "note": "sliced into coins",
+        "allergens": []
+      },
+      {
+        "qty": 2,
+        "unit": null,
+        "item": "bell peppers",
+        "note": "cut into chunks",
+        "allergens": []
+      },
+      {
+        "qty": 1,
+        "unit": null,
+        "item": "red onion",
+        "note": "cut into wedges",
+        "allergens": []
+      },
+      {
+        "qty": 1.5,
+        "unit": "lb",
+        "item": "baby potatoes",
+        "note": "halved",
+        "allergens": []
+      },
+      {
+        "qty": 2,
+        "unit": "tbsp",
+        "item": "olive oil",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": 1,
+        "unit": "tsp",
+        "item": "italian seasoning",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": null,
+        "unit": null,
+        "item": "salt and black pepper",
+        "note": "to taste",
+        "allergens": []
+      }
+    ],
+    "steps": [
+      "Toss the potatoes with half the oil and salt on a sheet pan and roast at 425F for 12 minutes.",
+      "Add the sausage, peppers, and onion tossed with the remaining oil and the italian seasoning.",
+      "Roast 15 minutes more, until the vegetables brown at the edges.",
+      "Portion into 4 containers and refrigerate."
+    ],
+    "storageNote": "Keeps 4 days refrigerated in airtight containers; freezes up to 2 months.",
+    "difficulty": 1
+  },
+  {
+    "id": "greek-yogurt-chicken-salad",
+    "name": "Greek Yogurt Chicken Salad",
+    "description": "Shredded chicken folded into greek yogurt with grapes, celery, and dijon. A no-cook prep that covers a week of lunches — pack it with greens, crackers, or bread on the day you eat.",
+    "protein": "chicken",
+    "cuisine": "American",
+    "tags": [
+      "no-cook",
+      "under-30-min",
+      "gluten-free",
+      "high-protein"
+    ],
+    "baseServings": 4,
+    "prepMinutes": 15,
+    "cookMinutes": 0,
+    "caloriesPerServing": 265,
+    "proteinGrams": 38,
+    "carbsGrams": 10,
+    "fatGrams": 8,
+    "fridgeDays": 3,
+    "freezerFriendly": false,
+    "allergens": [
+      "dairy"
+    ],
+    "ingredients": [
+      {
+        "qty": 3,
+        "unit": "cup",
+        "item": "cooked chicken breast",
+        "note": "shredded; rotisserie works",
+        "allergens": []
+      },
+      {
+        "qty": 0.75,
+        "unit": "cup",
+        "item": "plain greek yogurt",
+        "note": null,
+        "allergens": [
+          "dairy"
+        ]
+      },
+      {
+        "qty": 1,
+        "unit": "cup",
+        "item": "red grapes",
+        "note": "halved",
+        "allergens": []
+      },
+      {
+        "qty": 3,
+        "unit": null,
+        "item": "celery stalks",
+        "note": "diced",
+        "allergens": []
+      },
+      {
+        "qty": 2,
+        "unit": "tbsp",
+        "item": "dijon mustard",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": 1,
+        "unit": "tbsp",
+        "item": "lemon juice",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": 2,
+        "unit": "tbsp",
+        "item": "fresh chives",
+        "note": "snipped",
+        "allergens": []
+      },
+      {
+        "qty": null,
+        "unit": null,
+        "item": "salt and black pepper",
+        "note": "to taste",
+        "allergens": []
+      }
+    ],
+    "steps": [
+      "Stir the yogurt, dijon, lemon juice, salt, and pepper together in a large bowl.",
+      "Fold in the chicken, grapes, celery, and chives.",
+      "Taste and sharpen with more lemon or salt.",
+      "Portion into 4 containers and refrigerate."
+    ],
+    "storageNote": "Keeps 3 days refrigerated; do not freeze. Pack crackers or bread separately.",
+    "difficulty": 1
+  },
+  {
+    "id": "chicken-and-black-bean-quesadillas",
+    "name": "Chicken and Black Bean Quesadillas",
+    "description": "Shredded chicken, black beans, and monterey jack folded into tortillas and griddled ahead. They reheat crisp in a dry skillet or air fryer in minutes.",
+    "protein": "chicken",
+    "cuisine": "Mexican",
+    "tags": [
+      "freezer-friendly",
+      "kid-friendly"
+    ],
+    "baseServings": 4,
+    "prepMinutes": 15,
+    "cookMinutes": 20,
+    "caloriesPerServing": 570,
+    "proteinGrams": 40,
+    "carbsGrams": 48,
+    "fatGrams": 24,
+    "fridgeDays": 4,
+    "freezerFriendly": true,
+    "allergens": [
+      "wheat",
+      "dairy"
+    ],
+    "ingredients": [
+      {
+        "qty": 8,
+        "unit": null,
+        "item": "flour tortillas",
+        "note": "8-inch",
+        "allergens": [
+          "wheat"
+        ]
+      },
+      {
+        "qty": 2.5,
+        "unit": "cup",
+        "item": "cooked chicken",
+        "note": "shredded",
+        "allergens": []
+      },
+      {
+        "qty": 1,
+        "unit": "can (14 oz)",
+        "item": "black beans",
+        "note": "drained and rinsed",
+        "allergens": []
+      },
+      {
+        "qty": 2,
+        "unit": "cup",
+        "item": "shredded monterey jack cheese",
+        "note": null,
+        "allergens": [
+          "dairy"
+        ]
+      },
+      {
+        "qty": 1,
+        "unit": "cup",
+        "item": "jarred salsa",
+        "note": "plus more for serving",
+        "allergens": []
+      },
+      {
+        "qty": 1,
+        "unit": "tsp",
+        "item": "ground cumin",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": 1,
+        "unit": "tbsp",
+        "item": "neutral oil",
+        "note": "for the skillet",
+        "allergens": []
+      }
+    ],
+    "steps": [
+      "Stir the chicken, beans, salsa, and cumin together.",
+      "Spread the filling over half of each tortilla, top with cheese, and fold.",
+      "Cook in a lightly oiled skillet over medium heat, about 3 minutes per side, until golden and sealed.",
+      "Cool completely, then portion 2 halves per container and refrigerate."
+    ],
+    "storageNote": "Keeps 4 days refrigerated; freeze between parchment up to 2 months and reheat in a dry skillet.",
+    "difficulty": 1
   }
 ];
