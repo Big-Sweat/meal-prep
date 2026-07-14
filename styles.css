@@ -582,6 +582,12 @@ button {
   box-shadow: 0 1px 2px rgba(38, 41, 31, 0.18);
 }
 
+.modal-actions {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
 .modal-close {
   font-size: 26px;
   line-height: 1;
@@ -591,6 +597,20 @@ button {
 }
 
 .modal-close:hover { background: var(--tape); }
+
+.modal-tool {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  border: 1px solid var(--ink);
+  color: var(--ink);
+}
+
+.modal-tool svg { width: 20px; height: 20px; }
+
+.modal-tool:hover { background: var(--tape); }
 
 .modal h2 {
   font-size: clamp(26px, 4vw, 34px);
@@ -795,4 +815,32 @@ button {
   .cards { grid-template-columns: repeat(3, 1fr); }
   .mast-inner, .footer { padding-left: 32px; padding-right: 32px; }
   :root { --rail-w: 330px; }
+}
+
+/* ---------- print ---------- */
+
+@media print {
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+  /* Print only the open recipe, not the page behind it */
+  body { border-top: none; }
+  body > *:not(#recipe-modal) { display: none !important; }
+
+  .modal {
+    position: static;
+    display: block;
+    width: auto;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    border: none;
+    background: #fff;
+  }
+
+  .modal::backdrop { display: none; }
+  .modal-body { padding: 0; }
+
+  /* Hide interactive chrome that has no meaning on paper */
+  .modal-actions,
+  .stepper button { display: none; }
 }
