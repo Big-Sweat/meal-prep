@@ -257,6 +257,37 @@
     }).join("");
   }
 
+  function recipeToPDFModel(r, servings) {
+    var factor = servings / r.baseServings;
+    var total = r.prepMinutes + r.cookMinutes;
+    return {
+      name: r.name,
+      description: r.description,
+      protein: proteinLabel(r.protein),
+      meta: [
+        "PREP " + r.prepMinutes + " MIN", "COOK " + r.cookMinutes + " MIN", "TOTAL " + total + " MIN",
+        r.caloriesPerServing + " CAL", "P " + r.proteinGrams + "G", "C " + r.carbsGrams + "G",
+        "F " + r.fatGrams + "G", "PER SERVING"
+      ].join("   "),
+      contains: r.allergens.length
+        ? "CONTAINS: " + r.allergens.join(" · ").toUpperCase()
+        : "NO MAJOR ALLERGENS",
+      hasAllergens: r.allergens.length > 0,
+      servings: servings,
+      baseServings: r.baseServings,
+      ingredients: r.ingredients.map(function (ing) {
+        var qtyText = "";
+        if (ing.qty != null) {
+          var scaled = ing.qty * factor;
+          qtyText = formatQty(scaled) + (ing.unit ? " " + formatUnit(ing.unit, scaled) : "");
+        }
+        return { qty: qtyText, text: ing.item + (ing.note ? ", " + ing.note : "") };
+      }),
+      steps: r.steps.slice(),
+      storageNote: r.storageNote
+    };
+  }
+
   function openModal(r) {
     var servings = state.servings;
     var total = r.prepMinutes + r.cookMinutes;
@@ -267,7 +298,23 @@
     modalBody.innerHTML =
       '<div class="modal-top">' +
         '<span class="modal-tape">' + esc(proteinLabel(r.protein)).toUpperCase() + "</span>" +
-        '<button class="modal-close" id="modal-close" aria-label="Close recipe">&times;</button>' +
+        '<div class="modal-actions">' +
+          '<button class="modal-tool" id="modal-download" type="button" aria-label="Download recipe as PDF" title="Download PDF">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' +
+              '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />' +
+              '<path d="M7 10l5 5 5-5" />' +
+              '<path d="M12 15V3" />' +
+            "</svg>" +
+          "</button>" +
+          '<button class="modal-tool" id="modal-print" type="button" aria-label="Print recipe" title="Print recipe">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' +
+              '<path d="M6 9V3h12v6" />' +
+              '<path d="M6 18H4a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2" />' +
+              '<path d="M6 14h12v7H6z" />' +
+            "</svg>" +
+          "</button>" +
+          '<button class="modal-close" id="modal-close" aria-label="Close recipe">&times;</button>' +
+        "</div>" +
       "</div>" +
       '<h2 id="modal-title">' + esc(r.name) + "</h2>" +
       '<p class="modal-desc">' + esc(r.description) + "</p>" +
@@ -317,6 +364,10 @@
     );
 
     $("#modal-close").addEventListener("click", function () { modalEl.close(); });
+    $("#modal-print").addEventListener("click", function () { window.print(); });
+    $("#modal-download").addEventListener("click", function () {
+      MisePDF.download(recipeToPDFModel(r, mServings), r.id + ".pdf");
+    });
     modalEl.showModal();
     modalEl.scrollTop = 0;
   }
