@@ -173,6 +173,10 @@
     return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
   }
 
+  function recipeImageSrc(r) {
+    return "assets/recipes/" + r.id + ".png";
+  }
+
   function cardHTML(r) {
     var total = r.prepMinutes + r.cookMinutes;
     var contains = r.allergens.length
@@ -181,6 +185,9 @@
     return (
       '<li class="card">' +
         '<span class="tape mono" aria-hidden="true">' + esc(proteinLabel(r.protein)).toUpperCase() + "</span>" +
+        '<div class="card-photo">' +
+          '<img src="' + esc(recipeImageSrc(r)) + '" alt="' + esc(r.name) + '" loading="lazy" onerror="this.parentElement.hidden=true">' +
+        "</div>" +
         '<h3><button class="card-btn" data-id="' + esc(r.id) + '">' + esc(r.name) + "</button></h3>" +
         '<p class="card-desc">' + esc(r.description) + "</p>" +
         '<p class="card-meta">' +
@@ -374,6 +381,9 @@
           "</button>" +
           '<button class="modal-close" id="modal-close" aria-label="Close recipe">&times;</button>' +
         "</div>" +
+      "</div>" +
+      '<div class="modal-photo">' +
+        '<img src="' + esc(recipeImageSrc(r)) + '" alt="' + esc(r.name) + '" onerror="this.parentElement.hidden=true">' +
       "</div>" +
       '<h2 id="modal-title">' + esc(r.name) + "</h2>" +
       '<p class="modal-desc">' + esc(r.description) + "</p>" +
