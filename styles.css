@@ -150,13 +150,57 @@ button {
 
 .results-head {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 12px;
   margin-bottom: 18px;
 }
 
 #count { font-size: 12px; letter-spacing: 0.05em; }
+
+/* ---------- search ---------- */
+
+.search-box {
+  position: relative;
+  flex: 1 1 100%;
+  order: -1; /* full-width above the count on small screens */
+}
+
+.search-box input {
+  width: 100%;
+  font: inherit;
+  font-size: 15px;
+  padding: 10px 44px 10px 12px;
+  border: 1px solid var(--ink);
+  background: var(--ticket);
+  color: var(--ink);
+  border-radius: 0;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.search-box input::placeholder { color: var(--faded); font-style: italic; }
+
+.search-box input::-webkit-search-cancel-button { display: none; }
+
+.search-clear {
+  position: absolute;
+  top: 50%;
+  right: 2px;
+  transform: translateY(-50%);
+  min-width: 40px;
+  min-height: 40px;
+  font-size: 22px;
+  line-height: 1;
+  color: var(--faded);
+}
+
+.search-clear:hover { color: var(--chile); }
+
+@media (min-width: 768px) {
+  .search-box { flex: 0 1 320px; order: 0; margin-left: auto; }
+}
 
 /* ---------- filter rail ---------- */
 

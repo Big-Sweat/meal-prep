@@ -36,8 +36,19 @@
     proteins: new Set(),
     terms: [],
     servings: 4,
-    maxDifficulty: 3
+    maxDifficulty: 3,
+    query: ""
   };
+
+  // one lowercase haystack per recipe: name, description, cuisine, tags, ingredients
+  var HAYSTACKS = {};
+  RECIPES.forEach(function (r) {
+    HAYSTACKS[r.id] = (
+      r.name + " " + r.description + " " + r.cuisine + " " +
+      (r.tags || []).join(" ") + " " +
+      r.ingredients.map(function (i) { return i.item; }).join(" ")
+    ).toLowerCase();
+  });
 
   var DIFF_WORDS = { 1: "easy", 2: "moderate", 3: "involved" };
   var DIFF_OUT = { 1: "easy only", 2: "up to moderate", 3: "any effort" };
@@ -101,6 +112,13 @@
     }
     if (state.proteins.size && !state.proteins.has(r.protein)) return false;
     if (r.difficulty > state.maxDifficulty) return false;
+    if (state.query) {
+      var hay = HAYSTACKS[r.id];
+      var words = state.query.split(/\s+/);
+      for (var w = 0; w < words.length; w++) {
+        if (hay.indexOf(words[w]) === -1) return false;
+      }
+    }
     for (var t = 0; t < state.terms.length; t++) {
       var term = state.terms[t];
       var found = r.ingredients.some(function (ing) {
@@ -443,6 +461,23 @@
     function (v) { state.servings = v; }
   );
 
+  var searchInput = $("#search-input");
+  var searchClear = $("#search-clear");
+
+  searchInput.addEventListener("input", function () {
+    state.query = searchInput.value.trim().toLowerCase();
+    searchClear.hidden = state.query === "";
+    render();
+  });
+
+  searchClear.addEventListener("click", function () {
+    searchInput.value = "";
+    state.query = "";
+    searchClear.hidden = true;
+    render();
+    searchInput.focus();
+  });
+
   var diffSlider = $("#diff-slider");
   var diffOut = $("#diff-out");
 
@@ -460,6 +495,9 @@
     state.allergies.clear();
     state.proteins.clear();
     state.terms = [];
+    state.query = "";
+    searchInput.value = "";
+    searchClear.hidden = true;
     state.maxDifficulty = 3;
     diffSlider.value = "3";
     diffOut.textContent = DIFF_OUT[3];
