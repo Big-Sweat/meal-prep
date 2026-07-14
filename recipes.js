@@ -1,4 +1,4 @@
-/* Mise recipe data - 100 recipes. Generated + allergen-audited. */
+/* Mise recipe data - 100 recipes. Generated + allergen-audited. difficulty: 1 easy, 2 moderate, 3 involved (scored from ingredients, steps, prep time). */
 var RECIPES = [
   {
     "id": "greek-chicken-souvlaki-bowls",
@@ -126,7 +126,8 @@ var RECIPES = [
       "Dice the remaining cucumber and toss it with the cherry tomatoes and red onion, seasoning with salt and pepper.",
       "Portion the rice, chicken, and vegetables into 4 containers, packing the tzatziki in small lidded cups on the side."
     ],
-    "storageNote": "Keeps 4 days refrigerated in airtight containers; chicken and rice freeze up to 2 months, but make the tzatziki fresh since it does not freeze well."
+    "storageNote": "Keeps 4 days refrigerated in airtight containers; chicken and rice freeze up to 2 months, but make the tzatziki fresh since it does not freeze well.",
+    "difficulty": 3
   },
   {
     "id": "korean-ground-beef-bowls",
@@ -267,7 +268,8 @@ var RECIPES = [
       "Add the garlic and ginger and cook 1 minute, then pour in the sauce and simmer until glossy and mostly absorbed, 2 to 3 minutes.",
       "Divide the rice and beef among 4 containers, top the beef with scallions and sesame seeds, and pack the pickled cucumbers in small side containers so they stay crisp."
     ],
-    "storageNote": "Keeps 4 days refrigerated in airtight containers; the beef and rice freeze up to 3 months, but keep the pickled cucumbers refrigerated only."
+    "storageNote": "Keeps 4 days refrigerated in airtight containers; the beef and rice freeze up to 3 months, but keep the pickled cucumbers refrigerated only.",
+    "difficulty": 2
   },
   {
     "id": "crispy-baked-tofu-peanut-noodle-bowls",
@@ -410,7 +412,8 @@ var RECIPES = [
       "Whisk the peanut butter, remaining soy sauce, rice vinegar, maple syrup, lime juice, garlic, ginger, and 3 to 4 tablespoons of warm water into a smooth, pourable sauce.",
       "Divide the noodles, tofu, bell peppers, carrots, and scallions among 4 containers, then pack the peanut sauce in small lidded cups alongside."
     ],
-    "storageNote": "Keeps 4 days refrigerated in airtight containers; store the peanut sauce separately and toss just before eating."
+    "storageNote": "Keeps 4 days refrigerated in airtight containers; store the peanut sauce separately and toss just before eating.",
+    "difficulty": 2
   },
   {
     "id": "baked-teriyaki-salmon-with-rice-and-roasted-bok-choy",
@@ -550,7 +553,8 @@ var RECIPES = [
       "Brush the salmon with the remaining sauce and sprinkle with the sesame seeds.",
       "Portion the rice, salmon, and bok choy into 4 containers and top with the scallions."
     ],
-    "storageNote": "Keeps 3 days refrigerated in airtight containers; freeze salmon and rice up to 2 months and add the scallions fresh after reheating."
+    "storageNote": "Keeps 3 days refrigerated in airtight containers; freeze salmon and rice up to 2 months and add the scallions fresh after reheating.",
+    "difficulty": 2
   },
   {
     "id": "turkey-meatballs-marinara-orzo",
@@ -672,7 +676,8 @@ var RECIPES = [
       "Divide the orzo among 4 containers, top with meatballs and a generous ladle of sauce so the pasta stays moist, and scatter with basil.",
       "Cool uncovered for 20 minutes before sealing and refrigerating."
     ],
-    "storageNote": "Keeps 4 days refrigerated in airtight containers; the meatballs and sauce freeze up to 3 months, but cook the orzo fresh if freezing."
+    "storageNote": "Keeps 4 days refrigerated in airtight containers; the meatballs and sauce freeze up to 3 months, but cook the orzo fresh if freezing.",
+    "difficulty": 2
   },
   {
     "id": "pork-carnitas-bowls",
@@ -805,7 +810,8 @@ var RECIPES = [
       "Char the tortillas briefly in a dry skillet and let them cool before stacking.",
       "Portion the pork into 6 containers with the tortillas wrapped separately in foil, and pack the pickled onions and cilantro in small side containers."
     ],
-    "storageNote": "Keeps 4 days refrigerated with tortillas wrapped separately; the shredded pork freezes up to 3 months in its cooking liquid."
+    "storageNote": "Keeps 4 days refrigerated with tortillas wrapped separately; the shredded pork freezes up to 3 months in its cooking liquid.",
+    "difficulty": 3
   },
   {
     "id": "garlic-butter-shrimp-and-quinoa-bowls-with-zucchini",
@@ -921,7 +927,8 @@ var RECIPES = [
       "Take the pan off the heat and stir in the lemon juice and parsley.",
       "Portion the quinoa, zucchini, and shrimp into 4 containers and spoon the garlic butter from the pan over each."
     ],
-    "storageNote": "Keeps 3 days refrigerated in airtight containers; freezing is not recommended, as the shrimp turn rubbery when thawed and reheated."
+    "storageNote": "Keeps 3 days refrigerated in airtight containers; freezing is not recommended, as the shrimp turn rubbery when thawed and reheated.",
+    "difficulty": 1
   },
   {
     "id": "tempeh-taco-bowls-with-cashew-lime-crema",
@@ -1060,7 +1067,8 @@ var RECIPES = [
       "Stir in the remaining garlic, chili powder, cumin, smoked paprika, and 0.5 cup water, then add the black beans and simmer until the pan is nearly dry.",
       "Divide the quinoa, tempeh mixture, cherry tomatoes, and lime wedges among 4 containers; pack the crema separately and store the tortilla strips in a jar at room temperature."
     ],
-    "storageNote": "Keeps 4 days refrigerated with the crema packed separately; freeze the tempeh filling alone up to 2 months and keep the tortilla strips at room temperature."
+    "storageNote": "Keeps 4 days refrigerated with the crema packed separately; freeze the tempeh filling alone up to 2 months and keep the tortilla strips at room temperature.",
+    "difficulty": 3
   },
   {
     "id": "spinach-feta-egg-muffins",
@@ -1167,7 +1175,8 @@ var RECIPES = [
       "Bake until the centers are just set, 20 to 22 minutes, then cool in the tin for 5 minutes before turning out onto a rack.",
       "Cool completely, then pack 2 muffins per container for 6 grab-and-go breakfasts."
     ],
-    "storageNote": "Keeps 5 days refrigerated in airtight containers; freeze up to 2 months and microwave 60 to 90 seconds straight from frozen."
+    "storageNote": "Keeps 5 days refrigerated in airtight containers; freeze up to 2 months and microwave 60 to 90 seconds straight from frozen.",
+    "difficulty": 1
   },
   {
     "id": "chipotle-chicken-burrito-bowls",
@@ -1293,7 +1302,8 @@ var RECIPES = [
       "Warm the black beans briefly in the empty chicken skillet, scraping up the browned bits, and season with salt.",
       "Portion the rice, chicken, beans, and corn salsa into 6 containers in separate quadrants so the textures stay distinct."
     ],
-    "storageNote": "Keeps 4 days refrigerated in airtight containers; freeze the chicken, rice, and beans up to 3 months and add fresh corn salsa after thawing."
+    "storageNote": "Keeps 4 days refrigerated in airtight containers; freeze the chicken, rice, and beans up to 3 months and add fresh corn salsa after thawing.",
+    "difficulty": 2
   },
   {
     "id": "beef-black-bean-chili",
@@ -1418,7 +1428,8 @@ var RECIPES = [
       "Simmer uncovered over low heat, stirring occasionally, 30 to 40 minutes until thickened.",
       "Season with salt, let cool slightly, and portion into 6 containers."
     ],
-    "storageNote": "Keeps 5 days refrigerated in airtight containers and freezes up to 3 months; thaw overnight in the fridge before reheating."
+    "storageNote": "Keeps 5 days refrigerated in airtight containers and freezes up to 3 months; thaw overnight in the fridge before reheating.",
+    "difficulty": 1
   },
   {
     "id": "sesame-ginger-tofu-with-soba-noodles-and-edamame",
@@ -1558,7 +1569,8 @@ var RECIPES = [
       "Toss the soba, edamame, cabbage, and scallions with most of the dressing, then coat the baked tofu in the rest.",
       "Divide the noodle mixture and tofu among 4 containers and sprinkle each portion with sesame seeds."
     ],
-    "storageNote": "Keeps 4 days refrigerated and is best eaten cold or at room temperature; do not freeze, as soba turns mushy."
+    "storageNote": "Keeps 4 days refrigerated and is best eaten cold or at room temperature; do not freeze, as soba turns mushy.",
+    "difficulty": 2
   },
   {
     "id": "harissa-salmon-with-pearl-couscous-and-roasted-carrots",
@@ -1683,7 +1695,8 @@ var RECIPES = [
       "Fluff the couscous with the lemon juice and parsley and season with salt.",
       "Portion the couscous, salmon, and carrots into 4 containers, spooning any pan juices over the fish."
     ],
-    "storageNote": "Keeps 3 days refrigerated in airtight containers; freeze salmon and couscous up to 2 months, though the carrots soften slightly on thawing."
+    "storageNote": "Keeps 3 days refrigerated in airtight containers; freeze salmon and couscous up to 2 months, though the carrots soften slightly on thawing.",
+    "difficulty": 2
   },
   {
     "id": "southwest-turkey-chili-sweet-potato",
@@ -1809,7 +1822,8 @@ var RECIPES = [
       "Simmer partially covered, stirring occasionally, until the sweet potatoes are tender, 20 to 25 minutes, then season with salt.",
       "Cool slightly and portion into 6 containers, leaving a little headspace in any you plan to freeze."
     ],
-    "storageNote": "Keeps 5 days refrigerated in airtight containers; freeze flat in bags up to 3 months and thaw overnight in the fridge."
+    "storageNote": "Keeps 5 days refrigerated in airtight containers; freeze flat in bags up to 3 months and thaw overnight in the fridge.",
+    "difficulty": 1
   },
   {
     "id": "ginger-sesame-pork-stir-fry",
@@ -1951,7 +1965,8 @@ var RECIPES = [
       "Return the pork to the pan, pour in the sauce, and toss until it thickens and coats everything, about 1 minute.",
       "Divide the rice and stir-fry among 4 containers and scatter the sesame seeds over the top."
     ],
-    "storageNote": "Keeps 4 days refrigerated in airtight containers; freezing is not recommended because the vegetables lose their snap."
+    "storageNote": "Keeps 4 days refrigerated in airtight containers; freezing is not recommended because the vegetables lose their snap.",
+    "difficulty": 2
   },
   {
     "id": "cajun-shrimp-with-dirty-rice-and-peppers",
@@ -2081,7 +2096,8 @@ var RECIPES = [
       "Fluff the rice, season with salt, and fold in the scallions.",
       "Portion the dirty rice into 4 containers and top each with a quarter of the shrimp."
     ],
-    "storageNote": "Keeps 3 days refrigerated in airtight containers; the rice alone freezes up to 2 months, but the shrimp are best eaten within the fridge window."
+    "storageNote": "Keeps 3 days refrigerated in airtight containers; the rice alone freezes up to 2 months, but the shrimp are best eaten within the fridge window.",
+    "difficulty": 2
   },
   {
     "id": "chickpea-coconut-curry-with-basmati-rice",
@@ -2205,7 +2221,8 @@ var RECIPES = [
       "Taste for salt and stir in the cilantro.",
       "Portion the rice into 6 containers and ladle the curry over the top."
     ],
-    "storageNote": "Keeps 5 days refrigerated in airtight containers; freeze curry and rice together up to 3 months."
+    "storageNote": "Keeps 5 days refrigerated in airtight containers; freeze curry and rice together up to 3 months.",
+    "difficulty": 2
   },
   {
     "id": "meal-prep-breakfast-burritos",
@@ -2320,7 +2337,8 @@ var RECIPES = [
       "Fold in the sides and roll each burrito tightly, then wrap each one in foil or parchment.",
       "Portion the wrapped burritos into the fridge for the week, or slide them into a labeled zip-top bag and freeze; reheat unwrapped in the microwave for 1-2 minutes."
     ],
-    "storageNote": "Keeps 4 days refrigerated wrapped in foil; freeze up to 2 months and reheat straight from frozen."
+    "storageNote": "Keeps 4 days refrigerated wrapped in foil; freeze up to 2 months and reheat straight from frozen.",
+    "difficulty": 2
   },
   {
     "id": "thai-basil-chicken-with-jasmine-rice",
@@ -2440,7 +2458,8 @@ var RECIPES = [
       "Add the bell pepper and the sauce and simmer 2 minutes until the liquid coats the meat, then turn off the heat and fold in the basil until just wilted.",
       "Portion the rice and chicken into 4 containers, keeping the rice on one side so it steams back to life in the microwave."
     ],
-    "storageNote": "Keeps 4 days refrigerated in airtight containers; freezes up to 2 months, though the basil is best stirred in fresh after reheating."
+    "storageNote": "Keeps 4 days refrigerated in airtight containers; freezes up to 2 months, though the basil is best stirred in fresh after reheating.",
+    "difficulty": 1
   },
   {
     "id": "mongolian-beef-snap-peas-rice-noodles",
@@ -2557,7 +2576,8 @@ var RECIPES = [
       "Fold in the scallions and turn off the heat.",
       "Divide the noodles among 4 containers and top with the beef, snap peas, and any extra sauce."
     ],
-    "storageNote": "Keeps 4 days refrigerated in airtight containers; freezing is not recommended because rice noodles turn mushy when thawed."
+    "storageNote": "Keeps 4 days refrigerated in airtight containers; freezing is not recommended because rice noodles turn mushy when thawed.",
+    "difficulty": 3
   },
   {
     "id": "general-tsos-tofu-with-rice-and-broccoli",
@@ -2703,7 +2723,8 @@ var RECIPES = [
       "Toss the baked tofu in the sauce and sprinkle with sesame seeds and scallions.",
       "Divide the rice, broccoli, and sauced tofu among 4 containers, keeping the broccoli to one side."
     ],
-    "storageNote": "Keeps 4 days refrigerated in airtight containers; the tofu softens over time, so re-crisp portions in a hot skillet or air fryer if you can."
+    "storageNote": "Keeps 4 days refrigerated in airtight containers; the tofu softens over time, so re-crisp portions in a hot skillet or air fryer if you can.",
+    "difficulty": 3
   },
   {
     "id": "lemon-pepper-baked-cod-with-roasted-potatoes-and-asparagus",
@@ -2804,7 +2825,8 @@ var RECIPES = [
       "Let everything cool for 10 minutes so the containers do not steam.",
       "Portion the cod, potatoes, and asparagus into 4 containers."
     ],
-    "storageNote": "Keeps 3 days refrigerated in airtight containers; freezing is not recommended, as the cod dries out and the asparagus turns mushy."
+    "storageNote": "Keeps 3 days refrigerated in airtight containers; freezing is not recommended, as the cod dries out and the asparagus turns mushy.",
+    "difficulty": 1
   },
   {
     "id": "greek-turkey-meatballs-lemon-rice",
@@ -2943,7 +2965,8 @@ var RECIPES = [
       "Fold the spinach, lemon juice, and remaining dill into the hot rice and let it wilt with the lid on for 2 minutes.",
       "Divide the lemon rice and meatballs among 4 containers, top each with crumbled feta once cooled slightly, and refrigerate."
     ],
-    "storageNote": "Keeps 4 days refrigerated in airtight containers; meatballs and rice freeze up to 2 months, but add the feta fresh after thawing if you can."
+    "storageNote": "Keeps 4 days refrigerated in airtight containers; meatballs and rice freeze up to 2 months, but add the feta fresh after thawing if you can.",
+    "difficulty": 3
   },
   {
     "id": "slow-cooker-pulled-pork-with-simple-slaw",
@@ -3054,7 +3077,8 @@ var RECIPES = [
       "Toss the cabbage and carrots with the olive oil, honey, remaining vinegar, and remaining salt; let the slaw sit 10 minutes, then toss again.",
       "Portion the pork into 6 containers, pack the slaw in a separate small container or divided compartment, and refrigerate once cool."
     ],
-    "storageNote": "Keeps 4 days refrigerated in airtight containers; freeze the sauced pork up to 3 months and make the slaw fresh the week you eat it."
+    "storageNote": "Keeps 4 days refrigerated in airtight containers; freeze the sauced pork up to 3 months and make the slaw fresh the week you eat it.",
+    "difficulty": 1
   },
   {
     "id": "shrimp-fried-rice",
@@ -3179,7 +3203,8 @@ var RECIPES = [
       "Return the shrimp and eggs to the pan with the scallion greens and white pepper; toss to combine and take off the heat.",
       "Cool briefly, then divide evenly among 6 airtight containers and refrigerate or freeze."
     ],
-    "storageNote": "Keeps 3 days refrigerated in airtight containers; freeze flat in single portions up to 2 months and reheat straight from frozen with a splash of water."
+    "storageNote": "Keeps 3 days refrigerated in airtight containers; freeze flat in single portions up to 2 months and reheat straight from frozen with a splash of water.",
+    "difficulty": 2
   },
   {
     "id": "red-lentil-dal-with-brown-rice-and-spinach",
@@ -3310,7 +3335,8 @@ var RECIPES = [
       "Stir in the spinach until wilted, then season with the lemon juice and salt.",
       "Portion the rice into 6 containers and top with the dal."
     ],
-    "storageNote": "Keeps 5 days refrigerated; freezes up to 3 months in single portions with the rice."
+    "storageNote": "Keeps 5 days refrigerated; freezes up to 3 months in single portions with the rice.",
+    "difficulty": 2
   },
   {
     "id": "zucchini-and-pepper-frittata-slices",
@@ -3431,7 +3457,8 @@ var RECIPES = [
       "Cool at least 15 minutes, then cut into 6 slices.",
       "Portion the slices into airtight containers, topping with basil just before eating; reheat gently or eat cold."
     ],
-    "storageNote": "Keeps 4 days refrigerated in airtight containers; wrap slices individually and freeze up to 2 months."
+    "storageNote": "Keeps 4 days refrigerated in airtight containers; wrap slices individually and freeze up to 2 months.",
+    "difficulty": 2
   },
   {
     "id": "sheet-pan-lemon-herb-chicken-with-baby-potatoes-and-green-beans",
@@ -3534,7 +3561,8 @@ var RECIPES = [
       "Squeeze the lemon juice over the whole pan and scatter with parsley.",
       "Portion the chicken, potatoes, and green beans into 4 containers once cooled slightly."
     ],
-    "storageNote": "Keeps 4 days refrigerated in airtight containers; freezing is not recommended because the potatoes turn mealy and the green beans go limp."
+    "storageNote": "Keeps 4 days refrigerated in airtight containers; freezing is not recommended because the potatoes turn mealy and the green beans go limp.",
+    "difficulty": 1
   },
   {
     "id": "beef-bulgogi-bowls",
@@ -3662,7 +3690,8 @@ var RECIPES = [
       "Divide the rice among 4 containers and top each with beef, wilted spinach, and julienned carrots.",
       "Garnish with sesame seeds and scallion greens, cool uncovered for 20 minutes, then seal the containers and refrigerate."
     ],
-    "storageNote": "Keeps 4 days refrigerated in airtight containers; freeze up to 2 months and add fresh carrots after reheating."
+    "storageNote": "Keeps 4 days refrigerated in airtight containers; freeze up to 2 months and add fresh carrots after reheating.",
+    "difficulty": 2
   },
   {
     "id": "coconut-tofu-curry-with-basmati-rice",
@@ -3798,7 +3827,8 @@ var RECIPES = [
       "Return the tofu to the pot, fold in the spinach until wilted, and season with the lime juice and salt.",
       "Divide the rice among 6 containers and ladle the curry over the top."
     ],
-    "storageNote": "Keeps 5 days refrigerated in airtight containers; freezes well up to 2 months — thaw overnight and reheat gently with a splash of water."
+    "storageNote": "Keeps 5 days refrigerated in airtight containers; freezes well up to 2 months — thaw overnight and reheat gently with a splash of water.",
+    "difficulty": 2
   },
   {
     "id": "miso-glazed-salmon-with-rice-and-edamame",
@@ -3920,7 +3950,8 @@ var RECIPES = [
       "Let the salmon rest 5 minutes while you fluff the rice and fold in most of the scallions.",
       "Portion rice and edamame into 4 containers, set a salmon fillet on top of each, and finish with the remaining scallions before sealing and refrigerating."
     ],
-    "storageNote": "Keeps 3 days refrigerated in airtight containers; freeze fully cooled portions up to 2 months and reheat gently, covered, to keep the salmon moist."
+    "storageNote": "Keeps 3 days refrigerated in airtight containers; freeze fully cooled portions up to 2 months and reheat gently, covered, to keep the salmon moist.",
+    "difficulty": 1
   },
   {
     "id": "turkey-taco-bowls",
@@ -4052,7 +4083,8 @@ var RECIPES = [
       "Stir the remaining lime juice into the turkey mixture and take the pan off the heat.",
       "Divide the cilantro-lime rice among 6 containers, top with the turkey, bean, and corn mixture, and finish each with diced red onion and the remaining cilantro before sealing and refrigerating."
     ],
-    "storageNote": "Keeps 4 days refrigerated in airtight containers; freezes well up to 3 months, though the raw red onion is best added fresh."
+    "storageNote": "Keeps 4 days refrigerated in airtight containers; freezes well up to 3 months, though the raw red onion is best added fresh.",
+    "difficulty": 2
   },
   {
     "id": "pork-chile-verde-with-rice",
@@ -4179,7 +4211,8 @@ var RECIPES = [
       "Uncover the pot and simmer 10 more minutes to thicken the sauce, then taste for salt.",
       "Portion the rice into 6 containers, ladle the chile verde over the top, and refrigerate once cool."
     ],
-    "storageNote": "Keeps 4 days refrigerated in airtight containers; freezes well up to 3 months, and the rice reheats best with a splash of water."
+    "storageNote": "Keeps 4 days refrigerated in airtight containers; freezes well up to 3 months, and the rice reheats best with a splash of water.",
+    "difficulty": 3
   },
   {
     "id": "shrimp-fajita-bowls",
@@ -4301,7 +4334,8 @@ var RECIPES = [
       "Squeeze the lime juice over the pan and scatter with cilantro.",
       "Portion the rice into 4 containers and top with the shrimp and vegetables; refrigerate once cooled."
     ],
-    "storageNote": "Keeps 3 days refrigerated in airtight containers; reheat gently until the shrimp are just warmed through, freezing not recommended."
+    "storageNote": "Keeps 3 days refrigerated in airtight containers; reheat gently until the shrimp are just warmed through, freezing not recommended.",
+    "difficulty": 1
   },
   {
     "id": "black-bean-sweet-potato-burrito-bowls",
@@ -4434,7 +4468,8 @@ var RECIPES = [
       "Warm the black beans and corn in a skillet with a pinch of salt for 2 to 3 minutes.",
       "Divide the quinoa among 4 containers, top with the sweet potatoes, beans, corn, and red onion, and add sliced avocado only when serving."
     ],
-    "storageNote": "Keeps 5 days refrigerated in airtight containers; freeze up to 2 months without the red onion and avocado, and add avocado fresh at serving."
+    "storageNote": "Keeps 5 days refrigerated in airtight containers; freeze up to 2 months without the red onion and avocado, and add avocado fresh at serving.",
+    "difficulty": 2
   },
   {
     "id": "shakshuka-with-peppers-and-tomato",
@@ -4557,7 +4592,8 @@ var RECIPES = [
       "Take the pan off the heat and scatter over the parsley.",
       "Portion 2 eggs plus a quarter of the sauce into each of 4 containers; reheat at half power to keep the eggs tender, with bread or pita on the side if you like."
     ],
-    "storageNote": "Keeps 4 days refrigerated in airtight containers; the eggs do not freeze well, but extra sauce alone freezes up to 3 months."
+    "storageNote": "Keeps 4 days refrigerated in airtight containers; the eggs do not freeze well, but extra sauce alone freezes up to 3 months.",
+    "difficulty": 1
   },
   {
     "id": "honey-garlic-chicken-with-broccoli-and-brown-rice",
@@ -4693,7 +4729,8 @@ var RECIPES = [
       "Pour in the sauce and simmer 2 minutes, stirring, until it turns glossy and coats everything, then remove from the heat and stir in the sesame oil.",
       "Portion the rice and the chicken and broccoli into 4 containers and top with sesame seeds and scallions."
     ],
-    "storageNote": "Keeps 4 days refrigerated in airtight containers; freezes up to 2 months, and the sauce reactivates with a splash of water when reheating."
+    "storageNote": "Keeps 4 days refrigerated in airtight containers; freezes up to 2 months, and the sauce reactivates with a splash of water when reheating.",
+    "difficulty": 2
   },
   {
     "id": "cottage-pie-skillet",
@@ -4816,7 +4853,8 @@ var RECIPES = [
       "Spread the mashed potatoes over the beef and broil until the top is golden in spots, 3 to 5 minutes.",
       "Cool for 20 minutes, then portion into 6 containers, keeping a full layer of potato on each serving, and refrigerate."
     ],
-    "storageNote": "Keeps 4 days refrigerated in airtight containers; freezes well for up to 3 months, so thaw overnight before reheating."
+    "storageNote": "Keeps 4 days refrigerated in airtight containers; freezes well for up to 3 months, so thaw overnight before reheating.",
+    "difficulty": 2
   },
   {
     "id": "crispy-chili-garlic-tofu-bowls-with-quinoa",
@@ -4968,7 +5006,8 @@ var RECIPES = [
       "Toss the baked tofu in the sauce and sprinkle with sesame seeds and scallions.",
       "Divide the quinoa, tofu, snap peas, and carrots among 4 containers; pack the cucumber separately and add it cold when serving."
     ],
-    "storageNote": "Keeps 4 days refrigerated with the cucumber packed separately; not recommended for freezing since the crisp coating turns soft."
+    "storageNote": "Keeps 4 days refrigerated with the cucumber packed separately; not recommended for freezing since the crisp coating turns soft.",
+    "difficulty": 3
   },
   {
     "id": "blackened-tilapia-tacos-with-corn-tortillas-and-cabbage-slaw",
@@ -5105,7 +5144,8 @@ var RECIPES = [
       "Char the corn tortillas briefly over a gas flame or in the dry skillet, then cool and stack in a zip-top bag.",
       "Portion the fish into 4 containers and the slaw into 4 separate small containers; store tortillas at room temperature and assemble 3 tacos per serving when eating."
     ],
-    "storageNote": "Fish and slaw keep 3 days refrigerated in separate airtight containers; freeze only the fish, up to 2 months, and make slaw fresh after thawing."
+    "storageNote": "Fish and slaw keep 3 days refrigerated in separate airtight containers; freeze only the fish, up to 2 months, and make slaw fresh after thawing.",
+    "difficulty": 2
   },
   {
     "id": "turkey-sausage-and-peppers",
@@ -5230,7 +5270,8 @@ var RECIPES = [
       "Return the sausage and any juices to the skillet, toss with the vegetables, and season with salt and black pepper.",
       "Divide the herbed rice among 4 containers, top with the sausage and pepper mixture, and refrigerate once cooled."
     ],
-    "storageNote": "Keeps 4 days refrigerated in airtight containers; freezes up to 2 months, and the peppers reheat best from frozen in a skillet rather than the microwave."
+    "storageNote": "Keeps 4 days refrigerated in airtight containers; freezes up to 2 months, and the peppers reheat best from frozen in a skillet rather than the microwave.",
+    "difficulty": 1
   },
   {
     "id": "honey-mustard-pork-tenderloin-with-roasted-vegetables",
@@ -5341,7 +5382,8 @@ var RECIPES = [
       "Roast 25 to 30 minutes, stirring the vegetables once, until the pork registers 140 to 145°F in the center.",
       "Rest the pork 10 minutes, slice into medallions, and divide the pork and vegetables among 4 containers before refrigerating."
     ],
-    "storageNote": "Keeps 4 days refrigerated in airtight containers; freezes up to 2 months, though the vegetables soften slightly on thawing."
+    "storageNote": "Keeps 4 days refrigerated in airtight containers; freezes up to 2 months, though the vegetables soften slightly on thawing.",
+    "difficulty": 1
   },
   {
     "id": "coconut-lime-shrimp-bowls",
@@ -5464,7 +5506,8 @@ var RECIPES = [
       "Take the skillet off the heat and stir in the lime juice and cilantro.",
       "Portion the rice into 4 containers, spoon over the shrimp and sauce, and tuck the snap peas alongside; refrigerate once cooled."
     ],
-    "storageNote": "Keeps 3 days refrigerated in airtight containers; freeze the shrimp, sauce, and rice up to 2 months but leave out the snap peas, which soften after freezing."
+    "storageNote": "Keeps 3 days refrigerated in airtight containers; freeze the shrimp, sauce, and rice up to 2 months but leave out the snap peas, which soften after freezing.",
+    "difficulty": 2
   },
   {
     "id": "three-bean-vegan-chili",
@@ -5597,7 +5640,8 @@ var RECIPES = [
       "Mash about a cup of the beans against the side of the pot to thicken the chili, then season with salt.",
       "Cool slightly, then divide among 6 airtight containers and refrigerate or freeze."
     ],
-    "storageNote": "Keeps 5 days refrigerated in airtight containers; freeze up to 3 months and thaw overnight before reheating."
+    "storageNote": "Keeps 5 days refrigerated in airtight containers; freeze up to 3 months and thaw overnight before reheating.",
+    "difficulty": 1
   },
   {
     "id": "vegetable-egg-fried-rice",
@@ -5710,7 +5754,8 @@ var RECIPES = [
       "Return the eggs, add the soy sauce and white pepper, and toss to coat; fold in the scallion greens and season with salt if needed.",
       "Cool briefly, then portion evenly into 6 airtight containers."
     ],
-    "storageNote": "Keeps 4 days refrigerated in airtight containers; freeze flat in bags up to 2 months and reheat with a splash of water."
+    "storageNote": "Keeps 4 days refrigerated in airtight containers; freeze flat in bags up to 2 months and reheat with a splash of water.",
+    "difficulty": 1
   },
   {
     "id": "maple-dijon-chicken-sweet-potatoes-brussels-sprouts",
@@ -5821,7 +5866,8 @@ var RECIPES = [
       "Brush the chicken with the reserved glaze as soon as it comes out of the oven and rest 5 minutes before slicing.",
       "Divide the sliced chicken and vegetables among 4 containers and cool before sealing."
     ],
-    "storageNote": "Keeps 4 days refrigerated in airtight containers; the roasted vegetables turn soft in the freezer, so eat this one from the fridge."
+    "storageNote": "Keeps 4 days refrigerated in airtight containers; the roasted vegetables turn soft in the freezer, so eat this one from the fridge.",
+    "difficulty": 1
   },
   {
     "id": "beef-taco-rice-skillet",
@@ -5942,7 +5988,8 @@ var RECIPES = [
       "Fold in the frozen corn, taste for salt, then scatter the cheddar over the top, cover, and let it melt off the heat for 3 minutes.",
       "Cool the skillet for 15 minutes, then divide into 6 containers and refrigerate; pack toppings like salsa or avocado separately on the day you eat."
     ],
-    "storageNote": "Keeps 4 days refrigerated in airtight containers; freeze flat portions up to 2 months and reheat with a splash of water."
+    "storageNote": "Keeps 4 days refrigerated in airtight containers; freeze flat portions up to 2 months and reheat with a splash of water.",
+    "difficulty": 1
   },
   {
     "id": "baked-bbq-tofu-with-sweet-potato-wedges-and-slaw",
@@ -6070,7 +6117,8 @@ var RECIPES = [
       "Whisk the apple cider vinegar, remaining 1 tbsp olive oil, maple syrup, dijon, and a pinch of salt; toss with the cabbage and carrots.",
       "Divide the tofu and wedges among 4 containers and pack the slaw in separate small containers so it stays crisp."
     ],
-    "storageNote": "Keeps 4 days refrigerated with the slaw packed separately; tofu and wedges freeze up to 2 months, but the slaw does not."
+    "storageNote": "Keeps 4 days refrigerated with the slaw packed separately; tofu and wedges freeze up to 2 months, but the slaw does not.",
+    "difficulty": 3
   },
   {
     "id": "tuna-pasta-salad-with-peas-and-dill",
@@ -6184,7 +6232,8 @@ var RECIPES = [
       "Chill the salad for 30 minutes if you have time, as the flavor improves once the dressing settles into the pasta.",
       "Divide into 6 containers, pressing the salad level and sealing tightly; stir each portion before eating and refresh with a squeeze of lemon if needed."
     ],
-    "storageNote": "Keeps 3 days refrigerated in airtight containers; do not freeze, as the mayonnaise dressing separates when thawed."
+    "storageNote": "Keeps 3 days refrigerated in airtight containers; do not freeze, as the mayonnaise dressing separates when thawed.",
+    "difficulty": 1
   },
   {
     "id": "turkey-bolognese-with-rigatoni",
@@ -6317,7 +6366,8 @@ var RECIPES = [
       "Meanwhile, boil the rigatoni in salted water until 1 minute short of al dente, then drain and fold it into the sauce with half the parmesan.",
       "Cool slightly, portion into 6 containers, and top each with the remaining parmesan."
     ],
-    "storageNote": "Keeps 4 days refrigerated in airtight containers; freezes up to 3 months, and the pasta reheats best with a splash of water."
+    "storageNote": "Keeps 4 days refrigerated in airtight containers; freezes up to 3 months, and the pasta reheats best with a splash of water.",
+    "difficulty": 2
   },
   {
     "id": "banh-mi-style-pork-rice-bowls",
@@ -6471,7 +6521,8 @@ var RECIPES = [
       "Whisk the mayonnaise and sriracha together in a small lidded container.",
       "Portion the rice and pork into 4 containers, add drained pickles to one corner, and pack the cucumber, cilantro, and sriracha mayo separately to add just before eating."
     ],
-    "storageNote": "Keeps 4 days refrigerated with the mayo and fresh vegetables packed separately; freeze only the glazed pork, up to 2 months."
+    "storageNote": "Keeps 4 days refrigerated with the mayo and fresh vegetables packed separately; freeze only the glazed pork, up to 2 months.",
+    "difficulty": 3
   },
   {
     "id": "lentil-bolognese-with-spaghetti",
@@ -6607,7 +6658,8 @@ var RECIPES = [
       "Season the sauce with salt and pepper, loosening it with a splash of water if it gets too thick.",
       "Divide the spaghetti among 6 containers, top each with sauce, cool, and refrigerate."
     ],
-    "storageNote": "Keeps 4 days refrigerated; the sauce alone freezes up to 3 months, so freeze it separately and boil fresh pasta the week you eat it."
+    "storageNote": "Keeps 4 days refrigerated; the sauce alone freezes up to 3 months, so freeze it separately and boil fresh pasta the week you eat it.",
+    "difficulty": 2
   },
   {
     "id": "sweet-potato-and-kale-hash-with-baked-eggs",
@@ -6716,7 +6768,8 @@ var RECIPES = [
       "Bake 8-12 minutes, until the whites and yolks are fully set; firm yolks reheat much better than runny ones.",
       "Cool 10 minutes, then portion 2 eggs and a quarter of the hash into each of 4 airtight containers."
     ],
-    "storageNote": "Keeps 4 days refrigerated in airtight containers; reheat at half power so the eggs stay tender, and skip the freezer since baked eggs turn rubbery."
+    "storageNote": "Keeps 4 days refrigerated in airtight containers; reheat at half power so the eggs stay tender, and skip the freezer since baked eggs turn rubbery.",
+    "difficulty": 1
   },
   {
     "id": "buffalo-chicken-bowls",
@@ -6839,7 +6892,8 @@ var RECIPES = [
       "Slice the celery and shred the carrots while the chicken cools.",
       "Portion rice and buffalo chicken into 4 containers, top with celery and carrots, and pack the ranch in small lidded cups so the vegetables stay crisp."
     ],
-    "storageNote": "Keeps 4 days refrigerated in airtight containers; freeze the chicken and rice up to 2 months, but add fresh celery, carrots, and ranch after thawing."
+    "storageNote": "Keeps 4 days refrigerated in airtight containers; freeze the chicken and rice up to 2 months, but add fresh celery, carrots, and ranch after thawing.",
+    "difficulty": 2
   },
   {
     "id": "italian-meatballs-marinara-penne",
@@ -6961,7 +7015,8 @@ var RECIPES = [
       "Warm the marinara in a wide pot, add the baked meatballs, and simmer together for 5 minutes.",
       "Divide the penne among 6 containers, top each with 4 meatballs and a generous ladle of sauce so the pasta stays moist, cool for 20 minutes, and refrigerate."
     ],
-    "storageNote": "Keeps 4 days refrigerated in airtight containers; meatballs and sauce freeze up to 3 months, though the pasta is best cooked fresh."
+    "storageNote": "Keeps 4 days refrigerated in airtight containers; meatballs and sauce freeze up to 3 months, though the pasta is best cooked fresh.",
+    "difficulty": 3
   },
   {
     "id": "tofu-scramble-breakfast-bowls-with-potatoes-and-spinach",
@@ -7097,7 +7152,8 @@ var RECIPES = [
       "Fold in the spinach until wilted, then season with the kala namak and black pepper.",
       "Divide the potatoes and scramble among 4 containers; spoon salsa into small cups to add after reheating."
     ],
-    "storageNote": "Keeps 4 days refrigerated in airtight containers; freeze scramble and potatoes up to 2 months and reheat in a skillet to restore texture."
+    "storageNote": "Keeps 4 days refrigerated in airtight containers; freeze scramble and potatoes up to 2 months and reheat in a skillet to restore texture.",
+    "difficulty": 2
   },
   {
     "id": "sheet-pan-garlic-dijon-salmon-with-green-beans-and-potatoes",
@@ -7205,7 +7261,8 @@ var RECIPES = [
       "Roast 12 to 15 minutes more, until the salmon flakes and the green beans are blistered but still snappy.",
       "Cool 10 minutes on the pan, then portion one salmon fillet with a quarter of the potatoes and green beans into each of 4 containers."
     ],
-    "storageNote": "Keeps 3 days refrigerated in airtight containers; reheat covered at half power so the salmon stays tender, and skip the freezer since the green beans and potatoes turn mealy."
+    "storageNote": "Keeps 3 days refrigerated in airtight containers; reheat covered at half power so the salmon stays tender, and skip the freezer since the green beans and potatoes turn mealy.",
+    "difficulty": 1
   },
   {
     "id": "turkey-and-sweet-potato-breakfast-hash-with-baked-eggs",
@@ -7314,7 +7371,8 @@ var RECIPES = [
       "Bake until the whites are set but the yolks are still slightly soft, 8 to 10 minutes.",
       "Cool, then portion the hash into 4 containers with one egg on top of each."
     ],
-    "storageNote": "Keeps 4 days refrigerated in airtight containers; reheat gently at half microwave power so the eggs do not turn rubbery."
+    "storageNote": "Keeps 4 days refrigerated in airtight containers; reheat gently at half microwave power so the eggs do not turn rubbery.",
+    "difficulty": 1
   },
   {
     "id": "cuban-mojo-pork-bowls-with-black-beans-and-plantains",
@@ -7432,7 +7490,8 @@ var RECIPES = [
       "Pan-fry the plantain slices in the remaining oil over medium heat until deeply golden on both sides, 3 to 4 minutes per side.",
       "Divide the pork, beans, and plantains among 6 containers, scatter the cilantro over the top, and refrigerate once cool."
     ],
-    "storageNote": "Keeps 4 days refrigerated in airtight containers; the pork and beans freeze up to 3 months, but the plantains are best eaten within the week."
+    "storageNote": "Keeps 4 days refrigerated in airtight containers; the pork and beans freeze up to 3 months, but the plantains are best eaten within the week.",
+    "difficulty": 2
   },
   {
     "id": "chana-masala-with-basmati-rice",
@@ -7572,7 +7631,8 @@ var RECIPES = [
       "Stir in the lemon juice and season with salt.",
       "Fluff the rice and divide it among 6 containers, top with the chana masala, and add cilantro when serving."
     ],
-    "storageNote": "Keeps 5 days refrigerated in airtight containers; freeze up to 2 months and reheat with a splash of water to loosen the rice."
+    "storageNote": "Keeps 5 days refrigerated in airtight containers; freeze up to 2 months and reheat with a splash of water to loosen the rice.",
+    "difficulty": 3
   },
   {
     "id": "chicken-tikka-masala",
@@ -7719,7 +7779,8 @@ var RECIPES = [
       "Stir in the cream, return the chicken and its juices, and simmer 8 to 10 minutes until the chicken is cooked through; season with salt.",
       "Portion rice and curry into 6 containers and top with chopped cilantro."
     ],
-    "storageNote": "Keeps 4 days refrigerated in airtight containers; the sauced chicken freezes well up to 3 months, so freeze it in portions and cook fresh rice if you can."
+    "storageNote": "Keeps 4 days refrigerated in airtight containers; the sauced chicken freezes well up to 3 months, so freeze it in portions and cook fresh rice if you can.",
+    "difficulty": 3
   },
   {
     "id": "thai-basil-beef",
@@ -7838,7 +7899,8 @@ var RECIPES = [
       "Pour in the sauce and toss everything together for 1 minute, then turn off the heat and stir in the basil until just wilted.",
       "Divide the rice among 4 containers, top with the beef and green beans, cool for 20 minutes, and refrigerate."
     ],
-    "storageNote": "Keeps 4 days refrigerated in airtight containers; freeze up to 2 months, though the basil is best stirred in fresh if you plan ahead."
+    "storageNote": "Keeps 4 days refrigerated in airtight containers; freeze up to 2 months, though the basil is best stirred in fresh if you plan ahead.",
+    "difficulty": 1
   },
   {
     "id": "honey-sriracha-salmon-bowls-with-rice-and-cucumber",
@@ -7957,7 +8019,8 @@ var RECIPES = [
       "Simmer the remaining glaze in a small saucepan for 2 minutes until slightly thickened, then toss with the roasted salmon.",
       "Portion rice into 4 containers, top with glazed salmon, shredded carrot, and scallions, and pack the pickled cucumber in separate small containers to add cold at serving."
     ],
-    "storageNote": "Keeps 3 days refrigerated with cucumbers stored separately; salmon and rice freeze up to 2 months, so add fresh cucumber after thawing."
+    "storageNote": "Keeps 3 days refrigerated with cucumbers stored separately; salmon and rice freeze up to 2 months, so add fresh cucumber after thawing.",
+    "difficulty": 1
   },
   {
     "id": "hoisin-turkey-rice-bowls-with-quick-pickled-carrots",
@@ -8096,7 +8159,8 @@ var RECIPES = [
       "Divide the rice among 4 containers and top with the turkey, scallions, and sesame seeds.",
       "Pack the pickled carrots and cucumber in small side containers so they stay crunchy until serving."
     ],
-    "storageNote": "Keeps 4 days refrigerated with the pickles packed separately; the turkey and rice freeze up to 2 months, but the pickled vegetables do not."
+    "storageNote": "Keeps 4 days refrigerated with the pickles packed separately; the turkey and rice freeze up to 2 months, but the pickled vegetables do not.",
+    "difficulty": 2
   },
   {
     "id": "pork-egg-roll-in-a-bowl",
@@ -8224,7 +8288,8 @@ var RECIPES = [
       "Remove from the heat and stir in the soy sauce, rice vinegar, and sesame oil.",
       "Divide the rice among 4 containers, top with the pork mixture, sesame seeds, and green onion tops; pack sriracha separately to add after reheating, and cool completely before sealing."
     ],
-    "storageNote": "Keeps 4 days refrigerated in airtight containers; not recommended for freezing, as the cabbage turns watery when thawed."
+    "storageNote": "Keeps 4 days refrigerated in airtight containers; not recommended for freezing, as the cabbage turns watery when thawed.",
+    "difficulty": 1
   },
   {
     "id": "black-bean-enchilada-casserole",
@@ -8346,7 +8411,8 @@ var RECIPES = [
       "Bake for 25 minutes until bubbling at the edges, then rest for 10 minutes so the layers set.",
       "Cut into 6 squares and transfer to airtight containers; top with green onions when serving."
     ],
-    "storageNote": "Keeps 4 days refrigerated in airtight containers; wrap individual squares and freeze up to 2 months, reheating from thawed."
+    "storageNote": "Keeps 4 days refrigerated in airtight containers; wrap individual squares and freeze up to 2 months, reheating from thawed.",
+    "difficulty": 1
   },
   {
     "id": "chicken-fajita-bowls",
@@ -8471,7 +8537,8 @@ var RECIPES = [
       "Squeeze any pan juices over the chicken and vegetables.",
       "Portion cilantro-lime rice and the fajita mixture into 4 containers, tucking a lime wedge into each."
     ],
-    "storageNote": "Keeps 4 days refrigerated in airtight containers; freezes up to 2 months, though the peppers will soften on thawing."
+    "storageNote": "Keeps 4 days refrigerated in airtight containers; freezes up to 2 months, though the peppers will soften on thawing.",
+    "difficulty": 1
   },
   {
     "id": "beef-barbacoa-bowls-with-cilantro-lime-rice",
@@ -8590,7 +8657,8 @@ var RECIPES = [
       "Discard the bay leaves, shred the beef with two forks, and stir it back into the cooking juices.",
       "Divide the rice and barbacoa among 6 containers, spooning extra juices over the beef to keep it moist."
     ],
-    "storageNote": "Keeps 5 days refrigerated in airtight containers; the shredded beef freezes in its juices up to 3 months."
+    "storageNote": "Keeps 5 days refrigerated in airtight containers; the shredded beef freezes in its juices up to 3 months.",
+    "difficulty": 1
   },
   {
     "id": "mediterranean-tuna-farro-bowls",
@@ -8715,7 +8783,8 @@ var RECIPES = [
       "Add the cooled farro and parsley, pour over the dressing, and toss until evenly coated; taste and adjust salt.",
       "Divide evenly among 4 airtight containers and refrigerate."
     ],
-    "storageNote": "Keeps 3 days refrigerated in airtight containers; eat cold and give it a stir before serving, do not freeze."
+    "storageNote": "Keeps 3 days refrigerated in airtight containers; eat cold and give it a stir before serving, do not freeze.",
+    "difficulty": 2
   },
   {
     "id": "turkey-stuffed-pepper-bowls-with-rice-and-tomato",
@@ -8833,7 +8902,8 @@ var RECIPES = [
       "Cover, reduce the heat to low, and cook until the rice is tender and the liquid is absorbed, 18 to 20 minutes.",
       "Rest 5 minutes off the heat, fluff, stir in the parsley, and portion into 6 containers."
     ],
-    "storageNote": "Keeps 4 days refrigerated in airtight containers; freezes up to 3 months — thaw overnight and reheat with a spoonful of water."
+    "storageNote": "Keeps 4 days refrigerated in airtight containers; freezes up to 3 months — thaw overnight and reheat with a spoonful of water.",
+    "difficulty": 1
   },
   {
     "id": "tuscan-white-bean-and-kale-soup",
@@ -8959,7 +9029,8 @@ var RECIPES = [
       "Remove from the heat and stir in the lemon juice; season with salt.",
       "Cool slightly, then ladle into 6 airtight containers and refrigerate or freeze."
     ],
-    "storageNote": "Keeps 5 days refrigerated in airtight containers; freeze up to 3 months, though the kale softens after thawing."
+    "storageNote": "Keeps 5 days refrigerated in airtight containers; freeze up to 3 months, though the kale softens after thawing.",
+    "difficulty": 1
   },
   {
     "id": "chicken-teriyaki-broccoli-rice",
@@ -9102,7 +9173,8 @@ var RECIPES = [
       "Off the heat, stir the sesame oil into the chicken and sprinkle with sesame seeds and scallions.",
       "Portion rice, glazed chicken, and broccoli into 4 containers."
     ],
-    "storageNote": "Keeps 4 days refrigerated in airtight containers; chicken and rice freeze up to 2 months, though the broccoli is best eaten within the week."
+    "storageNote": "Keeps 4 days refrigerated in airtight containers; chicken and rice freeze up to 2 months, though the broccoli is best eaten within the week.",
+    "difficulty": 2
   },
   {
     "id": "steak-fajita-bowls-with-peppers-and-onions",
@@ -9213,7 +9285,8 @@ var RECIPES = [
       "Squeeze the lime juice over the sliced steak and vegetables.",
       "Portion the quinoa into 4 containers and top with steak and vegetables, keeping the steak slices in larger pieces so they reheat without drying out."
     ],
-    "storageNote": "Keeps 4 days refrigerated; freeze up to 2 months, though the peppers will soften slightly after thawing."
+    "storageNote": "Keeps 4 days refrigerated; freeze up to 2 months, though the peppers will soften slightly after thawing.",
+    "difficulty": 1
   },
   {
     "id": "baja-fish-bowls",
@@ -9335,7 +9408,8 @@ var RECIPES = [
       "Flake the cod into large chunks and squeeze the remaining lime juice over it; scatter with the remaining cilantro.",
       "Portion the bean-corn mixture and cod into 4 containers; pack the slaw and tortilla strips in separate small containers and add them just before eating."
     ],
-    "storageNote": "Keeps 3 days refrigerated with slaw and tortilla strips packed separately; not recommended for freezing."
+    "storageNote": "Keeps 3 days refrigerated with slaw and tortilla strips packed separately; not recommended for freezing.",
+    "difficulty": 1
   },
   {
     "id": "turkey-larb-style-bowls-with-rice-and-fresh-herbs",
@@ -9464,7 +9538,8 @@ var RECIPES = [
       "Fold in the shallots and scallions and taste for balance, adding more lime or fish sauce as needed.",
       "Portion the rice and turkey into 4 containers; pack the mint, cilantro, and cucumber separately and add just before eating."
     ],
-    "storageNote": "Keeps 4 days refrigerated with herbs and cucumber packed separately; freezing is not recommended because the lime and herbs lose their brightness."
+    "storageNote": "Keeps 4 days refrigerated with herbs and cucumber packed separately; freezing is not recommended because the lime and herbs lose their brightness.",
+    "difficulty": 2
   },
   {
     "id": "baked-falafel-bowls-with-tahini-sauce",
@@ -9593,7 +9668,8 @@ var RECIPES = [
       "Toss the cucumber and cherry tomatoes with a pinch of salt.",
       "Divide the salad among 4 containers, top each with 3 patties, and pack the tahini sauce in small lidded cups on the side."
     ],
-    "storageNote": "Keeps 4 days refrigerated with the sauce packed separately; freeze the baked patties up to 3 months."
+    "storageNote": "Keeps 4 days refrigerated with the sauce packed separately; freeze the baked patties up to 3 months.",
+    "difficulty": 3
   },
   {
     "id": "pesto-chicken-pasta-salad",
@@ -9707,7 +9783,8 @@ var RECIPES = [
       "Fold in the mozzarella pearls, tomatoes, and spinach, then taste and adjust the salt.",
       "Portion the salad cold into 6 containers and refrigerate immediately."
     ],
-    "storageNote": "Keeps 4 days refrigerated in airtight containers; eat cold or at room temperature, and do not freeze."
+    "storageNote": "Keeps 4 days refrigerated in airtight containers; eat cold or at room temperature, and do not freeze.",
+    "difficulty": 1
   },
   {
     "id": "beef-and-broccoli-stir-fry-with-rice",
@@ -9833,7 +9910,8 @@ var RECIPES = [
       "Return the beef to the wok, pour in the sauce, and toss 1 to 2 minutes until glossy and thickened.",
       "Portion the rice into 4 containers, top with the beef and broccoli, and finish with scallions; keep the broccoli slightly undercooked so it holds up when reheated."
     ],
-    "storageNote": "Keeps 4 days refrigerated in airtight containers; freezing is not recommended because the broccoli turns mushy."
+    "storageNote": "Keeps 4 days refrigerated in airtight containers; freezing is not recommended because the broccoli turns mushy.",
+    "difficulty": 2
   },
   {
     "id": "salmon-cakes-with-lemon-dill-yogurt",
@@ -9963,7 +10041,8 @@ var RECIPES = [
       "Cool the cakes on a wire rack so the crusts stay crisp.",
       "Divide the quinoa and cucumber among 4 containers, add 2 salmon cakes to each, tuck in a sauce cup, and seal once fully cool."
     ],
-    "storageNote": "Keeps 3 days refrigerated with the sauce stored separately; the cooked cakes freeze up to 2 months, but do not freeze the yogurt sauce."
+    "storageNote": "Keeps 3 days refrigerated with the sauce stored separately; the cooked cakes freeze up to 2 months, but do not freeze the yogurt sauce.",
+    "difficulty": 2
   },
   {
     "id": "bbq-turkey-sloppy-joe-bowls",
@@ -10081,7 +10160,8 @@ var RECIPES = [
       "Season with salt and pepper to taste.",
       "Divide the wedges and green beans among 4 containers, spoon the turkey mixture alongside, and cool completely before sealing."
     ],
-    "storageNote": "Keeps 4 days refrigerated in airtight containers; freeze the turkey mixture up to 3 months and roast fresh wedges the week you serve it."
+    "storageNote": "Keeps 4 days refrigerated in airtight containers; freeze the turkey mixture up to 3 months and roast fresh wedges the week you serve it.",
+    "difficulty": 2
   },
   {
     "id": "moroccan-chickpea-and-lentil-stew-with-apricots",
@@ -10220,7 +10300,8 @@ var RECIPES = [
       "Stir in the cilantro off the heat.",
       "Cool 20 minutes, then ladle into 6 containers, leaving headroom in any bound for the freezer."
     ],
-    "storageNote": "Keeps 5 days refrigerated in airtight containers; freezes up to 3 months, then thaw overnight and loosen with a splash of water when reheating."
+    "storageNote": "Keeps 5 days refrigerated in airtight containers; freezes up to 3 months, then thaw overnight and loosen with a splash of water when reheating.",
+    "difficulty": 3
   },
   {
     "id": "garlic-butter-chicken-bites",
@@ -10338,7 +10419,8 @@ var RECIPES = [
       "In the same skillet or a second pan, cook the green beans over medium-high heat with a splash of water until crisp-tender and lightly blistered, about 5 minutes; season with salt.",
       "Divide the mashed potatoes, chicken bites, and green beans among 4 airtight containers, spooning any garlic butter from the pan over the chicken, and refrigerate once cool."
     ],
-    "storageNote": "Keeps 4 days refrigerated in airtight containers; chicken and mashed potatoes freeze up to 2 months, but green beans are best kept refrigerated only."
+    "storageNote": "Keeps 4 days refrigerated in airtight containers; chicken and mashed potatoes freeze up to 2 months, but green beans are best kept refrigerated only.",
+    "difficulty": 2
   },
   {
     "id": "meal-prep-spaghetti-bolognese",
@@ -10471,7 +10553,8 @@ var RECIPES = [
       "Season the finished sauce with salt and pepper.",
       "Portion the spaghetti into 6 containers, ladle the sauce over the top, and pack the parmesan separately to sprinkle on after reheating."
     ],
-    "storageNote": "Keeps 5 days refrigerated; freeze the sauce alone up to 3 months and cook fresh pasta when serving."
+    "storageNote": "Keeps 5 days refrigerated; freeze the sauce alone up to 3 months and cook fresh pasta when serving.",
+    "difficulty": 2
   },
   {
     "id": "edamame-quinoa-power-bowls-with-sesame-ginger-dressing",
@@ -10600,7 +10683,8 @@ var RECIPES = [
       "Divide the cooled quinoa among 4 containers and arrange the edamame, cabbage, carrots, and bell pepper on top; sprinkle with scallions and sesame seeds.",
       "Pack the dressing in small lidded cups and pour over just before eating; serve cold."
     ],
-    "storageNote": "Keeps 4 days refrigerated with the dressing packed separately; do not freeze, as the raw vegetables lose their crunch."
+    "storageNote": "Keeps 4 days refrigerated with the dressing packed separately; do not freeze, as the raw vegetables lose their crunch.",
+    "difficulty": 2
   },
   {
     "id": "harvest-chicken-salad",
@@ -10725,7 +10809,8 @@ var RECIPES = [
       "Divide the chicken salad among 4 containers and pack 2 cups of greens in a separate container or divided compartment for each serving.",
       "To serve, tip the chicken salad over the greens; refrigerate all containers as soon as they are packed."
     ],
-    "storageNote": "Keeps 4 days refrigerated with the greens packed separately; do not freeze, as the mayo dressing and apples break down when thawed."
+    "storageNote": "Keeps 4 days refrigerated with the greens packed separately; do not freeze, as the mayo dressing and apples break down when thawed.",
+    "difficulty": 2
   },
   {
     "id": "chimichurri-steak-with-roasted-potatoes",
@@ -10841,7 +10926,8 @@ var RECIPES = [
       "Slice the steak against the grain into thick slices so it stays juicy when reheated.",
       "Divide the potatoes, green beans, and steak among 4 containers, and pack the chimichurri in small sauce cups to spoon on after reheating."
     ],
-    "storageNote": "Keeps 4 days refrigerated with the chimichurri packed separately; freezing is not recommended because roasted potatoes turn grainy."
+    "storageNote": "Keeps 4 days refrigerated with the chimichurri packed separately; freezing is not recommended because roasted potatoes turn grainy.",
+    "difficulty": 2
   },
   {
     "id": "pinto-bean-burrito-bowls-with-fajita-vegetables",
@@ -10966,7 +11052,8 @@ var RECIPES = [
       "Divide the rice among 4 containers and top with the beans, roasted vegetables, and remaining cilantro.",
       "Pack the salsa in small lidded cups and spoon over after reheating."
     ],
-    "storageNote": "Keeps 5 days refrigerated; the beans and rice freeze up to 2 months, so add the salsa fresh after reheating."
+    "storageNote": "Keeps 5 days refrigerated; the beans and rice freeze up to 2 months, so add the salsa fresh after reheating.",
+    "difficulty": 2
   },
   {
     "id": "cashew-chicken-stir-fry-with-rice",
@@ -11101,7 +11188,8 @@ var RECIPES = [
       "Return the chicken to the pan, pour in the sauce, and simmer 1-2 minutes until glossy and thickened; fold in the cashews and green onions.",
       "Divide the rice among 4 containers, top with the stir-fry, and cool completely before sealing."
     ],
-    "storageNote": "Keeps 4 days refrigerated in airtight containers; freeze up to 2 months and add a few fresh cashews after reheating to restore crunch."
+    "storageNote": "Keeps 4 days refrigerated in airtight containers; freeze up to 2 months and add a few fresh cashews after reheating to restore crunch.",
+    "difficulty": 3
   },
   {
     "id": "beef-picadillo-with-rice-and-olives",
@@ -11226,7 +11314,8 @@ var RECIPES = [
       "Discard the bay leaves and season with salt to taste.",
       "Divide the rice among 6 containers, top with the picadillo, and cool completely before sealing."
     ],
-    "storageNote": "Keeps 4 days refrigerated in airtight containers; the picadillo freezes up to 3 months, with or without the rice."
+    "storageNote": "Keeps 4 days refrigerated in airtight containers; the picadillo freezes up to 3 months, with or without the rice.",
+    "difficulty": 1
   },
   {
     "id": "peanut-tempeh-stir-fry-with-rice",
@@ -11360,7 +11449,8 @@ var RECIPES = [
       "Return the tempeh to the pan, pour in the sauce, and toss 1 to 2 minutes until everything is coated and the sauce thickens slightly.",
       "Divide the rice among 4 containers, top with the stir-fry, and tuck a lime wedge into each."
     ],
-    "storageNote": "Keeps 4 days refrigerated in airtight containers; freeze up to 2 months and loosen the sauce with a spoonful of warm water after reheating."
+    "storageNote": "Keeps 4 days refrigerated in airtight containers; freeze up to 2 months and loosen the sauce with a spoonful of warm water after reheating.",
+    "difficulty": 2
   },
   {
     "id": "chicken-satay-bowls-with-peanut-sauce",
@@ -11491,7 +11581,8 @@ var RECIPES = [
       "Slice the cucumbers and shred the carrots while the chicken cooks.",
       "Portion rice and chicken into 4 containers, pack cucumber and carrots to one side, divide the peanut sauce into small lidded cups, and top with cilantro just before eating."
     ],
-    "storageNote": "Keeps 4 days refrigerated in airtight containers; chicken and rice freeze up to 2 months, but pack the cucumber fresh."
+    "storageNote": "Keeps 4 days refrigerated in airtight containers; chicken and rice freeze up to 2 months, but pack the cucumber fresh.",
+    "difficulty": 3
   },
   {
     "id": "lemongrass-chicken-vermicelli-bowls",
@@ -11619,7 +11710,8 @@ var RECIPES = [
       "Stir together the lime juice, remaining fish sauce, remaining sugar, and 0.25 cup water for the nuoc cham dressing.",
       "Portion noodles into 4 containers, top with sliced chicken, pickled carrots, and cucumber, tuck the herbs to one side, and pack the nuoc cham in small cups to pour on before eating."
     ],
-    "storageNote": "Keeps 4 days refrigerated; eat cold or at room temperature with the dressing added just before serving."
+    "storageNote": "Keeps 4 days refrigerated; eat cold or at room temperature with the dressing added just before serving.",
+    "difficulty": 3
   },
   {
     "id": "chicken-and-wild-rice-soup",
@@ -11742,7 +11834,8 @@ var RECIPES = [
       "Whisk the cornstarch into the cream, stir it into the soup, and simmer 2 to 3 minutes until lightly thickened; season with salt and pepper.",
       "Cool slightly, then ladle into 6 containers, leaving headroom in any that are headed for the freezer."
     ],
-    "storageNote": "Keeps 4 days refrigerated; freezes up to 3 months, and since the rice absorbs broth over time, thin with stock when reheating."
+    "storageNote": "Keeps 4 days refrigerated; freezes up to 3 months, and since the rice absorbs broth over time, thin with stock when reheating.",
+    "difficulty": 1
   },
   {
     "id": "chicken-enchilada-bake",
@@ -11848,7 +11941,8 @@ var RECIPES = [
       "Bake uncovered until bubbling and browned at the edges, 25 to 30 minutes, then rest 10 minutes so the layers set.",
       "Cut into 6 portions and pack into containers, scattering cilantro over the top."
     ],
-    "storageNote": "Keeps 4 days refrigerated; wrap individual portions and freeze up to 3 months, reheating covered at 350°F or in the microwave."
+    "storageNote": "Keeps 4 days refrigerated; wrap individual portions and freeze up to 3 months, reheating covered at 350°F or in the microwave.",
+    "difficulty": 2
   },
   {
     "id": "tuscan-chicken-and-rice-with-sun-dried-tomatoes",
@@ -11963,7 +12057,8 @@ var RECIPES = [
       "Move the chicken to a cutting board, stir the cream, parmesan, and spinach into the rice, and cook until the spinach wilts and the sauce thickens, 2 to 3 minutes.",
       "Slice the chicken and portion it over the creamy rice in 4 containers, letting everything cool before sealing."
     ],
-    "storageNote": "Keeps 4 days refrigerated; reheat covered with a spoonful of water or broth to bring the sauce back together — not recommended for freezing."
+    "storageNote": "Keeps 4 days refrigerated; reheat covered with a spoonful of water or broth to bring the sauce back together — not recommended for freezing.",
+    "difficulty": 1
   },
   {
     "id": "chicken-shawarma-bowls-with-turmeric-rice",
@@ -12091,7 +12186,8 @@ var RECIPES = [
       "Toss the cucumber, tomatoes, and red onion with the remaining 1 tbsp olive oil and a pinch of salt.",
       "Divide the rice and sliced chicken among 4 containers; pack the salad and tahini sauce in separate small containers and add after reheating."
     ],
-    "storageNote": "Keeps 4 days refrigerated; store the salad and tahini sauce in separate small containers, and freeze the chicken and rice (without salad) up to 2 months."
+    "storageNote": "Keeps 4 days refrigerated; store the salad and tahini sauce in separate small containers, and freeze the chicken and rice (without salad) up to 2 months.",
+    "difficulty": 3
   },
   {
     "id": "orange-chicken-with-jasmine-rice-and-snap-peas",
@@ -12222,7 +12318,8 @@ var RECIPES = [
       "Return the chicken to the skillet and toss to coat in the sauce.",
       "Divide the rice, chicken, and snap peas among 4 containers and top with the scallions."
     ],
-    "storageNote": "Keeps 4 days refrigerated in airtight containers; the cornstarch-thickened sauce can weep when frozen, so this one is best not frozen."
+    "storageNote": "Keeps 4 days refrigerated in airtight containers; the cornstarch-thickened sauce can weep when frozen, so this one is best not frozen.",
+    "difficulty": 3
   },
   {
     "id": "chicken-tinga-tacos",
@@ -12347,7 +12444,8 @@ var RECIPES = [
       "Char the tortillas one at a time in a dry skillet, about 30 seconds per side; cool and wrap in foil.",
       "Portion the tinga into 4 containers; pack the tortillas, cabbage, cilantro, and lime wedges separately and build tacos after reheating."
     ],
-    "storageNote": "Tinga keeps 4 days refrigerated and freezes up to 3 months; store tortillas and toppings separately and assemble after reheating."
+    "storageNote": "Tinga keeps 4 days refrigerated and freezes up to 3 months; store tortillas and toppings separately and assemble after reheating.",
+    "difficulty": 2
   },
   {
     "id": "white-chicken-chili",
@@ -12483,7 +12581,8 @@ var RECIPES = [
       "Off the heat, stir in the lime juice and season with salt and pepper.",
       "Divide among 6 containers; pack the shredded monterey jack separately and stir into each portion after reheating."
     ],
-    "storageNote": "Keeps 4 days refrigerated; freeze up to 3 months without the cheese, adding it after reheating for the best texture."
+    "storageNote": "Keeps 4 days refrigerated; freeze up to 3 months without the cheese, adding it after reheating for the best texture.",
+    "difficulty": 1
   },
   {
     "id": "jerk-chicken-with-coconut-rice-and-beans",
@@ -12615,6 +12714,7 @@ var RECIPES = [
       "Rest the chicken 5 minutes, then slice.",
       "Divide the coconut rice and beans and sliced chicken among 4 containers."
     ],
-    "storageNote": "Keeps 4 days refrigerated in airtight containers; chicken and rice freeze together up to 2 months."
+    "storageNote": "Keeps 4 days refrigerated in airtight containers; chicken and rice freeze together up to 2 months.",
+    "difficulty": 2
   }
 ];
