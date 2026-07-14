@@ -1,4 +1,4 @@
-/* Mise recipe data - 115 recipes. Generated + allergen-audited. difficulty: 1 easy, 2 moderate, 3 involved (scored from ingredients, steps, prep time). */
+/* Mise recipe data - 116 recipes. Generated + allergen-audited. difficulty: 1 easy, 2 moderate, 3 involved (scored from ingredients, steps, prep time). */
 var RECIPES = [
   {
     "id": "greek-chicken-souvlaki-bowls",
@@ -14044,6 +14044,99 @@ var RECIPES = [
       "Cool completely, then portion 2 halves per container and refrigerate."
     ],
     "storageNote": "Keeps 4 days refrigerated; freeze between parchment up to 2 months and reheat in a dry skillet.",
+    "difficulty": 1
+  },
+  {
+    "id": "high-protein-chicken-enchiladas",
+    "name": "High-Protein Chicken Enchiladas",
+    "description": "Shredded chicken enchiladas with a greek yogurt and refried bean filling that keeps the protein high and the assembly fast. Bake once and you have four lunches that reheat in about two minutes.",
+    "protein": "chicken",
+    "cuisine": "Mexican",
+    "tags": [
+      "high-protein",
+      "under-30-min",
+      "freezer-friendly",
+      "kid-friendly"
+    ],
+    "baseServings": 4,
+    "prepMinutes": 10,
+    "cookMinutes": 20,
+    "caloriesPerServing": 480,
+    "proteinGrams": 38,
+    "carbsGrams": 44,
+    "fatGrams": 17,
+    "fridgeDays": 4,
+    "freezerFriendly": true,
+    "allergens": [
+      "dairy",
+      "wheat"
+    ],
+    "sourceUrl": "https://laurenfitfoodie.com/chicken-enchiladas/",
+    "ingredients": [
+      {
+        "qty": 3,
+        "unit": "cup",
+        "item": "cooked chicken breast",
+        "note": "shredded; rotisserie works",
+        "allergens": []
+      },
+      {
+        "qty": 0.75,
+        "unit": "cup",
+        "item": "plain nonfat greek yogurt",
+        "note": null,
+        "allergens": [
+          "dairy"
+        ]
+      },
+      {
+        "qty": 0.5,
+        "unit": "cup",
+        "item": "refried beans",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": 1,
+        "unit": "tbsp",
+        "item": "taco seasoning",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": 1.5,
+        "unit": "cup",
+        "item": "shredded mexican-blend cheese",
+        "note": "divided",
+        "allergens": [
+          "dairy"
+        ]
+      },
+      {
+        "qty": 1,
+        "unit": "can (10 oz)",
+        "item": "red enchilada sauce",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": 8,
+        "unit": null,
+        "item": "flour tortillas",
+        "note": "8-inch",
+        "allergens": [
+          "wheat"
+        ]
+      }
+    ],
+    "steps": [
+      "Stir the yogurt, refried beans, and taco seasoning together, then fold in the chicken and a third of the cheese.",
+      "Divide the filling among the tortillas, roll them up, and set them seam-side down in a greased 9x13 baking dish.",
+      "Pour the enchilada sauce over the top and scatter on the remaining cheese.",
+      "Bake at 375F for 15 to 20 minutes, until the cheese is melted and bubbling.",
+      "Cool briefly, then portion 2 enchiladas per container with the pan sauce spooned over."
+    ],
+    "storageNote": "Keeps 4 days refrigerated in airtight containers; freeze baked or unbaked up to 3 months and thaw overnight before reheating.",
     "difficulty": 1
   }
 ];

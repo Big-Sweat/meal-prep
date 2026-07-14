@@ -1,6 +1,6 @@
 # Mise — a meal-prep recipe library (demo)
 
-A static demo site for planning a week of batch cooking. 115 recipes across
+A static demo site for planning a week of batch cooking. 116 recipes across
 nine protein categories, all tagged for the US big-9 allergens.
 
 ## Run it
@@ -32,7 +32,7 @@ entry named `mise-static` for Claude Code previews.)
 ## Files
 
 - `index.html` / `styles.css` / `app.js` — the site (no build step, no dependencies)
-- `recipes.js` — the recipe data (115 recipes). To add more, append objects with
+- `recipes.js` — the recipe data (116 recipes). To add more, append objects with
   the same shape; the filters, suggestions, and counts all derive from the data.
   Keep `allergens` equal to the union of the ingredients' allergen tags.
 

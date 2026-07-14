@@ -14,9 +14,12 @@ and move the link to **Added** below with the new recipe's id.
 ## To add
 
 <!-- paste links here, one per line -->
-https://laurenfitfoodie.com/chicken-enchiladas/#wprm-recipe-container-36874
 https://makedrinks.org/wp-json/mv-create/v1/creations/228/print
+  — skipped: this is a smoothie (a single-serving drink), and the library's
+  format is built around batch meals with protein categories and fridge
+  storage. Remove the link, or tell Claude if you'd like a drinks section.
 
 ## Added
 
 <!-- processed links move here automatically -->
+- https://laurenfitfoodie.com/chicken-enchiladas/ → high-protein-chicken-enchiladas (2026-07-14)
