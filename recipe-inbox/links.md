@@ -14,6 +14,8 @@ and move the link to **Added** below with the new recipe's id.
 ## To add
 
 <!-- paste links here, one per line -->
+https://laurenfitfoodie.com/chicken-enchiladas/#wprm-recipe-container-36874
+https://makedrinks.org/wp-json/mv-create/v1/creations/228/print
 
 ## Added
 
