@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=3">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='2' y='11' width='28' height='10' rx='1' fill='%23EAD9A8' transform='rotate(-6 16 16)'/%3E%3C/svg%3E">
 </head>
 <body>
@@ -21,9 +21,9 @@
         what you like, and scale every recipe to the week you’re cooking for.</p>
       </div>
       <div class="mast-meta mono">
-        <span>VOL. 01</span>
-        <span>25 RECIPES</span>
-        <span>GROWING TO 100</span>
+        <span>VOL. 02</span>
+        <span>100 RECIPES</span>
+        <span>BIG-9 ALLERGEN TAGS</span>
       </div>
     </div>
   </header>
@@ -32,7 +32,7 @@
     <button id="open-filters" class="mobile-filter-btn" aria-expanded="false" aria-controls="filter-rail">
       Filter recipes<span id="filter-count-badge" class="badge mono" hidden></span>
     </button>
-    <p id="mobile-count" class="mono mobile-count">25 of 25</p>
+    <p id="mobile-count" class="mono mobile-count">100 of 100</p>
   </div>
 
   <main class="board">
@@ -52,6 +52,18 @@
         <legend class="mono">Protein</legend>
         <p class="rail-hint">Show only these proteins:</p>
         <div id="protein-chips" class="chip-row"></div>
+      </fieldset>
+
+      <fieldset class="rail-group">
+        <legend class="mono">Difficulty</legend>
+        <p class="rail-hint">Show recipes up to: <output id="diff-out" class="diff-out">any effort</output></p>
+        <div class="slider-wrap">
+          <label class="visually-hidden" for="diff-slider">Maximum cooking difficulty</label>
+          <input id="diff-slider" type="range" min="1" max="3" step="1" value="3">
+          <div class="slider-ticks mono" aria-hidden="true">
+            <span>EASY</span><span>MODERATE</span><span>ANY</span>
+          </div>
+        </div>
       </fieldset>
 
       <fieldset class="rail-group">
@@ -82,7 +94,7 @@
 
     <section class="results" aria-label="Recipes">
       <div class="results-head">
-        <p id="count" class="mono" aria-live="polite">Showing 25 of 25 recipes</p>
+        <p id="count" class="mono" aria-live="polite">Showing 100 of 100 recipes</p>
       </div>
       <ul id="cards" class="cards"></ul>
       <div id="empty" class="empty" hidden>
@@ -105,5 +117,7 @@
   <script src="recipes.js"></script>
   <script src="pdf.js"></script>
   <script src="app.js"></script>
+  <script src="recipes.js?v=3"></script>
+  <script src="app.js?v=3"></script>
 </body>
 </html>

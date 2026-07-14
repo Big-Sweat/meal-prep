@@ -35,8 +35,12 @@
     allergies: new Set(),
     proteins: new Set(),
     terms: [],
-    servings: 4
+    servings: 4,
+    maxDifficulty: 3
   };
+
+  var DIFF_WORDS = { 1: "easy", 2: "moderate", 3: "involved" };
+  var DIFF_OUT = { 1: "easy only", 2: "up to moderate", 3: "any effort" };
 
   var $ = function (sel) { return document.querySelector(sel); };
 
@@ -96,6 +100,7 @@
       }
     }
     if (state.proteins.size && !state.proteins.has(r.protein)) return false;
+    if (r.difficulty > state.maxDifficulty) return false;
     for (var t = 0; t < state.terms.length; t++) {
       var term = state.terms[t];
       var found = r.ingredients.some(function (ing) {
@@ -107,7 +112,8 @@
   }
 
   function activeFilterCount() {
-    return state.allergies.size + state.proteins.size + state.terms.length;
+    return state.allergies.size + state.proteins.size + state.terms.length +
+      (state.maxDifficulty < 3 ? 1 : 0);
   }
 
   /* ---------- rendering ---------- */
@@ -134,6 +140,7 @@
         '<h3><button class="card-btn" data-id="' + esc(r.id) + '">' + esc(r.name) + "</button></h3>" +
         '<p class="card-desc">' + esc(r.description) + "</p>" +
         '<p class="card-meta">' +
+          "<span>" + DIFF_WORDS[r.difficulty].toUpperCase() + "</span><span class=\"sep\">/</span>" +
           "<span>" + total + " MIN</span><span class=\"sep\">/</span>" +
           "<span>" + r.caloriesPerServing + " CAL/SERV</span><span class=\"sep\">/</span>" +
           "<span>KEEPS " + r.fridgeDays + " DAYS</span>" +
@@ -319,6 +326,7 @@
       '<h2 id="modal-title">' + esc(r.name) + "</h2>" +
       '<p class="modal-desc">' + esc(r.description) + "</p>" +
       '<p class="modal-stats">' +
+        "<span>" + DIFF_WORDS[r.difficulty].toUpperCase() + "</span>" +
         "<span>PREP " + r.prepMinutes + " MIN</span>" +
         "<span>COOK " + r.cookMinutes + " MIN</span>" +
         "<span>TOTAL " + total + " MIN</span>" +
@@ -435,10 +443,27 @@
     function (v) { state.servings = v; }
   );
 
+  var diffSlider = $("#diff-slider");
+  var diffOut = $("#diff-out");
+
+  function applyDifficulty() {
+    state.maxDifficulty = parseInt(diffSlider.value, 10);
+    diffOut.textContent = DIFF_OUT[state.maxDifficulty];
+    diffSlider.setAttribute("aria-valuetext", DIFF_OUT[state.maxDifficulty]);
+    render();
+  }
+
+  diffSlider.addEventListener("input", applyDifficulty);
+  diffSlider.setAttribute("aria-valuetext", DIFF_OUT[state.maxDifficulty]);
+
   clearBtn.addEventListener("click", function () {
     state.allergies.clear();
     state.proteins.clear();
     state.terms = [];
+    state.maxDifficulty = 3;
+    diffSlider.value = "3";
+    diffOut.textContent = DIFF_OUT[3];
+    diffSlider.setAttribute("aria-valuetext", DIFF_OUT[3]);
     document.querySelectorAll('.chip[aria-pressed="true"]').forEach(function (c) {
       c.setAttribute("aria-pressed", "false");
     });
