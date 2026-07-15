@@ -1,4 +1,4 @@
-/* Mise recipe data - 130 recipes. Generated + allergen-audited. difficulty: 1 easy, 2 moderate, 3 involved (scored from ingredients, steps, prep time). */
+/* Mise recipe data - 131 recipes. Generated + allergen-audited. difficulty: 1 easy, 2 moderate, 3 involved (scored from ingredients, steps, prep time). */
 var RECIPES = [
   {
     "id": "greek-chicken-souvlaki-bowls",
@@ -15613,5 +15613,183 @@ var RECIPES = [
     ],
     "storageNote": "Keeps 4 days refrigerated; freezes up to 2 months.",
     "difficulty": 1
+  },
+  {
+    "id": "chicken-and-shrimp-carbonara",
+    "name": "Chicken and Shrimp Carbonara",
+    "description": "A steakhouse-style carbonara: seared chicken and shrimp over spaghetti in a parmesan cream sauce tempered with egg yolks, with roasted red peppers and crisp bacon through it. It's rich, so the sauce is built a little loose on purpose and comes back to life with a splash of milk when you reheat.",
+    "protein": "chicken",
+    "meal": "main",
+    "cuisine": "Italian-American",
+    "tags": [
+      "high-protein",
+      "comfort-food",
+      "date-night"
+    ],
+    "baseServings": 6,
+    "prepMinutes": 25,
+    "cookMinutes": 25,
+    "caloriesPerServing": 940,
+    "proteinGrams": 66,
+    "carbsGrams": 67,
+    "fatGrams": 46,
+    "fridgeDays": 3,
+    "freezerFriendly": false,
+    "allergens": [
+      "dairy",
+      "eggs",
+      "shellfish",
+      "wheat"
+    ],
+    "ingredients": [
+      {
+        "qty": 1,
+        "unit": "lb",
+        "item": "spaghetti",
+        "note": null,
+        "allergens": [
+          "wheat"
+        ]
+      },
+      {
+        "qty": 1,
+        "unit": "lb",
+        "item": "boneless skinless chicken breast",
+        "note": "cut into strips",
+        "allergens": []
+      },
+      {
+        "qty": 1,
+        "unit": "lb",
+        "item": "large shrimp",
+        "note": "peeled and deveined",
+        "allergens": [
+          "shellfish"
+        ]
+      },
+      {
+        "qty": 6,
+        "unit": "slice",
+        "item": "bacon",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": 1,
+        "unit": "c",
+        "item": "roasted red peppers",
+        "note": "drained and sliced",
+        "allergens": []
+      },
+      {
+        "qty": 4,
+        "unit": "tbsp",
+        "item": "butter",
+        "note": null,
+        "allergens": [
+          "dairy"
+        ]
+      },
+      {
+        "qty": 4,
+        "unit": "clove",
+        "item": "garlic",
+        "note": "minced",
+        "allergens": []
+      },
+      {
+        "qty": 3,
+        "unit": "tbsp",
+        "item": "all-purpose flour",
+        "note": null,
+        "allergens": [
+          "wheat"
+        ]
+      },
+      {
+        "qty": 2,
+        "unit": "c",
+        "item": "whole milk",
+        "note": null,
+        "allergens": [
+          "dairy"
+        ]
+      },
+      {
+        "qty": 1,
+        "unit": "c",
+        "item": "heavy cream",
+        "note": null,
+        "allergens": [
+          "dairy"
+        ]
+      },
+      {
+        "qty": 1,
+        "unit": "c",
+        "item": "grated parmesan",
+        "note": null,
+        "allergens": [
+          "dairy"
+        ]
+      },
+      {
+        "qty": 0.5,
+        "unit": "c",
+        "item": "grated romano cheese",
+        "note": null,
+        "allergens": [
+          "dairy"
+        ]
+      },
+      {
+        "qty": 2,
+        "unit": null,
+        "item": "egg yolks",
+        "note": "lightly beaten",
+        "allergens": [
+          "eggs"
+        ]
+      },
+      {
+        "qty": 2,
+        "unit": "tbsp",
+        "item": "olive oil",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": 0.5,
+        "unit": "tsp",
+        "item": "red pepper flakes",
+        "note": "to taste",
+        "allergens": []
+      },
+      {
+        "qty": null,
+        "unit": null,
+        "item": "salt and black pepper",
+        "note": "to taste",
+        "allergens": []
+      },
+      {
+        "qty": 2,
+        "unit": "tbsp",
+        "item": "fresh parsley",
+        "note": "chopped",
+        "allergens": []
+      }
+    ],
+    "steps": [
+      "Boil the spaghetti in well-salted water until just shy of al dente. Reserve a cup of the pasta water, drain, and toss the pasta with a little olive oil so it doesn't clump while you build the rest.",
+      "Crisp the bacon in a large skillet over medium heat, then lift it out and chop; leave about a tablespoon of the fat in the pan.",
+      "Season the chicken with salt and pepper and sear in the bacon fat until cooked through (165°F), then rest and slice. Add the shrimp to the same pan and cook just until pink and opaque, 2 to 3 minutes; set aside with the chicken.",
+      "Make the sauce in the same pan: melt the butter, soften the garlic for a minute, then whisk in the flour and cook 1 minute. Slowly whisk in the milk and cream and simmer until it coats the back of a spoon. Take the pan off the heat, whisk a ladle of the warm sauce into the egg yolks to temper them, then stir the yolks back in along with the parmesan and romano until glossy.",
+      "Fold the pasta, chicken, shrimp, roasted red peppers, and most of the bacon into the sauce, loosening with the reserved pasta water a splash at a time until it's silky. Season with red pepper flakes, salt, and pepper.",
+      "Portion into containers, top with the remaining bacon and the parsley, and cool before sealing. Reheat with a splash of milk to bring the sauce back."
+    ],
+    "storageNote": "The sauce firms up cold and can break if blasted with heat — reheat gently with a splash of milk or a spoon of pasta water and stir. Best within 3 days because of the shrimp; add the shrimp fresh on later days if you want to stretch it. Not recommended for the freezer.",
+    "sourceUrl": "https://realhousemoms.com/wprm_print/copycat-olive-garden-chicken-and-shrimp-carbonara",
+    "difficulty": 3
   }
 ];
