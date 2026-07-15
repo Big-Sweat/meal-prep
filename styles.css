@@ -1242,6 +1242,64 @@ button {
 
 .auth-modal { width: min(480px, calc(100vw - 32px)); }
 
+.auth-h2 { margin-bottom: 6px; }
+
+.oauth-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.oauth-btn {
+  width: 100%;
+  min-height: 48px;
+  border: 1px solid var(--ink);
+  background: var(--ticket);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  font-weight: 500;
+}
+
+.oauth-btn:hover { background: var(--tape); }
+
+.auth-divider {
+  text-align: center;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--faded);
+  margin: 14px 0;
+}
+
+#real-auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+#real-auth-form input {
+  font: inherit;
+  font-size: 15px;
+  padding: 11px 12px;
+  border: 1px solid var(--ink);
+  background: var(--ticket);
+  color: var(--ink);
+  border-radius: 0;
+}
+
+#real-auth-form input::placeholder { color: var(--faded); font-style: italic; }
+
+#real-auth-form .review-post { align-self: stretch; text-align: center; }
+
+.auth-error {
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  color: var(--chile);
+  margin-top: 12px;
+}
+
+.auth-error.ok { color: var(--kale-deep); }
+
 #auth-form { display: flex; gap: 8px; margin-top: 18px; }
 
 #auth-form input {

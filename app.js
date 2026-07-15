@@ -65,11 +65,20 @@
     try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) { /* ignore */ }
   }
 
-  var profile = lsRead(PROFILE_KEY, null);
-  var favs = new Set(profile ? lsRead(FAVS_PREFIX + profile.name, []) : []);
+  // Real auth (Supabase, see auth.js) when configured; demo profile otherwise.
+  var realAuth = typeof MiseAuth !== "undefined" && MiseAuth.enabled;
+  var profile = realAuth ? null : lsRead(PROFILE_KEY, null);
+  var favs = new Set();
+
+  function who() { return profile ? (profile.id || profile.name) : null; }
+
+  function loadFavs() {
+    favs = new Set(profile ? lsRead(FAVS_PREFIX + who(), []) : []);
+  }
+  loadFavs();
 
   function saveFavs() {
-    if (profile) lsWrite(FAVS_PREFIX + profile.name, Array.from(favs));
+    if (profile) lsWrite(FAVS_PREFIX + who(), Array.from(favs));
   }
 
   function ratingSummary(id) {
@@ -83,12 +92,12 @@
 
   function myRating(id) {
     if (!profile) return 0;
-    return (lsRead(RATINGS_KEY, {})[id] || {})[profile.name] || 0;
+    return (lsRead(RATINGS_KEY, {})[id] || {})[who()] || 0;
   }
 
   function setMyRating(id, stars) {
     var all = lsRead(RATINGS_KEY, {});
-    (all[id] = all[id] || {})[profile.name] = stars;
+    (all[id] = all[id] || {})[who()] = stars;
     lsWrite(RATINGS_KEY, all);
   }
 
@@ -98,8 +107,10 @@
 
   function upsertReview(id, text) {
     var all = lsRead(REVIEWS_KEY, {});
-    var list = (all[id] || []).filter(function (rv) { return rv.author !== profile.name; });
+    var me = who();
+    var list = (all[id] || []).filter(function (rv) { return (rv.by || rv.author) !== me && rv.author !== profile.name; });
     list.unshift({
+      by: me,
       author: profile.name,
       stars: myRating(id) || null,
       text: text,
@@ -663,15 +674,18 @@
 
   function updateAuthUI() {
     authBtn.textContent = profile ? "HI, " + profile.name.toUpperCase() : "SIGN IN";
-    $("#auth-signedout").hidden = !!profile;
+    $("#auth-real").hidden = !!profile || !realAuth;
+    $("#auth-signedout").hidden = !!profile || realAuth;
     $("#auth-signedin").hidden = !profile;
     if (profile) {
-      $("#auth-greeting").textContent = "Signed in as " + profile.name;
+      $("#auth-greeting").textContent = "Signed in as " + profile.name +
+        (profile.email ? " (" + profile.email + ")" : "");
+      var me = who();
       var ratings = lsRead(RATINGS_KEY, {});
-      var rated = Object.keys(ratings).filter(function (id) { return ratings[id][profile.name]; }).length;
+      var rated = Object.keys(ratings).filter(function (id) { return ratings[id][me]; }).length;
       var reviews = lsRead(REVIEWS_KEY, {});
       var written = Object.keys(reviews).filter(function (id) {
-        return reviews[id].some(function (rv) { return rv.author === profile.name; });
+        return reviews[id].some(function (rv) { return (rv.by || rv.author) === me; });
       }).length;
       $("#auth-stats").textContent =
         favs.size + " FAVORITES · " + rated + " RATED · " + written + " REVIEWED";
@@ -681,7 +695,7 @@
   function openAuth() {
     updateAuthUI();
     authModal.showModal();
-    if (!profile) $("#auth-name").focus();
+    if (!profile) $(realAuth ? "#real-email" : "#auth-name").focus();
   }
 
   function toggleFav(id) {
@@ -719,6 +733,11 @@
   });
 
   $("#auth-signout").addEventListener("click", function () {
+    if (realAuth) {
+      MiseAuth.signOut(); // onChange listener resets the UI
+      authModal.close();
+      return;
+    }
     profile = null;
     try { localStorage.removeItem(PROFILE_KEY); } catch (e) { /* ignore */ }
     favs = new Set();
@@ -728,6 +747,87 @@
     render();
     authModal.close();
   });
+
+  /* ---------- real auth (Supabase) wiring ---------- */
+
+  if (realAuth) {
+    var authMode = "signin";
+
+    var authMsg = function (text, ok) {
+      var el = $("#auth-error");
+      el.hidden = !text;
+      el.textContent = text || "";
+      el.classList.toggle("ok", !!ok);
+    };
+
+    MiseAuth.onChange(function (user) {
+      profile = user ? { id: user.id, name: user.name, email: user.email } : null;
+      if (!profile) {
+        state.favOnly = false;
+        favChip.setAttribute("aria-pressed", "false");
+      }
+      loadFavs();
+      updateAuthUI();
+      render();
+      if (profile && authModal.open) authModal.close();
+    });
+
+    $("#auth-mode-toggle").addEventListener("click", function () {
+      authMode = authMode === "signin" ? "signup" : "signin";
+      $("#real-submit").textContent = authMode === "signin" ? "Sign in" : "Create account";
+      $("#real-password").setAttribute("autocomplete",
+        authMode === "signin" ? "current-password" : "new-password");
+      this.innerHTML = authMode === "signin"
+        ? "NEW HERE? CREATE AN ACCOUNT &rarr;"
+        : "ALREADY HAVE AN ACCOUNT? SIGN IN &rarr;";
+      authMsg("");
+    });
+
+    $("#real-auth-form").addEventListener("submit", function (e) {
+      e.preventDefault();
+      authMsg("");
+      if (!MiseAuth.isReady()) {
+        authMsg("Still connecting to the sign-in service — try again in a second.");
+        return;
+      }
+      var email = $("#real-email").value.trim();
+      var password = $("#real-password").value;
+      var submit = $("#real-submit");
+      submit.disabled = true;
+      var action = authMode === "signup"
+        ? MiseAuth.signUp(email, password)
+        : MiseAuth.signIn(email, password);
+      action.then(function (res) {
+        submit.disabled = false;
+        if (res.error) { authMsg(res.error.message); return; }
+        if (authMode === "signup" && res.data && res.data.user && !res.data.session) {
+          authMsg("Almost there — check your email for a confirmation link, then sign in.", true);
+          return;
+        }
+        // a session means success; the onChange listener closes the dialog
+      }).catch(function () {
+        submit.disabled = false;
+        authMsg("Could not reach the sign-in service. Check your connection and try again.");
+      });
+    });
+
+    var oauth = function (provider) {
+      authMsg("");
+      if (!MiseAuth.isReady()) {
+        authMsg("Still connecting to the sign-in service — try again in a second.");
+        return;
+      }
+      MiseAuth.signInWith(provider).then(function (res) {
+        if (res.error) authMsg(res.error.message);
+        // on success the browser redirects to the provider
+      }).catch(function () {
+        authMsg("Could not reach the sign-in service. Check your connection and try again.");
+      });
+    };
+
+    $("#oauth-google").addEventListener("click", function () { oauth("google"); });
+    $("#oauth-apple").addEventListener("click", function () { oauth("apple"); });
+  }
 
   favChip.addEventListener("click", function () {
     if (!profile) { openAuth(); return; }

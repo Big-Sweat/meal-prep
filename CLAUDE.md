@@ -54,6 +54,14 @@ in rough sync when you change the workflow described here.
   `NETWORK_AD_HTML` is empty, the slot shows *house ads* (two random picks from
   `PRODUCTS`). Paste an ad-network embed into `NETWORK_AD_HTML` to run real ads.
 
+**Auth**
+- `auth.js` — Supabase sign-in (email/password + Google + Apple OAuth). While
+  `SUPABASE_URL`/`SUPABASE_ANON_KEY` are empty it loads nothing external and the
+  site falls back to the demo name-only profile. Setup steps are in the file's
+  header comment; the Supabase JS SDK is injected from jsDelivr only when
+  configured. Ratings/reviews/favorites still live in localStorage either way —
+  moving them to Supabase tables (shared across visitors) is the known next step.
+
 **Docs / meta**
 - `README.md` — public-facing readme (recipe count is patched by the tool).
 - `recipe-inbox/links.md` — drop-box for recipe URLs (see below).
