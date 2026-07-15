@@ -22,7 +22,7 @@
       </div>
       <div class="mast-meta mono">
         <span>VOL. 02</span>
-        <span>116 RECIPES</span>
+        <span>130 RECIPES</span>
         <span>BIG-9 ALLERGEN TAGS</span>
         <a class="mast-link" href="products.html">PREP GEAR &rarr;</a>
       </div>
@@ -33,7 +33,7 @@
     <button id="open-filters" class="mobile-filter-btn" aria-expanded="false" aria-controls="filter-rail">
       Filter recipes<span id="filter-count-badge" class="badge mono" hidden></span>
     </button>
-    <p id="mobile-count" class="mono mobile-count">116 of 116</p>
+    <p id="mobile-count" class="mono mobile-count">130 of 130</p>
   </div>
 
   <main class="board">
@@ -42,6 +42,12 @@
         <p class="rail-title mono">THE PREP BOARD</p>
         <button id="close-filters" class="rail-close" aria-label="Close filters">&times;</button>
       </div>
+
+      <fieldset class="rail-group">
+        <legend class="mono">Meal</legend>
+        <p class="rail-hint">Show only:</p>
+        <div id="meal-chips" class="chip-row"></div>
+      </fieldset>
 
       <fieldset class="rail-group rail-group--allergy">
         <legend class="mono">Allergies</legend>
@@ -95,7 +101,7 @@
 
     <section class="results" aria-label="Recipes">
       <div class="results-head">
-        <p id="count" class="mono" aria-live="polite">Showing 116 of 116 recipes</p>
+        <p id="count" class="mono" aria-live="polite">Showing 130 of 130 recipes</p>
         <div class="search-box">
           <label class="visually-hidden" for="search-input">Search recipes</label>
           <input id="search-input" type="search" placeholder="Search recipes&hellip;" autocomplete="off">
@@ -136,10 +142,10 @@
     <div class="modal-body" id="ad-body"></div>
   </dialog>
 
-  <script src="recipes.js?v=6"></script>
+  <script src="recipes.js?v=7"></script>
   <script src="products.js?v=1"></script>
   <script src="ads.js?v=1"></script>
   <script src="pdf.js?v=4"></script>
-  <script src="app.js?v=7"></script>
+  <script src="app.js?v=8"></script>
 </body>
 </html>

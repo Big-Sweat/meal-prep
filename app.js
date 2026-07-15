@@ -26,12 +26,18 @@
     { id: "eggs", label: "Eggs" }
   ];
 
+  var MEALS = [
+    { id: "breakfast", label: "Breakfast" },
+    { id: "main", label: "Lunch & dinner" }
+  ];
+
   var SUGGEST_CANDIDATES = [
     "rice", "broccoli", "sweet potato", "quinoa", "black beans",
     "spinach", "noodles", "potatoes"
   ];
 
   var state = {
+    meals: new Set(),
     allergies: new Set(),
     proteins: new Set(),
     terms: [],
@@ -131,6 +137,7 @@
   /* ---------- filtering ---------- */
 
   function matches(r) {
+    if (state.meals.size && !state.meals.has(r.meal)) return false;
     if (state.allergies.size) {
       for (var i = 0; i < r.allergens.length; i++) {
         if (state.allergies.has(r.allergens[i])) return false;
@@ -156,7 +163,7 @@
   }
 
   function activeFilterCount() {
-    return state.allergies.size + state.proteins.size + state.terms.length +
+    return state.meals.size + state.allergies.size + state.proteins.size + state.terms.length +
       (state.maxDifficulty < 3 ? 1 : 0);
   }
 
@@ -742,6 +749,7 @@
 
   /* ---------- wire up ---------- */
 
+  buildToggleChips("#meal-chips", MEALS, state.meals);
   buildToggleChips("#allergy-chips", ALLERGENS, state.allergies);
   buildToggleChips("#protein-chips", PROTEINS, state.proteins);
   buildSuggestions();
@@ -791,6 +799,7 @@
   diffSlider.setAttribute("aria-valuetext", DIFF_OUT[state.maxDifficulty]);
 
   clearBtn.addEventListener("click", function () {
+    state.meals.clear();
     state.allergies.clear();
     state.proteins.clear();
     state.terms = [];

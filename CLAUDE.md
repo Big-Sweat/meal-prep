@@ -24,8 +24,9 @@ to process it:
    the source page's prose.
 4. Build recipe objects in the recipes.js schema (match an existing entry
    field-for-field). Include a `sourceUrl` field with the original link
-   (harmless to the app, honest provenance). Tag every ingredient's big-9
-   allergens — hidden sources matter (soy sauce = soy + wheat, fish sauce =
+   (harmless to the app, honest provenance) and a `meal` field: "breakfast"
+   or "main" (lunch/dinner) — the tool defaults it from a "breakfast" tag if
+   omitted. Tag every ingredient's big-9 allergens — hidden sources matter (soy sauce = soy + wheat, fish sauce =
    fish, coconut is NOT a tree nut). Adapt the recipe to be meal-prep friendly:
    baseServings 4 or 6, a final portioning step, an honest storageNote and
    fridgeDays (2-3 for seafood).
