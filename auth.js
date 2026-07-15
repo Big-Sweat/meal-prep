@@ -19,8 +19,8 @@
    While the constants are empty the site falls back to the demo profile
    (name only, stored in the browser) and this file loads no external code. */
 
-var SUPABASE_URL = "";
-var SUPABASE_ANON_KEY = "";
+var SUPABASE_URL = "https://bypeqzvxgqjsylerzxlk.supabase.co";
+var SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ5cGVxenZ4Z3Fqc3lsZXJ6eGxrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQxNDYyNTEsImV4cCI6MjA5OTcyMjI1MX0.HbT-DRZeLkIzk3LCLUk3spYLTp2Nq-SiCYOGCIM-wLg";
 
 var MiseAuth = (function () {
   "use strict";
