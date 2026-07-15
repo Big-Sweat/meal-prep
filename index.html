@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=8">
+  <link rel="stylesheet" href="styles.css?v=9">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='2' y='11' width='28' height='10' rx='1' fill='%23EAD9A8' transform='rotate(-6 16 16)'/%3E%3C/svg%3E">
 </head>
 <body>
@@ -25,6 +25,7 @@
         <span>131 RECIPES</span>
         <span>BIG-9 ALLERGEN TAGS</span>
         <a class="mast-link" href="products.html">PREP GEAR &rarr;</a>
+        <button id="auth-btn" class="mast-link" type="button">SIGN IN</button>
       </div>
     </div>
   </header>
@@ -47,6 +48,12 @@
         <legend class="mono">Meal</legend>
         <p class="rail-hint">Show only:</p>
         <div id="meal-chips" class="chip-row"></div>
+      </fieldset>
+
+      <fieldset class="rail-group">
+        <legend class="mono">Favorites</legend>
+        <p class="rail-hint">Recipes you've saved:</p>
+        <button id="fav-chip" class="chip" type="button" aria-pressed="false">&hearts; Favorites only</button>
       </fieldset>
 
       <fieldset class="rail-group rail-group--allergy">
@@ -142,10 +149,36 @@
     <div class="modal-body" id="ad-body"></div>
   </dialog>
 
+  <dialog id="auth-modal" class="modal auth-modal" aria-labelledby="auth-title">
+    <div class="modal-body">
+      <div class="modal-top">
+        <span class="modal-tape">YOUR KITCHEN</span>
+        <button class="modal-close" id="auth-close" aria-label="Close">&times;</button>
+      </div>
+      <div id="auth-signedout">
+        <h2 id="auth-title">Set up your prep profile</h2>
+        <p class="modal-desc">Pick a name to rate recipes, write reviews, and save
+        favorites. This demo keeps your profile in this browser only &mdash; no
+        password, nothing leaves your device.</p>
+        <form id="auth-form">
+          <label class="visually-hidden" for="auth-name">Your name</label>
+          <input id="auth-name" type="text" maxlength="24" placeholder="Your name" autocomplete="off" required>
+          <button type="submit" class="ing-add">Start cooking</button>
+        </form>
+      </div>
+      <div id="auth-signedin" hidden>
+        <h2 id="auth-greeting">Signed in</h2>
+        <p class="modal-desc">Your ratings, reviews, and favorites live in this browser.</p>
+        <p id="auth-stats" class="auth-stats mono"></p>
+        <button id="auth-signout" class="clear-btn" type="button">Sign out</button>
+      </div>
+    </div>
+  </dialog>
+
   <script src="recipes.js?v=8"></script>
   <script src="products.js?v=1"></script>
   <script src="ads.js?v=1"></script>
   <script src="pdf.js?v=4"></script>
-  <script src="app.js?v=9"></script>
+  <script src="app.js?v=10"></script>
 </body>
 </html>

@@ -28,6 +28,11 @@ entry named `mise-static` for Claude Code previews.)
 - **Serving scaling** — a global "servings to prep" default, plus a per-recipe
   stepper that live-scales every ingredient quantity (with proper fractions:
   1½ cups, ⅔ tbsp, ...).
+- **Profiles, ratings, reviews, favorites** — a demo "sign in" (name only, no
+  password) unlocks 1–5 star ratings, written reviews, a heart-to-save button
+  on every recipe, and a favorites-only filter. Demo mode stores everything in
+  the visitor's browser; the storage layer in app.js is written to be swapped
+  for a real backend (e.g. Supabase) without touching the UI.
 
 ## Files
 
