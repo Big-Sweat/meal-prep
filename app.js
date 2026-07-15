@@ -238,6 +238,8 @@
 
   function buildToggleChips(containerId, defs, set, extraClass) {
     var host = $(containerId);
+    // a stale cached index.html may predate this container; skip rather than crash
+    if (!host) return;
     defs.forEach(function (d) {
       var b = document.createElement("button");
       b.type = "button";
