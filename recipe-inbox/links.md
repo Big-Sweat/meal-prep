@@ -18,7 +18,7 @@ https://makedrinks.org/wp-json/mv-create/v1/creations/228/print
   — skipped: this is a smoothie (a single-serving drink), and the library's
   format is built around batch meals with protein categories and fridge
   storage. Remove the link, or tell Claude if you'd like a drinks section.
-
+https://www.tiktok.com/t/ZP8GvB3ch/
 ## Added
 
 <!-- processed links move here automatically -->
