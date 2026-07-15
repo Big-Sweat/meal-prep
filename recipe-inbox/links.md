@@ -23,3 +23,4 @@ https://www.tiktok.com/t/ZP8GvB3ch/
 
 <!-- processed links move here automatically -->
 - https://laurenfitfoodie.com/chicken-enchiladas/ → high-protein-chicken-enchiladas (2026-07-14)
+- https://realhousemoms.com/wprm_print/copycat-olive-garden-chicken-and-shrimp-carbonara → chicken-and-shrimp-carbonara (2026-07-15, source page was blocked by egress policy; recipe built from the standard dish)
