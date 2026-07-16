@@ -1,27 +1,24 @@
-# Mise — Android app
+# Mise — Android + iOS app
 
 A Capacitor shell around the Mise web app. The files in the **repo root are the
 single source of truth**: edit the site as normal, then `npm run sync` here to
-pull those exact files into the app. There is no second copy of the recipes,
+pull those exact files into both apps. There is no second copy of the recipes,
 the filters, or the scaling math to maintain.
 
-All 131 recipes ship **inside the app** (~557KB), so browsing, filtering,
-scaling, and the weekly plan work with no network at all.
+All 131 recipes ship **inside the app** (~7MB with photos), so browsing,
+filtering, scaling, and the weekly plan work with no network at all — verified
+on Android with airplane mode on.
 
-- App ID: `com.deadliftdigital.mise`
+- App ID: `com.deadliftdigital.mise` (both platforms)
 - App name: Mise
 
-## What you need to build it
+| | Android | iOS |
+| --- | --- | --- |
+| Project | `app/android/` | `app/ios/` |
+| Status | **built and run** on Android 16 (API 36) | **scaffolded, never compiled** |
+| Needs | Android Studio (installed) | **a Mac with Xcode** |
 
-Not installed on this machine yet:
-
-1. **Android Studio** — https://developer.android.com/studio (~1GB; bundles the
-   JDK and Android SDK). Install it, open it once, and let it finish its first-run
-   SDK download.
-
-That's the only prerequisite. Node is already here.
-
-## Build and run
+## Build and run — Android
 
 ```bash
 cd app
@@ -81,28 +78,79 @@ throwaway artifacts per build.
 — synced folders and build tools mix badly, and `node_modules` is syncing too.
 The redirect above is a workaround, not a cure.
 
-## Play Store
+## Build and run — iOS
 
-Needs a Google Play Console account ($25, one time). Upload the signed `.aab`,
-fill in the listing (icon, screenshots, description, privacy policy).
+**This cannot be done on Windows.** Apple only permits iOS apps to be compiled
+on macOS with Xcode; there is no legitimate workaround. Everything else is
+already done — the project, the OAuth URL scheme, and the iOS UI fixes are
+committed and the web assets sync from Windows fine.
 
-**On the "minimum functionality" policy:** Google rejects apps that are just a
-website in a wrapper. This app is not one — the entire recipe library is bundled
-and works offline, which is the value the policy asks for. Keep it that way.
+On a Mac:
 
-## Android-specific behavior (see `native.js` in the repo root)
+```bash
+brew install node          # if needed
+cd app
+npm install
+npm run sync:ios           # copies the web app into ios/App/App/public
+npm run open:ios           # opens ios/App/App.xcworkspace in Xcode
+```
 
-The web app runs unmodified except where Android genuinely differs:
+In Xcode: select a simulator or a connected iPhone and press ▶. Capacitor 8
+uses **Swift Package Manager**, not CocoaPods, so there is no `pod install`
+step — dependencies resolve on first open.
 
-| Web | Android |
+To ship: Xcode → Product → Archive → Distribute App. Needs an **Apple Developer
+account ($99/year)** — the same one that unlocks "Sign in with Apple" in the
+Supabase dashboard. Signing is per-Apple-ID, so the first build on a Mac will
+ask you to pick a team.
+
+### iOS setup checklist for a real device
+
+1. Xcode → App target → Signing & Capabilities → pick your team.
+2. For Sign in with Apple: add the **Sign in with Apple** capability there, and
+   configure the Apple provider in the Supabase dashboard.
+3. Google sign-in needs no iOS-side change — it uses the same
+   `com.deadliftdigital.mise://auth` scheme already in `Info.plist`, which is
+   also already on the Supabase redirect allow-list.
+
+## Play Store / App Store
+
+- **Google Play** — needs a Play Console account ($25, one time). Upload the
+  signed `.aab`.
+- **App Store** — needs the Apple Developer Program ($99/year).
+
+**On the "minimum functionality" policy:** both stores reject apps that are just
+a website in a wrapper (Google's minimum-functionality rule, Apple's guideline
+4.2). This app is not one — the entire recipe library is bundled and works
+offline, which is the value both policies ask for. Keep it that way.
+
+## Platform-specific behavior (see `native.js` in the repo root)
+
+The web app runs unmodified except where the platforms genuinely differ:
+
+| Web | iOS + Android |
 | --- | --- |
-| Google sign-in redirects the page | Opens the **system browser**, returns via the `com.deadliftdigital.mise://auth` deep link. Google rejects OAuth inside a WebView, so this is mandatory. |
-| "Download PDF" saves a blob | Writes the PDF and opens the **share sheet** (Print, Drive, messaging are all targets). |
-| Recipe "Print" opens the print dialog | Shares the PDF — Android WebViews have no `window.print()`. |
+| Google sign-in redirects the page | Opens the **system browser** (Chrome Custom Tab / SFSafariViewController), returns via the `com.deadliftdigital.mise://auth` deep link. Google rejects OAuth inside an embedded WebView, so this is mandatory. |
+| "Download PDF" saves a blob | Writes the PDF and opens the **OS share sheet** (Print, Files/Drive, messaging). |
+| Recipe "Print" opens the print dialog | Shares the PDF — neither WKWebView nor Android's WebView implements `window.print()`. |
 | Plan "PRINT / SAVE PDF" | Becomes **"SHARE PLAN"** — sends the shopping list + recipes as text. |
-| — | Hardware **back** closes the open dialog or filter panel instead of quitting. |
+| — | Hardware **back** closes the open dialog or filter panel instead of quitting. **Android only** — iOS has no such key and the listener is scoped accordingly. |
 
-`native.js` no-ops entirely on the web (`MiseNative.isNative === false`).
+`native.js` no-ops entirely on the web (`MiseNative.isNative === false`) and
+exposes `MiseNative.platform` (`ios` / `android` / `web`).
+
+### iOS-specific fixes already in the CSS
+
+- **Input zoom.** iOS zooms the page when a focused input is under 16px and
+  never zooms back. All six fields were 14.5–15px. Bumped to 16px inside
+  `@supports (-webkit-touch-callout: none)`, which matches iOS only — the web
+  and Android renderings stay pixel-identical (verified: still 15px in Chrome).
+- **Safe areas.** The plan bar was pinned to `bottom: 0`, i.e. under the home
+  indicator. Fixed furniture now pads by `env(safe-area-inset-*)`, plus
+  `viewport-fit=cover` on the viewport meta. Applied to all platforms, not just
+  iOS — Android's gesture bar benefits too, and `env()` is 0 where there is no
+  inset, so desktop is unaffected.
+- **Text rescaling on rotate** — `-webkit-text-size-adjust: 100%`.
 
 ## Known gaps
 

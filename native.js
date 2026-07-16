@@ -1,4 +1,4 @@
-/* Mise — Android adaptations.
+/* Mise — native (iOS + Android) adaptations.
    Loads on the website too, where every branch below is skipped: on the web
    `window.MiseNative.isNative` is false and nothing else runs. */
 (function () {
@@ -6,17 +6,19 @@
 
   var Cap = window.Capacitor;
   var isNative = !!(Cap && Cap.isNativePlatform && Cap.isNativePlatform());
+  var platform = (Cap && Cap.getPlatform && Cap.getPlatform()) || "web";
 
-  window.MiseNative = { isNative: isNative };
+  window.MiseNative = { isNative: isNative, platform: platform };
   if (!isNative) return;
 
   var P = Cap.Plugins || {};
   document.documentElement.classList.add("is-native");
+  document.documentElement.classList.add("is-" + platform); // is-ios / is-android
 
-  /* Hardware back button. Without this, back drops straight out of the app
-     even with a recipe open. Close what's on top instead; exit only from the
-     bare board. */
-  if (P.App) {
+  /* Hardware back button — Android only; iOS has no such key and never fires
+     this. Without it, back drops straight out of the app even with a recipe
+     open. Close what's on top instead; exit only from the bare board. */
+  if (platform === "android" && P.App) {
     P.App.addListener("backButton", function () {
       var dialogs = ["ad-modal", "auth-modal", "recipe-modal", "plan-modal"];
       for (var i = 0; i < dialogs.length; i++) {
@@ -33,9 +35,10 @@
     });
   }
 
-  /* A blob download never lands anywhere the user can find it in a WebView.
-     Write the file, then hand it to Android's share sheet — which carries
-     Print, Save to Drive, and messaging as targets. */
+  /* A blob download never lands anywhere the user can find it in a WebView, and
+     neither WKWebView (iOS) nor Android's WebView implements window.print().
+     Write the file, then hand it to the OS share sheet — which carries Print,
+     Save to Files/Drive, and messaging as targets on both platforms. */
   function shareFile(bytes, filename, title) {
     if (!P.Filesystem || !P.Share) return Promise.reject(new Error("native plugins unavailable"));
     return P.Filesystem.writeFile({ path: filename, data: btoa(bytes), directory: "CACHE" })

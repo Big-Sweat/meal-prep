@@ -32,7 +32,12 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
-html { -webkit-font-smoothing: antialiased; }
+html {
+  -webkit-font-smoothing: antialiased;
+  /* Without this iOS re-scales text when the phone rotates. */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
 
 body {
   background: var(--paper);
@@ -1487,6 +1492,65 @@ button {
   .cards { grid-template-columns: repeat(3, 1fr); }
   .mast-inner, .footer { padding-left: 32px; padding-right: 32px; }
   :root { --rail-w: 330px; }
+}
+
+/* ---------- device safe areas ----------
+   Keeps fixed furniture clear of the iPhone notch / home indicator and of
+   Android's gesture bar. env() resolves to 0 where there is no inset, so these
+   are no-ops on desktop and on hardware without cutouts. Needs
+   `viewport-fit=cover` on the viewport meta to report real values. */
+
+.plan-bar {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.rail {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: calc(90px + env(safe-area-inset-bottom));
+}
+
+.apply-btn {
+  bottom: calc(16px + env(safe-area-inset-bottom));
+}
+
+.footer {
+  padding-bottom: calc(34px + env(safe-area-inset-bottom));
+}
+
+.has-plan .footer {
+  padding-bottom: calc(90px + env(safe-area-inset-bottom));
+}
+
+/* Landscape: keep content out from under a side notch. Scoped below 1024px —
+   only phones have side cutouts, and above that the layout breakpoints set
+   their own wider padding which this would otherwise silently override. */
+@media (max-width: 1023px) {
+  .mast-inner,
+  .results,
+  .gear-main,
+  .mobile-bar,
+  .plan-bar-btn,
+  .footer {
+    padding-left: max(var(--pad), env(safe-area-inset-left));
+    padding-right: max(var(--pad), env(safe-area-inset-right));
+  }
+}
+
+/* ---------- iOS ----------
+   `@supports (-webkit-touch-callout: none)` matches iOS Safari / WKWebView and
+   nothing else, so the web and Android renderings stay pixel-identical. */
+
+@supports (-webkit-touch-callout: none) {
+  /* iOS zooms the whole page when you focus an input smaller than 16px, and
+     does not zoom back out. Every field here was 14.5-15px. One pixel of size
+     for no layout jolt is a good trade — and only iOS pays it. */
+  .search-box input,
+  .ing-form input,
+  #auth-form input,
+  #real-auth-form input,
+  #review-form textarea {
+    font-size: 16px;
+  }
 }
 
 /* ---------- print ---------- */

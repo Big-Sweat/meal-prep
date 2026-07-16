@@ -67,17 +67,28 @@ in rough sync when you change the workflow described here.
   configured. Ratings/reviews/favorites still live in localStorage either way —
   moving them to Supabase tables (shared across visitors) is the known next step.
 
-**Android app**
-- `app/` — Capacitor project (app id `com.deadliftdigital.mise`). The repo root
-  is the source of truth; `app/scripts/sync-web.js` copies the web files into
-  `app/www/` (gitignored) and `npm run sync` then runs `cap sync`. **If you add
-  a new top-level web file, add it to that script's `FILES` allowlist or it
-  won't ship in the app.** Building an APK needs Android Studio (not installed
-  as of Jul 2026). See `app/README.md`.
-- `native.js` (repo root) — Android adaptations; a no-op on the web
-  (`MiseNative.isNative`). Back button, PDF/print via the native share sheet.
-  Native OAuth (system browser + `com.deadliftdigital.mise://auth` deep link)
-  lives in `auth.js`, since it needs the Supabase client.
+**Mobile apps (Android + iOS)**
+- `app/` — Capacitor project (app id `com.deadliftdigital.mise`, both
+  platforms). The repo root is the source of truth; `app/scripts/sync-web.js`
+  copies the web files into `app/www/` (gitignored) and `npm run sync` then runs
+  `cap sync` for both. **If you add a new top-level web file, add it to that
+  script's `FILES` allowlist or it won't ship in the apps.**
+  - `app/android/` — **built and verified** on Android 16. Build output is
+    redirected outside OneDrive (see `app/README.md`; OneDrive locks `build/`
+    and breaks rebuilds).
+  - `app/ios/` — **scaffolded but never compiled**: Apple only allows iOS builds
+    on macOS with Xcode. Capacitor 8 uses SPM, so no CocoaPods step. The OAuth
+    URL scheme is registered in `ios/App/App/Info.plist`.
+- `native.js` (repo root) — iOS + Android adaptations; a no-op on the web
+  (`MiseNative.isNative`, `MiseNative.platform`). PDF/print via the OS share
+  sheet on both; the back-button handler is scoped to Android. Native OAuth
+  (system browser + `com.deadliftdigital.mise://auth` deep link) lives in
+  `auth.js`, since it needs the Supabase client.
+- **iOS CSS rules worth knowing:** inputs are bumped to 16px inside
+  `@supports (-webkit-touch-callout: none)` (iOS-only) because iOS zooms the
+  page on any focused input under 16px — do not "tidy" this away. Fixed
+  furniture pads by `env(safe-area-inset-*)` and the viewport carries
+  `viewport-fit=cover`.
 
 **Docs / meta**
 - `README.md` — public-facing readme (recipe count is patched by the tool).
