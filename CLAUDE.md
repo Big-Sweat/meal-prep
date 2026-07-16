@@ -38,9 +38,14 @@ in rough sync when you change the workflow described here.
   button. Lays a recipe out on US-Letter using the PDF base-14 Courier fonts
   (no embedding, exact wrapping). Brand colors are duplicated here from
   `styles.css`.
-- `assets/recipes/<recipe-id>.png` — optional per-recipe card images, looked up
+- `assets/recipes/<recipe-id>.webp` — optional per-recipe card images, looked up
   by `id` (`recipeImageSrc` in app.js). Not every recipe has one; cards fall
-  back gracefully when the file is missing.
+  back gracefully when the file is missing (the `img` onerror hides the frame).
+  **Keep these WebP.** They started as 1536×1024 PNGs at ~2.6MB each — 83MB
+  total, which made an 87MB APK and shipped multi-megabyte images to phones.
+  `tools/optimize-images.js` re-encodes PNG→WebP q80 at the same dimensions
+  (−92%, no visible loss since cards render ~400px and the modal ~810px).
+  Run it on any photo you add.
 
 **Prep-gear page (affiliate)**
 - `products.html` — standalone "Prep Gear" page (linked from the masthead).

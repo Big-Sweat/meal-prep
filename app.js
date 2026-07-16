@@ -256,7 +256,9 @@
   }
 
   function recipeImageSrc(r) {
-    return "assets/recipes/" + r.id + ".png";
+    // WebP, not PNG: same pixels, ~92% smaller. Cards/modal hide the frame via
+    // the img onerror handler for recipes with no photo.
+    return "assets/recipes/" + r.id + ".webp";
   }
 
   function cardHTML(r) {
