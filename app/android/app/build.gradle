@@ -1,5 +1,15 @@
 apply plugin: 'com.android.application'
 
+// Release signing. Both the keystore and this properties file are gitignored —
+// they are secrets, and the key is the only way to ship an update Android will
+// accept as the same app. If keystore.properties is absent (a fresh clone, CI),
+// the release build simply stays unsigned rather than failing the whole build.
+def keystorePropsFile = rootProject.file("keystore.properties")
+def keystoreProps = new Properties()
+if (keystorePropsFile.exists()) {
+    keystoreProps.load(new FileInputStream(keystorePropsFile))
+}
+
 android {
     namespace = "com.deadliftdigital.mise"
     compileSdk = rootProject.ext.compileSdkVersion
@@ -16,10 +26,25 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    signingConfigs {
+        release {
+            if (keystoreProps['storeFile']) {
+                storeFile rootProject.file(keystoreProps['storeFile'])
+                storePassword keystoreProps['storePassword']
+                keyAlias keystoreProps['keyAlias']
+                keyPassword keystoreProps['keyPassword']
+            }
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            // debuggable is false by default for release — that is the whole
+            // point of this build type. Do not turn it on to "debug a release".
+            if (keystoreProps['storeFile']) {
+                signingConfig signingConfigs.release
+            }
         }
     }
 }

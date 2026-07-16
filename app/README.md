@@ -216,6 +216,41 @@ verified server-side or a rooted device can spoof them, and a static site has no
 server. A service like RevenueCat does that validation and covers both stores
 with one entitlement check.
 
+## Release builds (the one to actually keep on a phone)
+
+```bash
+cd app/android
+export JAVA_HOME="/c/Program Files/Android/Android Studio/jbr"
+export ANDROID_HOME="/c/Users/jake/AppData/Local/Android/Sdk"
+./gradlew assembleRelease
+# -> %TEMP%/mise-gradle-build/app/outputs/apk/release/app-release.apk
+```
+
+Signing is wired up already: `app/build.gradle` reads `android/keystore.properties`,
+and if that file is missing (a fresh clone, CI) the release build just comes out
+unsigned instead of failing.
+
+**Two files you must never commit and must back up:**
+
+| File | What it is |
+| --- | --- |
+| `app/android/mise-release.jks` | the signing key |
+| `app/android/keystore.properties` | its passwords |
+
+Both are gitignored. **The keystore is the only way to ship an update Android
+will accept as the same app** — lose it and every user has to uninstall and
+reinstall, losing their data. They currently sit inside OneDrive, which at least
+means they're backed up; if this ever becomes a real product, move them somewhere
+deliberate and rotate the password (it was generated during setup and is in the
+session transcript).
+
+Debug and release are signed with **different keys**, so Android won't upgrade
+one to the other — switching requires an uninstall, which wipes app data
+(favourites, plan, sign-in session). Pick one and stay on it.
+
+If you publish to Play, turn on **Play App Signing**: Google holds the real app
+key and this one becomes just an upload key, which is recoverable if lost.
+
 ### Do not publish the debug APK
 
 It is tempting to just put `app-debug.apk` on the site as a direct download.
