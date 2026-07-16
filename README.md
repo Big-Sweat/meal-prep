@@ -1,6 +1,6 @@
 # Mise — a meal-prep recipe library (demo)
 
-A static demo site for planning a week of batch cooking. 116 recipes across
+A static demo site for planning a week of batch cooking. 131 recipes across
 nine protein categories, all tagged for the US big-9 allergens.
 
 ## Run it
@@ -28,11 +28,16 @@ entry named `mise-static` for Claude Code previews.)
 - **Serving scaling** — a global "servings to prep" default, plus a per-recipe
   stepper that live-scales every ingredient quantity (with proper fractions:
   1½ cups, ⅔ tbsp, ...).
+- **Profiles, ratings, reviews, favorites** — a demo "sign in" (name only, no
+  password) unlocks 1–5 star ratings, written reviews, a heart-to-save button
+  on every recipe, and a favorites-only filter. Demo mode stores everything in
+  the visitor's browser; the storage layer in app.js is written to be swapped
+  for a real backend (e.g. Supabase) without touching the UI.
 
 ## Files
 
 - `index.html` / `styles.css` / `app.js` — the site (no build step, no dependencies)
-- `recipes.js` — the recipe data (116 recipes). To add more, append objects with
+- `recipes.js` — the recipe data (131 recipes). To add more, append objects with
   the same shape; the filters, suggestions, and counts all derive from the data.
   Keep `allergens` equal to the union of the ingredients' allergen tags.
 

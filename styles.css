@@ -32,7 +32,12 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
-html { -webkit-font-smoothing: antialiased; }
+html {
+  -webkit-font-smoothing: antialiased;
+  /* Without this iOS re-scales text when the phone rotates. */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
 
 body {
   background: var(--paper);
@@ -1117,6 +1122,214 @@ button {
   .gear-grid { grid-template-columns: repeat(3, 1fr); }
 }
 
+/* ---------- profile, ratings, reviews, favorites ---------- */
+
+.fav-btn {
+  position: relative; /* above the card's stretched title button */
+  z-index: 1;
+  flex-shrink: 0;
+  min-width: 36px;
+  min-height: 36px;
+  font-size: 17px;
+  line-height: 1;
+  border: 1px solid var(--line);
+  color: var(--faded);
+}
+
+.fav-btn:hover { border-color: var(--kale); color: var(--kale); }
+
+.fav-btn.on {
+  background: var(--kale);
+  border-color: var(--kale);
+  color: #F4F8F0;
+}
+
+.rate-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  margin-bottom: 20px;
+}
+
+.rate-label {
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  color: var(--faded);
+}
+
+.stars { display: flex; gap: 2px; }
+
+.star {
+  font-size: 22px;
+  line-height: 1;
+  min-width: 34px;
+  min-height: 34px;
+  color: var(--line);
+}
+
+.star:hover { color: var(--kale-deep); }
+.star.on { color: var(--kale); }
+
+.rate-avg { font-size: 11px; letter-spacing: 0.05em; color: var(--faded); }
+
+.modal-reviews {
+  border-top: 1px solid var(--ink);
+  margin-top: 26px;
+  padding-top: 16px;
+}
+
+.review { border-bottom: 1px dashed var(--line); padding: 12px 0; }
+
+.review-head {
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--faded);
+  margin-bottom: 5px;
+}
+
+.review-stars { color: var(--kale); font-size: 12px; }
+.review-stars-off { color: var(--line); }
+
+.review-text { font-family: var(--font-body); font-size: 14.5px; }
+
+.review-empty {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 14px;
+  color: var(--faded);
+  padding: 6px 0;
+}
+
+#review-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+#review-form textarea {
+  width: 100%;
+  min-height: 84px;
+  border: 1px solid var(--ink);
+  background: var(--ticket);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 14.5px;
+  padding: 10px 12px;
+  resize: vertical;
+  border-radius: 0;
+}
+
+#review-form textarea::placeholder { color: var(--faded); font-style: italic; }
+
+.review-post {
+  align-self: flex-start;
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+  font-weight: 600;
+  padding: 11px 16px;
+  min-height: 44px;
+}
+
+.review-post:hover { background: var(--kale); border-color: var(--kale); }
+
+.review-signin {
+  margin-top: 14px;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--kale-deep);
+  border-bottom: 1px dashed var(--kale-deep);
+  padding: 6px 0;
+  min-height: 36px;
+}
+
+.auth-modal { width: min(480px, calc(100vw - 32px)); }
+
+.auth-h2 { margin-bottom: 6px; }
+
+.oauth-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.oauth-btn {
+  width: 100%;
+  min-height: 48px;
+  border: 1px solid var(--ink);
+  background: var(--ticket);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  font-weight: 500;
+}
+
+.oauth-btn:hover { background: var(--tape); }
+
+.auth-divider {
+  text-align: center;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--faded);
+  margin: 14px 0;
+}
+
+#real-auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+#real-auth-form input {
+  font: inherit;
+  font-size: 15px;
+  padding: 11px 12px;
+  border: 1px solid var(--ink);
+  background: var(--ticket);
+  color: var(--ink);
+  border-radius: 0;
+}
+
+#real-auth-form input::placeholder { color: var(--faded); font-style: italic; }
+
+#real-auth-form .review-post { align-self: stretch; text-align: center; }
+
+.auth-error {
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  color: var(--chile);
+  margin-top: 12px;
+}
+
+.auth-error.ok { color: var(--kale-deep); }
+
+#auth-form { display: flex; gap: 8px; margin-top: 18px; }
+
+#auth-form input {
+  flex: 1;
+  min-width: 0;
+  font: inherit;
+  font-size: 15px;
+  padding: 10px 12px;
+  border: 1px solid var(--ink);
+  background: var(--ticket);
+  color: var(--ink);
+  border-radius: 0;
+}
+
+#auth-form input::placeholder { color: var(--faded); font-style: italic; }
+
+.auth-stats {
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--kale-deep);
+  margin: 14px 0 18px;
+}
+
+#auth-signedin .clear-btn { margin-top: 0; }
+
 /* ---------- pre-print sponsored interstitial ---------- */
 
 .ad-modal { width: min(560px, calc(100vw - 32px)); }
@@ -1281,6 +1494,65 @@ button {
   :root { --rail-w: 330px; }
 }
 
+/* ---------- device safe areas ----------
+   Keeps fixed furniture clear of the iPhone notch / home indicator and of
+   Android's gesture bar. env() resolves to 0 where there is no inset, so these
+   are no-ops on desktop and on hardware without cutouts. Needs
+   `viewport-fit=cover` on the viewport meta to report real values. */
+
+.plan-bar {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.rail {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: calc(90px + env(safe-area-inset-bottom));
+}
+
+.apply-btn {
+  bottom: calc(16px + env(safe-area-inset-bottom));
+}
+
+.footer {
+  padding-bottom: calc(34px + env(safe-area-inset-bottom));
+}
+
+.has-plan .footer {
+  padding-bottom: calc(90px + env(safe-area-inset-bottom));
+}
+
+/* Landscape: keep content out from under a side notch. Scoped below 1024px —
+   only phones have side cutouts, and above that the layout breakpoints set
+   their own wider padding which this would otherwise silently override. */
+@media (max-width: 1023px) {
+  .mast-inner,
+  .results,
+  .gear-main,
+  .mobile-bar,
+  .plan-bar-btn,
+  .footer {
+    padding-left: max(var(--pad), env(safe-area-inset-left));
+    padding-right: max(var(--pad), env(safe-area-inset-right));
+  }
+}
+
+/* ---------- iOS ----------
+   `@supports (-webkit-touch-callout: none)` matches iOS Safari / WKWebView and
+   nothing else, so the web and Android renderings stay pixel-identical. */
+
+@supports (-webkit-touch-callout: none) {
+  /* iOS zooms the whole page when you focus an input smaller than 16px, and
+     does not zoom back out. Every field here was 14.5-15px. One pixel of size
+     for no layout jolt is a good trade — and only iOS pays it. */
+  .search-box input,
+  .ing-form input,
+  #auth-form input,
+  #real-auth-form input,
+  #review-form textarea {
+    font-size: 16px;
+  }
+}
+
 /* ---------- print ---------- */
 
 @media print {
@@ -1310,6 +1582,9 @@ button {
   .modal-actions,
   .plan-head-actions,
   .plan-remove,
+  #review-form,
+  .review-signin,
+  .rate-row,
   .stepper button { display: none; }
 
   .stepper { border: none; }

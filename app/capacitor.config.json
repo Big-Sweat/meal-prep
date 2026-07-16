@@ -1,0 +1,11 @@
+{
+  "appId": "com.deadliftdigital.mise",
+  "appName": "Mise",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "allowMixedContent": false
+  }
+}

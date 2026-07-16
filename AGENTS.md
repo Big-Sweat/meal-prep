@@ -1,45 +1,33 @@
-# Mise — meal-prep recipe library
+# Mise — meal-prep recipe library (agent notes)
 
-Static site (no build step): `index.html` + `styles.css` + `app.js` + `recipes.js`
-(the data) + `pdf.js` (recipe PDF download). Live via GitHub Pages at
-https://big-sweat.github.io/meal-prep/ — pushes to `main` deploy automatically.
-Design rules live in `CLAUDEwebdesign copy (1).md` — follow them for any UI work.
+`CLAUDE.md` is the canonical guide — read it first. This is the short version.
+
+Static site, **no build step, no dependencies**: `index.html` + `styles.css` +
+`app.js` + `recipes.js` (the data). Extras: `pdf.js` (recipe PDF download),
+`products.html` / `products.js` (affiliate prep-gear page), `ads.js` (pre-print
+interstitial config), `auth.js` (Supabase auth config — demo profile fallback
+while its keys are empty), `native.js` (iOS + Android adaptations, no-op on web),
+`app/` (Capacitor project: `app/android/` builds and runs, `app/ios/` needs a Mac
+with Xcode — see `app/README.md`; add any new top-level web file to
+`app/scripts/sync-web.js`), `assets/recipes/<id>.webp` (optional card images —
+**WebP, not PNG**; run `tools/optimize-images.js` on any new photo). Live via
+GitHub Pages at https://big-sweat.github.io/meal-prep/ — pushes to `main` deploy
+automatically. Design rules: `CLAUDEwebdesign copy (1).md`.
+
 Local preview: `python -m http.server 8347` (launch.json name `mise-static`).
 
-**Cache-busting:** asset links in index.html carry `?v=N`. Bump the version for
-any file you change, or returning visitors get stale caches.
+**Cache-busting:** asset links in `index.html`/`products.html` carry `?v=N`.
+Bump the version anywhere a file you changed is referenced, or returning
+visitors get stale caches. `styles.css` is linked from both HTML files.
 
-## Recipe inbox — "process the recipe inbox"
+**Adding recipes:** don't hand-edit `recipes.js`. Build recipe objects in the
+schema (see CLAUDE.md), save as a JSON array, and run
+`node tools/add-recipes.js <file>` — it audits allergens, computes difficulty
+and the allergen union, checks macros/collisions, merges, and patches counts +
+cache version. Fix what it rejects; it writes nothing on failure.
 
-`recipe-inbox/links.md` is a drop-box where Jake pastes recipe URLs. When asked
-to process it:
-
-1. Read the links under **To add**.
-2. Fetch each page and extract the recipe facts: ingredients with quantities,
-   servings, times, and method.
-3. **Rewrite, don't copy.** Ingredient facts and cooking procedure are fine to
-   use; the description, step wording, and any commentary must be written fresh
-   in the site's plain cookbook voice (see existing recipes for tone — 1-2
-   specific sentences, why it preps well, no marketing fluff). Do not reproduce
-   the source page's prose.
-4. Build recipe objects in the recipes.js schema (match an existing entry
-   field-for-field). Include a `sourceUrl` field with the original link
-   (harmless to the app, honest provenance). Tag every ingredient's big-9
-   allergens — hidden sources matter (soy sauce = soy + wheat, fish sauce =
-   fish, coconut is NOT a tree nut). Adapt the recipe to be meal-prep friendly:
-   baseServings 4 or 6, a final portioning step, an honest storageNote and
-   fridgeDays (2-3 for seafood).
-5. Save the objects as a JSON array and run: `node tools/add-recipes.js <file>`.
-   It verifies allergen tags (rule-based), recomputes the union, scores
-   difficulty, checks macros and collisions, merges into recipes.js, and
-   patches counts + cache version in index.html and README.md. Fix anything it
-   rejects rather than forcing it.
-6. Verify in a browser (count went up, the new recipes open, filters catch
-   their allergens), then move the processed links in `recipe-inbox/links.md`
-   from **To add** to **Added** as `- <url> → <recipe-id>`. Leave bad links
-   under To add with a note about what went wrong (paywall, not a recipe, ...).
-7. Commit and push when Jake asks for it (his usual flow) — that deploys the
-   live site.
-
-Recipe data is demo content with an allergy disclaimer in the footer; keep
-allergen tagging conservative (over-tag rather than under-tag when uncertain).
+**Recipe inbox** (`recipe-inbox/links.md`): when asked to "process the recipe
+inbox", follow the full 7-step workflow in CLAUDE.md — fetch, **rewrite (don't
+copy) the prose**, tag big-9 allergens conservatively, adapt for meal prep, run
+the tool, verify in a browser, then move links to **Added**. Commit/push only
+when Jake asks.

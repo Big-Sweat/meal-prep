@@ -1,4 +1,4 @@
-/* Mise recipe data - 116 recipes. Generated + allergen-audited. difficulty: 1 easy, 2 moderate, 3 involved (scored from ingredients, steps, prep time). */
+/* Mise recipe data - 131 recipes. Generated + allergen-audited. difficulty: 1 easy, 2 moderate, 3 involved (scored from ingredients, steps, prep time). */
 var RECIPES = [
   {
     "id": "greek-chicken-souvlaki-bowls",
@@ -127,7 +127,8 @@ var RECIPES = [
       "Portion the rice, chicken, and vegetables into 4 containers, packing the tzatziki in small lidded cups on the side."
     ],
     "storageNote": "Keeps 4 days refrigerated in airtight containers; chicken and rice freeze up to 2 months, but make the tzatziki fresh since it does not freeze well.",
-    "difficulty": 3
+    "difficulty": 3,
+    "meal": "main"
   },
   {
     "id": "korean-ground-beef-bowls",
@@ -269,7 +270,8 @@ var RECIPES = [
       "Divide the rice and beef among 4 containers, top the beef with scallions and sesame seeds, and pack the pickled cucumbers in small side containers so they stay crisp."
     ],
     "storageNote": "Keeps 4 days refrigerated in airtight containers; the beef and rice freeze up to 3 months, but keep the pickled cucumbers refrigerated only.",
-    "difficulty": 2
+    "difficulty": 2,
+    "meal": "main"
   },
   {
     "id": "crispy-baked-tofu-peanut-noodle-bowls",
@@ -413,7 +415,8 @@ var RECIPES = [
       "Divide the noodles, tofu, bell peppers, carrots, and scallions among 4 containers, then pack the peanut sauce in small lidded cups alongside."
     ],
     "storageNote": "Keeps 4 days refrigerated in airtight containers; store the peanut sauce separately and toss just before eating.",
-    "difficulty": 2
+    "difficulty": 2,
+    "meal": "main"
   },
   {
     "id": "baked-teriyaki-salmon-with-rice-and-roasted-bok-choy",
@@ -554,7 +557,8 @@ var RECIPES = [
       "Portion the rice, salmon, and bok choy into 4 containers and top with the scallions."
     ],
     "storageNote": "Keeps 3 days refrigerated in airtight containers; freeze salmon and rice up to 2 months and add the scallions fresh after reheating.",
-    "difficulty": 2
+    "difficulty": 2,
+    "meal": "main"
   },
   {
     "id": "turkey-meatballs-marinara-orzo",
@@ -677,7 +681,8 @@ var RECIPES = [
       "Cool uncovered for 20 minutes before sealing and refrigerating."
     ],
     "storageNote": "Keeps 4 days refrigerated in airtight containers; the meatballs and sauce freeze up to 3 months, but cook the orzo fresh if freezing.",
-    "difficulty": 2
+    "difficulty": 2,
+    "meal": "main"
   },
   {
     "id": "pork-carnitas-bowls",
@@ -811,7 +816,8 @@ var RECIPES = [
       "Portion the pork into 6 containers with the tortillas wrapped separately in foil, and pack the pickled onions and cilantro in small side containers."
     ],
     "storageNote": "Keeps 4 days refrigerated with tortillas wrapped separately; the shredded pork freezes up to 3 months in its cooking liquid.",
-    "difficulty": 3
+    "difficulty": 3,
+    "meal": "main"
   },
   {
     "id": "garlic-butter-shrimp-and-quinoa-bowls-with-zucchini",
@@ -928,7 +934,8 @@ var RECIPES = [
       "Portion the quinoa, zucchini, and shrimp into 4 containers and spoon the garlic butter from the pan over each."
     ],
     "storageNote": "Keeps 3 days refrigerated in airtight containers; freezing is not recommended, as the shrimp turn rubbery when thawed and reheated.",
-    "difficulty": 1
+    "difficulty": 1,
+    "meal": "main"
   },
   {
     "id": "tempeh-taco-bowls-with-cashew-lime-crema",
@@ -1068,7 +1075,8 @@ var RECIPES = [
       "Divide the quinoa, tempeh mixture, cherry tomatoes, and lime wedges among 4 containers; pack the crema separately and store the tortilla strips in a jar at room temperature."
     ],
     "storageNote": "Keeps 4 days refrigerated with the crema packed separately; freeze the tempeh filling alone up to 2 months and keep the tortilla strips at room temperature.",
-    "difficulty": 3
+    "difficulty": 3,
+    "meal": "main"
   },
   {
     "id": "spinach-feta-egg-muffins",
@@ -1176,7 +1184,8 @@ var RECIPES = [
       "Cool completely, then pack 2 muffins per container for 6 grab-and-go breakfasts."
     ],
     "storageNote": "Keeps 5 days refrigerated in airtight containers; freeze up to 2 months and microwave 60 to 90 seconds straight from frozen.",
-    "difficulty": 1
+    "difficulty": 1,
+    "meal": "breakfast"
   },
   {
     "id": "chipotle-chicken-burrito-bowls",
@@ -1303,7 +1312,8 @@ var RECIPES = [
       "Portion the rice, chicken, beans, and corn salsa into 6 containers in separate quadrants so the textures stay distinct."
     ],
     "storageNote": "Keeps 4 days refrigerated in airtight containers; freeze the chicken, rice, and beans up to 3 months and add fresh corn salsa after thawing.",
-    "difficulty": 2
+    "difficulty": 2,
+    "meal": "main"
   },
   {
     "id": "beef-black-bean-chili",
@@ -1429,7 +1439,8 @@ var RECIPES = [
       "Season with salt, let cool slightly, and portion into 6 containers."
     ],
     "storageNote": "Keeps 5 days refrigerated in airtight containers and freezes up to 3 months; thaw overnight in the fridge before reheating.",
-    "difficulty": 1
+    "difficulty": 1,
+    "meal": "main"
   },
   {
     "id": "sesame-ginger-tofu-with-soba-noodles-and-edamame",
@@ -1570,7 +1581,8 @@ var RECIPES = [
       "Divide the noodle mixture and tofu among 4 containers and sprinkle each portion with sesame seeds."
     ],
     "storageNote": "Keeps 4 days refrigerated and is best eaten cold or at room temperature; do not freeze, as soba turns mushy.",
-    "difficulty": 2
+    "difficulty": 2,
+    "meal": "main"
   },
   {
     "id": "harissa-salmon-with-pearl-couscous-and-roasted-carrots",
@@ -1696,7 +1708,8 @@ var RECIPES = [
       "Portion the couscous, salmon, and carrots into 4 containers, spooning any pan juices over the fish."
     ],
     "storageNote": "Keeps 3 days refrigerated in airtight containers; freeze salmon and couscous up to 2 months, though the carrots soften slightly on thawing.",
-    "difficulty": 2
+    "difficulty": 2,
+    "meal": "main"
   },
   {
     "id": "southwest-turkey-chili-sweet-potato",
@@ -1823,7 +1836,8 @@ var RECIPES = [
       "Cool slightly and portion into 6 containers, leaving a little headspace in any you plan to freeze."
     ],
     "storageNote": "Keeps 5 days refrigerated in airtight containers; freeze flat in bags up to 3 months and thaw overnight in the fridge.",
-    "difficulty": 1
+    "difficulty": 1,
+    "meal": "main"
   },
   {
     "id": "ginger-sesame-pork-stir-fry",
@@ -1966,7 +1980,8 @@ var RECIPES = [
       "Divide the rice and stir-fry among 4 containers and scatter the sesame seeds over the top."
     ],
     "storageNote": "Keeps 4 days refrigerated in airtight containers; freezing is not recommended because the vegetables lose their snap.",
-    "difficulty": 2
+    "difficulty": 2,
+    "meal": "main"
   },
   {
     "id": "cajun-shrimp-with-dirty-rice-and-peppers",
@@ -2097,7 +2112,8 @@ var RECIPES = [
       "Portion the dirty rice into 4 containers and top each with a quarter of the shrimp."
     ],
     "storageNote": "Keeps 3 days refrigerated in airtight containers; the rice alone freezes up to 2 months, but the shrimp are best eaten within the fridge window.",
-    "difficulty": 2
+    "difficulty": 2,
+    "meal": "main"
   },
   {
     "id": "chickpea-coconut-curry-with-basmati-rice",
@@ -2222,7 +2238,8 @@ var RECIPES = [
       "Portion the rice into 6 containers and ladle the curry over the top."
     ],
     "storageNote": "Keeps 5 days refrigerated in airtight containers; freeze curry and rice together up to 3 months.",
-    "difficulty": 2
+    "difficulty": 2,
+    "meal": "main"
   },
   {
     "id": "meal-prep-breakfast-burritos",
@@ -2338,7 +2355,8 @@ var RECIPES = [
       "Portion the wrapped burritos into the fridge for the week, or slide them into a labeled zip-top bag and freeze; reheat unwrapped in the microwave for 1-2 minutes."
     ],
     "storageNote": "Keeps 4 days refrigerated wrapped in foil; freeze up to 2 months and reheat straight from frozen.",
-    "difficulty": 2
+    "difficulty": 2,
+    "meal": "breakfast"
   },
   {
     "id": "thai-basil-chicken-with-jasmine-rice",
@@ -2459,7 +2477,8 @@ var RECIPES = [
       "Portion the rice and chicken into 4 containers, keeping the rice on one side so it steams back to life in the microwave."
     ],
     "storageNote": "Keeps 4 days refrigerated in airtight containers; freezes up to 2 months, though the basil is best stirred in fresh after reheating.",
-    "difficulty": 1
+    "difficulty": 1,
+    "meal": "main"
   },
   {
     "id": "mongolian-beef-snap-peas-rice-noodles",
@@ -2577,7 +2596,8 @@ var RECIPES = [
       "Divide the noodles among 4 containers and top with the beef, snap peas, and any extra sauce."
     ],
     "storageNote": "Keeps 4 days refrigerated in airtight containers; freezing is not recommended because rice noodles turn mushy when thawed.",
-    "difficulty": 3
+    "difficulty": 3,
+    "meal": "main"
   },
   {
     "id": "general-tsos-tofu-with-rice-and-broccoli",
@@ -2724,7 +2744,8 @@ var RECIPES = [
       "Divide the rice, broccoli, and sauced tofu among 4 containers, keeping the broccoli to one side."
     ],
     "storageNote": "Keeps 4 days refrigerated in airtight containers; the tofu softens over time, so re-crisp portions in a hot skillet or air fryer if you can.",
-    "difficulty": 3
+    "difficulty": 3,
+    "meal": "main"
   },
   {
     "id": "lemon-pepper-baked-cod-with-roasted-potatoes-and-asparagus",
@@ -2826,7 +2847,8 @@ var RECIPES = [
       "Portion the cod, potatoes, and asparagus into 4 containers."
     ],
     "storageNote": "Keeps 3 days refrigerated in airtight containers; freezing is not recommended, as the cod dries out and the asparagus turns mushy.",
-    "difficulty": 1
+    "difficulty": 1,
+    "meal": "main"
   },
   {
     "id": "greek-turkey-meatballs-lemon-rice",
@@ -2966,7 +2988,8 @@ var RECIPES = [
       "Divide the lemon rice and meatballs among 4 containers, top each with crumbled feta once cooled slightly, and refrigerate."
     ],
     "storageNote": "Keeps 4 days refrigerated in airtight containers; meatballs and rice freeze up to 2 months, but add the feta fresh after thawing if you can.",
-    "difficulty": 3
+    "difficulty": 3,
+    "meal": "main"
   },
   {
     "id": "slow-cooker-pulled-pork-with-simple-slaw",
@@ -3078,7 +3101,8 @@ var RECIPES = [
       "Portion the pork into 6 containers, pack the slaw in a separate small container or divided compartment, and refrigerate once cool."
     ],
     "storageNote": "Keeps 4 days refrigerated in airtight containers; freeze the sauced pork up to 3 months and make the slaw fresh the week you eat it.",
-    "difficulty": 1
+    "difficulty": 1,
+    "meal": "main"
   },
   {
     "id": "shrimp-fried-rice",
@@ -3204,7 +3228,8 @@ var RECIPES = [
       "Cool briefly, then divide evenly among 6 airtight containers and refrigerate or freeze."
     ],
     "storageNote": "Keeps 3 days refrigerated in airtight containers; freeze flat in single portions up to 2 months and reheat straight from frozen with a splash of water.",
-    "difficulty": 2
+    "difficulty": 2,
+    "meal": "main"
   },
   {
     "id": "red-lentil-dal-with-brown-rice-and-spinach",
@@ -3336,7 +3361,8 @@ var RECIPES = [
       "Portion the rice into 6 containers and top with the dal."
     ],
     "storageNote": "Keeps 5 days refrigerated; freezes up to 3 months in single portions with the rice.",
-    "difficulty": 2
+    "difficulty": 2,
+    "meal": "main"
   },
   {
     "id": "zucchini-and-pepper-frittata-slices",
@@ -3458,7 +3484,8 @@ var RECIPES = [
       "Portion the slices into airtight containers, topping with basil just before eating; reheat gently or eat cold."
     ],
     "storageNote": "Keeps 4 days refrigerated in airtight containers; wrap slices individually and freeze up to 2 months.",
-    "difficulty": 2
+    "difficulty": 2,
+    "meal": "breakfast"
   },
   {
     "id": "sheet-pan-lemon-herb-chicken-with-baby-potatoes-and-green-beans",
@@ -3562,7 +3589,8 @@ var RECIPES = [
       "Portion the chicken, potatoes, and green beans into 4 containers once cooled slightly."
     ],
     "storageNote": "Keeps 4 days refrigerated in airtight containers; freezing is not recommended because the potatoes turn mealy and the green beans go limp.",
-    "difficulty": 1
+    "difficulty": 1,
+    "meal": "main"
   },
   {
     "id": "beef-bulgogi-bowls",
@@ -3691,7 +3719,8 @@ var RECIPES = [
       "Garnish with sesame seeds and scallion greens, cool uncovered for 20 minutes, then seal the containers and refrigerate."
     ],
     "storageNote": "Keeps 4 days refrigerated in airtight containers; freeze up to 2 months and add fresh carrots after reheating.",
-    "difficulty": 2
+    "difficulty": 2,
+    "meal": "main"
   },
   {
     "id": "coconut-tofu-curry-with-basmati-rice",
@@ -3828,7 +3857,8 @@ var RECIPES = [
       "Divide the rice among 6 containers and ladle the curry over the top."
     ],
     "storageNote": "Keeps 5 days refrigerated in airtight containers; freezes well up to 2 months — thaw overnight and reheat gently with a splash of water.",
-    "difficulty": 2
+    "difficulty": 2,
+    "meal": "main"
   },
   {
     "id": "miso-glazed-salmon-with-rice-and-edamame",
@@ -3951,7 +3981,8 @@ var RECIPES = [
       "Portion rice and edamame into 4 containers, set a salmon fillet on top of each, and finish with the remaining scallions before sealing and refrigerating."
     ],
     "storageNote": "Keeps 3 days refrigerated in airtight containers; freeze fully cooled portions up to 2 months and reheat gently, covered, to keep the salmon moist.",
-    "difficulty": 1
+    "difficulty": 1,
+    "meal": "main"
   },
   {
     "id": "turkey-taco-bowls",
@@ -4084,7 +4115,8 @@ var RECIPES = [
       "Divide the cilantro-lime rice among 6 containers, top with the turkey, bean, and corn mixture, and finish each with diced red onion and the remaining cilantro before sealing and refrigerating."
     ],
     "storageNote": "Keeps 4 days refrigerated in airtight containers; freezes well up to 3 months, though the raw red onion is best added fresh.",
-    "difficulty": 2
+    "difficulty": 2,
+    "meal": "main"
   },
   {
     "id": "pork-chile-verde-with-rice",
@@ -4212,7 +4244,8 @@ var RECIPES = [
       "Portion the rice into 6 containers, ladle the chile verde over the top, and refrigerate once cool."
     ],
     "storageNote": "Keeps 4 days refrigerated in airtight containers; freezes well up to 3 months, and the rice reheats best with a splash of water.",
-    "difficulty": 3
+    "difficulty": 3,
+    "meal": "main"
   },
   {
     "id": "shrimp-fajita-bowls",
@@ -4335,7 +4368,8 @@ var RECIPES = [
       "Portion the rice into 4 containers and top with the shrimp and vegetables; refrigerate once cooled."
     ],
     "storageNote": "Keeps 3 days refrigerated in airtight containers; reheat gently until the shrimp are just warmed through, freezing not recommended.",
-    "difficulty": 1
+    "difficulty": 1,
+    "meal": "main"
   },
   {
     "id": "black-bean-sweet-potato-burrito-bowls",
@@ -4469,7 +4503,8 @@ var RECIPES = [
       "Divide the quinoa among 4 containers, top with the sweet potatoes, beans, corn, and red onion, and add sliced avocado only when serving."
     ],
     "storageNote": "Keeps 5 days refrigerated in airtight containers; freeze up to 2 months without the red onion and avocado, and add avocado fresh at serving.",
-    "difficulty": 2
+    "difficulty": 2,
+    "meal": "main"
   },
   {
     "id": "shakshuka-with-peppers-and-tomato",
@@ -4593,7 +4628,8 @@ var RECIPES = [
       "Portion 2 eggs plus a quarter of the sauce into each of 4 containers; reheat at half power to keep the eggs tender, with bread or pita on the side if you like."
     ],
     "storageNote": "Keeps 4 days refrigerated in airtight containers; the eggs do not freeze well, but extra sauce alone freezes up to 3 months.",
-    "difficulty": 1
+    "difficulty": 1,
+    "meal": "breakfast"
   },
   {
     "id": "honey-garlic-chicken-with-broccoli-and-brown-rice",
@@ -4730,7 +4766,8 @@ var RECIPES = [
       "Portion the rice and the chicken and broccoli into 4 containers and top with sesame seeds and scallions."
     ],
     "storageNote": "Keeps 4 days refrigerated in airtight containers; freezes up to 2 months, and the sauce reactivates with a splash of water when reheating.",
-    "difficulty": 2
+    "difficulty": 2,
+    "meal": "main"
   },
   {
     "id": "cottage-pie-skillet",
@@ -4854,7 +4891,8 @@ var RECIPES = [
       "Cool for 20 minutes, then portion into 6 containers, keeping a full layer of potato on each serving, and refrigerate."
     ],
     "storageNote": "Keeps 4 days refrigerated in airtight containers; freezes well for up to 3 months, so thaw overnight before reheating.",
-    "difficulty": 2
+    "difficulty": 2,
+    "meal": "main"
   },
   {
     "id": "crispy-chili-garlic-tofu-bowls-with-quinoa",
@@ -5007,7 +5045,8 @@ var RECIPES = [
       "Divide the quinoa, tofu, snap peas, and carrots among 4 containers; pack the cucumber separately and add it cold when serving."
     ],
     "storageNote": "Keeps 4 days refrigerated with the cucumber packed separately; not recommended for freezing since the crisp coating turns soft.",
-    "difficulty": 3
+    "difficulty": 3,
+    "meal": "main"
   },
   {
     "id": "blackened-tilapia-tacos-with-corn-tortillas-and-cabbage-slaw",
@@ -5145,7 +5184,8 @@ var RECIPES = [
       "Portion the fish into 4 containers and the slaw into 4 separate small containers; store tortillas at room temperature and assemble 3 tacos per serving when eating."
     ],
     "storageNote": "Fish and slaw keep 3 days refrigerated in separate airtight containers; freeze only the fish, up to 2 months, and make slaw fresh after thawing.",
-    "difficulty": 2
+    "difficulty": 2,
+    "meal": "main"
   },
   {
     "id": "turkey-sausage-and-peppers",
@@ -5271,7 +5311,8 @@ var RECIPES = [
       "Divide the herbed rice among 4 containers, top with the sausage and pepper mixture, and refrigerate once cooled."
     ],
     "storageNote": "Keeps 4 days refrigerated in airtight containers; freezes up to 2 months, and the peppers reheat best from frozen in a skillet rather than the microwave.",
-    "difficulty": 1
+    "difficulty": 1,
+    "meal": "main"
   },
   {
     "id": "honey-mustard-pork-tenderloin-with-roasted-vegetables",
@@ -5383,7 +5424,8 @@ var RECIPES = [
       "Rest the pork 10 minutes, slice into medallions, and divide the pork and vegetables among 4 containers before refrigerating."
     ],
     "storageNote": "Keeps 4 days refrigerated in airtight containers; freezes up to 2 months, though the vegetables soften slightly on thawing.",
-    "difficulty": 1
+    "difficulty": 1,
+    "meal": "main"
   },
   {
     "id": "coconut-lime-shrimp-bowls",
@@ -5507,7 +5549,8 @@ var RECIPES = [
       "Portion the rice into 4 containers, spoon over the shrimp and sauce, and tuck the snap peas alongside; refrigerate once cooled."
     ],
     "storageNote": "Keeps 3 days refrigerated in airtight containers; freeze the shrimp, sauce, and rice up to 2 months but leave out the snap peas, which soften after freezing.",
-    "difficulty": 2
+    "difficulty": 2,
+    "meal": "main"
   },
   {
     "id": "three-bean-vegan-chili",
@@ -5641,7 +5684,8 @@ var RECIPES = [
       "Cool slightly, then divide among 6 airtight containers and refrigerate or freeze."
     ],
     "storageNote": "Keeps 5 days refrigerated in airtight containers; freeze up to 3 months and thaw overnight before reheating.",
-    "difficulty": 1
+    "difficulty": 1,
+    "meal": "main"
   },
   {
     "id": "vegetable-egg-fried-rice",
@@ -5755,7 +5799,8 @@ var RECIPES = [
       "Cool briefly, then portion evenly into 6 airtight containers."
     ],
     "storageNote": "Keeps 4 days refrigerated in airtight containers; freeze flat in bags up to 2 months and reheat with a splash of water.",
-    "difficulty": 1
+    "difficulty": 1,
+    "meal": "breakfast"
   },
   {
     "id": "maple-dijon-chicken-sweet-potatoes-brussels-sprouts",
@@ -5867,7 +5912,8 @@ var RECIPES = [
       "Divide the sliced chicken and vegetables among 4 containers and cool before sealing."
     ],
     "storageNote": "Keeps 4 days refrigerated in airtight containers; the roasted vegetables turn soft in the freezer, so eat this one from the fridge.",
-    "difficulty": 1
+    "difficulty": 1,
+    "meal": "main"
   },
   {
     "id": "beef-taco-rice-skillet",
@@ -5989,7 +6035,8 @@ var RECIPES = [
       "Cool the skillet for 15 minutes, then divide into 6 containers and refrigerate; pack toppings like salsa or avocado separately on the day you eat."
     ],
     "storageNote": "Keeps 4 days refrigerated in airtight containers; freeze flat portions up to 2 months and reheat with a splash of water.",
-    "difficulty": 1
+    "difficulty": 1,
+    "meal": "main"
   },
   {
     "id": "baked-bbq-tofu-with-sweet-potato-wedges-and-slaw",
@@ -6118,7 +6165,8 @@ var RECIPES = [
       "Divide the tofu and wedges among 4 containers and pack the slaw in separate small containers so it stays crisp."
     ],
     "storageNote": "Keeps 4 days refrigerated with the slaw packed separately; tofu and wedges freeze up to 2 months, but the slaw does not.",
-    "difficulty": 3
+    "difficulty": 3,
+    "meal": "main"
   },
   {
     "id": "tuna-pasta-salad-with-peas-and-dill",
@@ -6233,7 +6281,8 @@ var RECIPES = [
       "Divide into 6 containers, pressing the salad level and sealing tightly; stir each portion before eating and refresh with a squeeze of lemon if needed."
     ],
     "storageNote": "Keeps 3 days refrigerated in airtight containers; do not freeze, as the mayonnaise dressing separates when thawed.",
-    "difficulty": 1
+    "difficulty": 1,
+    "meal": "main"
   },
   {
     "id": "turkey-bolognese-with-rigatoni",
@@ -6367,7 +6416,8 @@ var RECIPES = [
       "Cool slightly, portion into 6 containers, and top each with the remaining parmesan."
     ],
     "storageNote": "Keeps 4 days refrigerated in airtight containers; freezes up to 3 months, and the pasta reheats best with a splash of water.",
-    "difficulty": 2
+    "difficulty": 2,
+    "meal": "main"
   },
   {
     "id": "banh-mi-style-pork-rice-bowls",
@@ -6522,7 +6572,8 @@ var RECIPES = [
       "Portion the rice and pork into 4 containers, add drained pickles to one corner, and pack the cucumber, cilantro, and sriracha mayo separately to add just before eating."
     ],
     "storageNote": "Keeps 4 days refrigerated with the mayo and fresh vegetables packed separately; freeze only the glazed pork, up to 2 months.",
-    "difficulty": 3
+    "difficulty": 3,
+    "meal": "main"
   },
   {
     "id": "lentil-bolognese-with-spaghetti",
@@ -6659,7 +6710,8 @@ var RECIPES = [
       "Divide the spaghetti among 6 containers, top each with sauce, cool, and refrigerate."
     ],
     "storageNote": "Keeps 4 days refrigerated; the sauce alone freezes up to 3 months, so freeze it separately and boil fresh pasta the week you eat it.",
-    "difficulty": 2
+    "difficulty": 2,
+    "meal": "main"
   },
   {
     "id": "sweet-potato-and-kale-hash-with-baked-eggs",
@@ -6769,7 +6821,8 @@ var RECIPES = [
       "Cool 10 minutes, then portion 2 eggs and a quarter of the hash into each of 4 airtight containers."
     ],
     "storageNote": "Keeps 4 days refrigerated in airtight containers; reheat at half power so the eggs stay tender, and skip the freezer since baked eggs turn rubbery.",
-    "difficulty": 1
+    "difficulty": 1,
+    "meal": "breakfast"
   },
   {
     "id": "buffalo-chicken-bowls",
@@ -6893,7 +6946,8 @@ var RECIPES = [
       "Portion rice and buffalo chicken into 4 containers, top with celery and carrots, and pack the ranch in small lidded cups so the vegetables stay crisp."
     ],
     "storageNote": "Keeps 4 days refrigerated in airtight containers; freeze the chicken and rice up to 2 months, but add fresh celery, carrots, and ranch after thawing.",
-    "difficulty": 2
+    "difficulty": 2,
+    "meal": "main"
   },
   {
     "id": "italian-meatballs-marinara-penne",
@@ -7016,7 +7070,8 @@ var RECIPES = [
       "Divide the penne among 6 containers, top each with 4 meatballs and a generous ladle of sauce so the pasta stays moist, cool for 20 minutes, and refrigerate."
     ],
     "storageNote": "Keeps 4 days refrigerated in airtight containers; meatballs and sauce freeze up to 3 months, though the pasta is best cooked fresh.",
-    "difficulty": 3
+    "difficulty": 3,
+    "meal": "main"
   },
   {
     "id": "tofu-scramble-breakfast-bowls-with-potatoes-and-spinach",
@@ -7153,7 +7208,8 @@ var RECIPES = [
       "Divide the potatoes and scramble among 4 containers; spoon salsa into small cups to add after reheating."
     ],
     "storageNote": "Keeps 4 days refrigerated in airtight containers; freeze scramble and potatoes up to 2 months and reheat in a skillet to restore texture.",
-    "difficulty": 2
+    "difficulty": 2,
+    "meal": "breakfast"
   },
   {
     "id": "sheet-pan-garlic-dijon-salmon-with-green-beans-and-potatoes",
@@ -7262,7 +7318,8 @@ var RECIPES = [
       "Cool 10 minutes on the pan, then portion one salmon fillet with a quarter of the potatoes and green beans into each of 4 containers."
     ],
     "storageNote": "Keeps 3 days refrigerated in airtight containers; reheat covered at half power so the salmon stays tender, and skip the freezer since the green beans and potatoes turn mealy.",
-    "difficulty": 1
+    "difficulty": 1,
+    "meal": "main"
   },
   {
     "id": "turkey-and-sweet-potato-breakfast-hash-with-baked-eggs",
@@ -7372,7 +7429,8 @@ var RECIPES = [
       "Cool, then portion the hash into 4 containers with one egg on top of each."
     ],
     "storageNote": "Keeps 4 days refrigerated in airtight containers; reheat gently at half microwave power so the eggs do not turn rubbery.",
-    "difficulty": 1
+    "difficulty": 1,
+    "meal": "breakfast"
   },
   {
     "id": "cuban-mojo-pork-bowls-with-black-beans-and-plantains",
@@ -7491,7 +7549,8 @@ var RECIPES = [
       "Divide the pork, beans, and plantains among 6 containers, scatter the cilantro over the top, and refrigerate once cool."
     ],
     "storageNote": "Keeps 4 days refrigerated in airtight containers; the pork and beans freeze up to 3 months, but the plantains are best eaten within the week.",
-    "difficulty": 2
+    "difficulty": 2,
+    "meal": "main"
   },
   {
     "id": "chana-masala-with-basmati-rice",
@@ -7632,7 +7691,110 @@ var RECIPES = [
       "Fluff the rice and divide it among 6 containers, top with the chana masala, and add cilantro when serving."
     ],
     "storageNote": "Keeps 5 days refrigerated in airtight containers; freeze up to 2 months and reheat with a splash of water to loosen the rice.",
-    "difficulty": 3
+    "difficulty": 3,
+    "meal": "main"
+  },
+  {
+    "id": "french-toast-bake-with-berries",
+    "name": "French Toast Bake with Berries",
+    "description": "Day-old bread soaked in a maple custard and baked in one dish with berries. Cut it into squares on Sunday and breakfast reheats in ninety seconds all week.",
+    "protein": "eggs",
+    "cuisine": "American",
+    "meal": "breakfast",
+    "tags": [
+      "breakfast",
+      "freezer-friendly",
+      "kid-friendly"
+    ],
+    "baseServings": 6,
+    "prepMinutes": 15,
+    "cookMinutes": 45,
+    "caloriesPerServing": 390,
+    "proteinGrams": 14,
+    "carbsGrams": 52,
+    "fatGrams": 14,
+    "fridgeDays": 4,
+    "freezerFriendly": true,
+    "allergens": [
+      "eggs",
+      "dairy",
+      "wheat"
+    ],
+    "ingredients": [
+      {
+        "qty": 1,
+        "unit": "lb",
+        "item": "day-old french bread",
+        "note": "cut into 1-inch cubes",
+        "allergens": [
+          "wheat"
+        ]
+      },
+      {
+        "qty": 8,
+        "unit": null,
+        "item": "large eggs",
+        "note": null,
+        "allergens": [
+          "eggs"
+        ]
+      },
+      {
+        "qty": 2,
+        "unit": "cup",
+        "item": "whole milk",
+        "note": null,
+        "allergens": [
+          "dairy"
+        ]
+      },
+      {
+        "qty": 0.5,
+        "unit": "cup",
+        "item": "maple syrup",
+        "note": "plus more for serving",
+        "allergens": []
+      },
+      {
+        "qty": 2,
+        "unit": "tsp",
+        "item": "vanilla extract",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": 1,
+        "unit": "tsp",
+        "item": "ground cinnamon",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": 2,
+        "unit": "cup",
+        "item": "mixed berries",
+        "note": "fresh or frozen",
+        "allergens": []
+      },
+      {
+        "qty": 2,
+        "unit": "tbsp",
+        "item": "butter",
+        "note": "for the dish",
+        "allergens": [
+          "dairy"
+        ]
+      }
+    ],
+    "steps": [
+      "Butter a 9x13 baking dish and spread the bread cubes and berries in it.",
+      "Whisk the eggs, milk, maple syrup, vanilla, and cinnamon and pour it evenly over the bread, pressing the cubes down to soak.",
+      "Rest 15 minutes (or overnight in the fridge) while the oven heats to 350F.",
+      "Bake 40 to 45 minutes, until puffed and set in the center.",
+      "Cool, cut into 6 squares, and portion into containers."
+    ],
+    "storageNote": "Keeps 4 days refrigerated; wrap squares individually and freeze up to 2 months.",
+    "difficulty": 1
   },
   {
     "id": "chicken-tikka-masala",
@@ -7780,7 +7942,8 @@ var RECIPES = [
       "Portion rice and curry into 6 containers and top with chopped cilantro."
     ],
     "storageNote": "Keeps 4 days refrigerated in airtight containers; the sauced chicken freezes well up to 3 months, so freeze it in portions and cook fresh rice if you can.",
-    "difficulty": 3
+    "difficulty": 3,
+    "meal": "main"
   },
   {
     "id": "thai-basil-beef",
@@ -7900,6 +8063,112 @@ var RECIPES = [
       "Divide the rice among 4 containers, top with the beef and green beans, cool for 20 minutes, and refrigerate."
     ],
     "storageNote": "Keeps 4 days refrigerated in airtight containers; freeze up to 2 months, though the basil is best stirred in fresh if you plan ahead.",
+    "difficulty": 1,
+    "meal": "main"
+  },
+  {
+    "id": "tofu-breakfast-burritos",
+    "name": "Tofu Breakfast Burritos",
+    "description": "Turmeric-scrambled tofu with black beans and salsa rolled into freezer-ready burritos. The vegan answer to the breakfast burrito drawer.",
+    "protein": "tofu",
+    "cuisine": "Tex-Mex",
+    "meal": "breakfast",
+    "tags": [
+      "breakfast",
+      "vegan",
+      "dairy-free",
+      "freezer-friendly"
+    ],
+    "baseServings": 6,
+    "prepMinutes": 15,
+    "cookMinutes": 20,
+    "caloriesPerServing": 400,
+    "proteinGrams": 20,
+    "carbsGrams": 44,
+    "fatGrams": 16,
+    "fridgeDays": 4,
+    "freezerFriendly": true,
+    "allergens": [
+      "soy",
+      "wheat"
+    ],
+    "ingredients": [
+      {
+        "qty": 14,
+        "unit": "oz",
+        "item": "extra-firm tofu",
+        "note": "pressed and crumbled",
+        "allergens": [
+          "soy"
+        ]
+      },
+      {
+        "qty": 6,
+        "unit": null,
+        "item": "flour tortillas",
+        "note": "burrito size",
+        "allergens": [
+          "wheat"
+        ]
+      },
+      {
+        "qty": 1,
+        "unit": "can (14 oz)",
+        "item": "black beans",
+        "note": "drained and rinsed",
+        "allergens": []
+      },
+      {
+        "qty": 0.5,
+        "unit": "tsp",
+        "item": "ground turmeric",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": 1,
+        "unit": "tsp",
+        "item": "ground cumin",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": 2,
+        "unit": "tbsp",
+        "item": "nutritional yeast",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": 1,
+        "unit": null,
+        "item": "bell pepper",
+        "note": "diced",
+        "allergens": []
+      },
+      {
+        "qty": 1,
+        "unit": "cup",
+        "item": "jarred salsa",
+        "note": "drained of excess liquid",
+        "allergens": []
+      },
+      {
+        "qty": 2,
+        "unit": "tbsp",
+        "item": "olive oil",
+        "note": null,
+        "allergens": []
+      }
+    ],
+    "steps": [
+      "Cook the bell pepper in the oil until soft, then add the crumbled tofu, turmeric, cumin, nutritional yeast, and salt and cook 6 to 8 minutes.",
+      "Fold in the beans and salsa and cook until the mixture is fairly dry — wet filling makes soggy burritos.",
+      "Cool the filling slightly, then divide among the tortillas and roll tightly, tucking the ends.",
+      "Wrap each burrito in foil and refrigerate or freeze.",
+      "Portion one per breakfast; reheat in a dry skillet or air fryer for a crisp shell."
+    ],
+    "storageNote": "Keeps 4 days refrigerated; freezes up to 3 months.",
     "difficulty": 1
   },
   {
@@ -8020,7 +8289,8 @@ var RECIPES = [
       "Portion rice into 4 containers, top with glazed salmon, shredded carrot, and scallions, and pack the pickled cucumber in separate small containers to add cold at serving."
     ],
     "storageNote": "Keeps 3 days refrigerated with cucumbers stored separately; salmon and rice freeze up to 2 months, so add fresh cucumber after thawing.",
-    "difficulty": 1
+    "difficulty": 1,
+    "meal": "main"
   },
   {
     "id": "hoisin-turkey-rice-bowls-with-quick-pickled-carrots",
@@ -8160,7 +8430,8 @@ var RECIPES = [
       "Pack the pickled carrots and cucumber in small side containers so they stay crunchy until serving."
     ],
     "storageNote": "Keeps 4 days refrigerated with the pickles packed separately; the turkey and rice freeze up to 2 months, but the pickled vegetables do not.",
-    "difficulty": 2
+    "difficulty": 2,
+    "meal": "main"
   },
   {
     "id": "pork-egg-roll-in-a-bowl",
@@ -8289,7 +8560,8 @@ var RECIPES = [
       "Divide the rice among 4 containers, top with the pork mixture, sesame seeds, and green onion tops; pack sriracha separately to add after reheating, and cool completely before sealing."
     ],
     "storageNote": "Keeps 4 days refrigerated in airtight containers; not recommended for freezing, as the cabbage turns watery when thawed.",
-    "difficulty": 1
+    "difficulty": 1,
+    "meal": "main"
   },
   {
     "id": "black-bean-enchilada-casserole",
@@ -8412,6 +8684,110 @@ var RECIPES = [
       "Cut into 6 squares and transfer to airtight containers; top with green onions when serving."
     ],
     "storageNote": "Keeps 4 days refrigerated in airtight containers; wrap individual squares and freeze up to 2 months, reheating from thawed.",
+    "difficulty": 1,
+    "meal": "main"
+  },
+  {
+    "id": "sheet-pan-pancakes-with-blueberries",
+    "name": "Sheet-Pan Pancakes with Blueberries",
+    "description": "One batch of batter baked flat on a sheet pan instead of ladled one pancake at a time. Twelve squares in eighteen minutes, no flipping.",
+    "protein": "eggs",
+    "cuisine": "American",
+    "meal": "breakfast",
+    "tags": [
+      "breakfast",
+      "sheet-pan",
+      "freezer-friendly",
+      "kid-friendly"
+    ],
+    "baseServings": 6,
+    "prepMinutes": 10,
+    "cookMinutes": 18,
+    "caloriesPerServing": 320,
+    "proteinGrams": 10,
+    "carbsGrams": 48,
+    "fatGrams": 10,
+    "fridgeDays": 4,
+    "freezerFriendly": true,
+    "allergens": [
+      "eggs",
+      "dairy",
+      "wheat"
+    ],
+    "ingredients": [
+      {
+        "qty": 2.5,
+        "unit": "cup",
+        "item": "all-purpose flour",
+        "note": null,
+        "allergens": [
+          "wheat"
+        ]
+      },
+      {
+        "qty": 2,
+        "unit": "tbsp",
+        "item": "sugar",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": 1,
+        "unit": "tbsp",
+        "item": "baking powder",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": 0.5,
+        "unit": "tsp",
+        "item": "salt",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": 2,
+        "unit": null,
+        "item": "large eggs",
+        "note": null,
+        "allergens": [
+          "eggs"
+        ]
+      },
+      {
+        "qty": 2,
+        "unit": "cup",
+        "item": "whole milk",
+        "note": null,
+        "allergens": [
+          "dairy"
+        ]
+      },
+      {
+        "qty": 3,
+        "unit": "tbsp",
+        "item": "butter",
+        "note": "melted, plus more for the pan",
+        "allergens": [
+          "dairy"
+        ]
+      },
+      {
+        "qty": 1.5,
+        "unit": "cup",
+        "item": "blueberries",
+        "note": null,
+        "allergens": []
+      }
+    ],
+    "steps": [
+      "Heat the oven to 425F and butter a rimmed half-sheet pan well.",
+      "Whisk the flour, sugar, baking powder, and salt, then whisk in the eggs, milk, and melted butter until just combined.",
+      "Spread the batter on the pan and scatter the blueberries over the top.",
+      "Bake 15 to 18 minutes, until golden and springy.",
+      "Cut into 12 squares and portion 2 per container."
+    ],
+    "storageNote": "Keeps 4 days refrigerated; freeze squares between parchment up to 2 months and toast to reheat.",
     "difficulty": 1
   },
   {
@@ -8538,7 +8914,8 @@ var RECIPES = [
       "Portion cilantro-lime rice and the fajita mixture into 4 containers, tucking a lime wedge into each."
     ],
     "storageNote": "Keeps 4 days refrigerated in airtight containers; freezes up to 2 months, though the peppers will soften on thawing.",
-    "difficulty": 1
+    "difficulty": 1,
+    "meal": "main"
   },
   {
     "id": "beef-barbacoa-bowls-with-cilantro-lime-rice",
@@ -8658,7 +9035,8 @@ var RECIPES = [
       "Divide the rice and barbacoa among 6 containers, spooning extra juices over the beef to keep it moist."
     ],
     "storageNote": "Keeps 5 days refrigerated in airtight containers; the shredded beef freezes in its juices up to 3 months.",
-    "difficulty": 1
+    "difficulty": 1,
+    "meal": "main"
   },
   {
     "id": "mediterranean-tuna-farro-bowls",
@@ -8784,7 +9162,8 @@ var RECIPES = [
       "Divide evenly among 4 airtight containers and refrigerate."
     ],
     "storageNote": "Keeps 3 days refrigerated in airtight containers; eat cold and give it a stir before serving, do not freeze.",
-    "difficulty": 2
+    "difficulty": 2,
+    "meal": "main"
   },
   {
     "id": "turkey-stuffed-pepper-bowls-with-rice-and-tomato",
@@ -8903,6 +9282,102 @@ var RECIPES = [
       "Rest 5 minutes off the heat, fluff, stir in the parsley, and portion into 6 containers."
     ],
     "storageNote": "Keeps 4 days refrigerated in airtight containers; freezes up to 3 months — thaw overnight and reheat with a spoonful of water.",
+    "difficulty": 1,
+    "meal": "main"
+  },
+  {
+    "id": "country-breakfast-bowls",
+    "name": "Country Breakfast Bowls",
+    "description": "Crispy potatoes, browned pork sausage, peppers, and soft-scrambled eggs layered into bowls. The diner plate, portioned for a work week.",
+    "protein": "pork",
+    "cuisine": "American",
+    "meal": "breakfast",
+    "tags": [
+      "breakfast",
+      "gluten-free",
+      "dairy-free",
+      "high-protein"
+    ],
+    "baseServings": 4,
+    "prepMinutes": 15,
+    "cookMinutes": 30,
+    "caloriesPerServing": 475,
+    "proteinGrams": 26,
+    "carbsGrams": 34,
+    "fatGrams": 26,
+    "fridgeDays": 4,
+    "freezerFriendly": false,
+    "allergens": [
+      "eggs"
+    ],
+    "ingredients": [
+      {
+        "qty": 1,
+        "unit": "lb",
+        "item": "pork breakfast sausage",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": 1.5,
+        "unit": "lb",
+        "item": "yukon gold potatoes",
+        "note": "diced small",
+        "allergens": []
+      },
+      {
+        "qty": 8,
+        "unit": null,
+        "item": "large eggs",
+        "note": null,
+        "allergens": [
+          "eggs"
+        ]
+      },
+      {
+        "qty": 1,
+        "unit": null,
+        "item": "bell pepper",
+        "note": "diced",
+        "allergens": []
+      },
+      {
+        "qty": 1,
+        "unit": null,
+        "item": "yellow onion",
+        "note": "diced",
+        "allergens": []
+      },
+      {
+        "qty": 2,
+        "unit": "tbsp",
+        "item": "olive oil",
+        "note": "divided",
+        "allergens": []
+      },
+      {
+        "qty": 0.5,
+        "unit": "tsp",
+        "item": "smoked paprika",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": null,
+        "unit": null,
+        "item": "salt and black pepper",
+        "note": "to taste",
+        "allergens": []
+      }
+    ],
+    "steps": [
+      "Roast the potatoes with half the oil, the paprika, and salt at 425F for 25 minutes.",
+      "Brown the sausage in a skillet, breaking it up, then set aside and cook the pepper and onion in the fat.",
+      "Soft-scramble the eggs in the remaining oil over low heat, stopping while still glossy so they survive reheating.",
+      "Layer potatoes, sausage, vegetables, and eggs into 4 containers.",
+      "Reheat at half power so the eggs stay tender."
+    ],
+    "storageNote": "Keeps 4 days refrigerated in airtight containers; the scrambled eggs do not freeze well.",
     "difficulty": 1
   },
   {
@@ -9030,6 +9505,114 @@ var RECIPES = [
       "Cool slightly, then ladle into 6 airtight containers and refrigerate or freeze."
     ],
     "storageNote": "Keeps 5 days refrigerated in airtight containers; freeze up to 3 months, though the kale softens after thawing.",
+    "difficulty": 1,
+    "meal": "main"
+  },
+  {
+    "id": "hash-brown-veggie-breakfast-casserole",
+    "name": "Hash Brown Veggie Breakfast Casserole",
+    "description": "Eggs, cheddar, and vegetables baked over a shredded hash brown base. One dish covers six mornings and it reheats without going rubbery.",
+    "protein": "eggs",
+    "cuisine": "American",
+    "meal": "breakfast",
+    "tags": [
+      "breakfast",
+      "gluten-free",
+      "vegetarian",
+      "freezer-friendly"
+    ],
+    "baseServings": 6,
+    "prepMinutes": 15,
+    "cookMinutes": 45,
+    "caloriesPerServing": 390,
+    "proteinGrams": 22,
+    "carbsGrams": 26,
+    "fatGrams": 22,
+    "fridgeDays": 4,
+    "freezerFriendly": true,
+    "allergens": [
+      "eggs",
+      "dairy"
+    ],
+    "ingredients": [
+      {
+        "qty": 20,
+        "unit": "oz",
+        "item": "frozen shredded hash browns",
+        "note": "thawed and squeezed dry",
+        "allergens": []
+      },
+      {
+        "qty": 10,
+        "unit": null,
+        "item": "large eggs",
+        "note": null,
+        "allergens": [
+          "eggs"
+        ]
+      },
+      {
+        "qty": 0.75,
+        "unit": "cup",
+        "item": "whole milk",
+        "note": null,
+        "allergens": [
+          "dairy"
+        ]
+      },
+      {
+        "qty": 1.5,
+        "unit": "cup",
+        "item": "shredded cheddar cheese",
+        "note": "divided",
+        "allergens": [
+          "dairy"
+        ]
+      },
+      {
+        "qty": 1,
+        "unit": null,
+        "item": "bell pepper",
+        "note": "diced",
+        "allergens": []
+      },
+      {
+        "qty": 1,
+        "unit": null,
+        "item": "yellow onion",
+        "note": "diced",
+        "allergens": []
+      },
+      {
+        "qty": 2,
+        "unit": "cup",
+        "item": "baby spinach",
+        "note": "roughly chopped",
+        "allergens": []
+      },
+      {
+        "qty": 1,
+        "unit": "tsp",
+        "item": "smoked paprika",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": null,
+        "unit": null,
+        "item": "salt and black pepper",
+        "note": "to taste",
+        "allergens": []
+      }
+    ],
+    "steps": [
+      "Press the hash browns into a greased 9x13 dish and bake at 400F for 15 minutes to set the base.",
+      "Whisk the eggs, milk, paprika, salt, and pepper, then stir in the vegetables and half the cheddar.",
+      "Pour the mixture over the hash brown base and top with the remaining cheese.",
+      "Bake at 350F for 30 minutes, until the center no longer jiggles.",
+      "Cool, cut into 6 pieces, and portion into containers."
+    ],
+    "storageNote": "Keeps 4 days refrigerated; freeze pieces up to 2 months and thaw overnight.",
     "difficulty": 1
   },
   {
@@ -9174,7 +9757,8 @@ var RECIPES = [
       "Portion rice, glazed chicken, and broccoli into 4 containers."
     ],
     "storageNote": "Keeps 4 days refrigerated in airtight containers; chicken and rice freeze up to 2 months, though the broccoli is best eaten within the week.",
-    "difficulty": 2
+    "difficulty": 2,
+    "meal": "main"
   },
   {
     "id": "steak-fajita-bowls-with-peppers-and-onions",
@@ -9286,7 +9870,8 @@ var RECIPES = [
       "Portion the quinoa into 4 containers and top with steak and vegetables, keeping the steak slices in larger pieces so they reheat without drying out."
     ],
     "storageNote": "Keeps 4 days refrigerated; freeze up to 2 months, though the peppers will soften slightly after thawing.",
-    "difficulty": 1
+    "difficulty": 1,
+    "meal": "main"
   },
   {
     "id": "baja-fish-bowls",
@@ -9409,7 +9994,8 @@ var RECIPES = [
       "Portion the bean-corn mixture and cod into 4 containers; pack the slaw and tortilla strips in separate small containers and add them just before eating."
     ],
     "storageNote": "Keeps 3 days refrigerated with slaw and tortilla strips packed separately; not recommended for freezing.",
-    "difficulty": 1
+    "difficulty": 1,
+    "meal": "main"
   },
   {
     "id": "turkey-larb-style-bowls-with-rice-and-fresh-herbs",
@@ -9539,7 +10125,99 @@ var RECIPES = [
       "Portion the rice and turkey into 4 containers; pack the mint, cilantro, and cucumber separately and add just before eating."
     ],
     "storageNote": "Keeps 4 days refrigerated with herbs and cucumber packed separately; freezing is not recommended because the lime and herbs lose their brightness.",
-    "difficulty": 2
+    "difficulty": 2,
+    "meal": "main"
+  },
+  {
+    "id": "chorizo-sweet-potato-breakfast-skillet",
+    "name": "Chorizo and Sweet Potato Breakfast Skillet",
+    "description": "Fresh chorizo crisped with sweet potatoes, poblano, and red onion in one skillet. Spicy, sturdy, and it contains none of the big-9 allergens.",
+    "protein": "pork",
+    "cuisine": "Tex-Mex",
+    "meal": "breakfast",
+    "tags": [
+      "breakfast",
+      "gluten-free",
+      "dairy-free",
+      "one-pan",
+      "spicy"
+    ],
+    "baseServings": 4,
+    "prepMinutes": 15,
+    "cookMinutes": 25,
+    "caloriesPerServing": 425,
+    "proteinGrams": 22,
+    "carbsGrams": 30,
+    "fatGrams": 24,
+    "fridgeDays": 4,
+    "freezerFriendly": true,
+    "allergens": [],
+    "ingredients": [
+      {
+        "qty": 12,
+        "unit": "oz",
+        "item": "fresh chorizo",
+        "note": "casings removed",
+        "allergens": []
+      },
+      {
+        "qty": 2,
+        "unit": "lb",
+        "item": "sweet potatoes",
+        "note": "diced small",
+        "allergens": []
+      },
+      {
+        "qty": 1,
+        "unit": null,
+        "item": "poblano pepper",
+        "note": "diced",
+        "allergens": []
+      },
+      {
+        "qty": 1,
+        "unit": null,
+        "item": "red onion",
+        "note": "diced",
+        "allergens": []
+      },
+      {
+        "qty": 2,
+        "unit": "clove",
+        "item": "garlic",
+        "note": "minced",
+        "allergens": []
+      },
+      {
+        "qty": 1,
+        "unit": "tbsp",
+        "item": "olive oil",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": 0.25,
+        "unit": "cup",
+        "item": "fresh cilantro",
+        "note": "chopped",
+        "allergens": []
+      },
+      {
+        "qty": null,
+        "unit": null,
+        "item": "salt",
+        "note": "to taste",
+        "allergens": []
+      }
+    ],
+    "steps": [
+      "Brown the chorizo in a large skillet, breaking it into crumbles, then set it aside leaving the fat.",
+      "Add the oil and sweet potatoes and cook covered 12 minutes, stirring now and then, until tender and browned.",
+      "Stir in the poblano, onion, and garlic and cook 5 minutes more, then fold the chorizo back in.",
+      "Season, scatter with cilantro, and portion into 4 containers."
+    ],
+    "storageNote": "Keeps 4 days refrigerated; freezes up to 2 months.",
+    "difficulty": 1
   },
   {
     "id": "baked-falafel-bowls-with-tahini-sauce",
@@ -9669,7 +10347,100 @@ var RECIPES = [
       "Divide the salad among 4 containers, top each with 3 patties, and pack the tahini sauce in small lidded cups on the side."
     ],
     "storageNote": "Keeps 4 days refrigerated with the sauce packed separately; freeze the baked patties up to 3 months.",
-    "difficulty": 3
+    "difficulty": 3,
+    "meal": "main"
+  },
+  {
+    "id": "ham-and-cheddar-egg-bites",
+    "name": "Ham and Cheddar Egg Bites",
+    "description": "Blended eggs and cottage cheese baked low with ham and cheddar for the smooth coffee-shop texture at a fraction of the price. Three bites make a breakfast.",
+    "protein": "eggs",
+    "cuisine": "American",
+    "meal": "breakfast",
+    "tags": [
+      "breakfast",
+      "gluten-free",
+      "high-protein",
+      "under-40-min"
+    ],
+    "baseServings": 4,
+    "prepMinutes": 10,
+    "cookMinutes": 22,
+    "caloriesPerServing": 275,
+    "proteinGrams": 24,
+    "carbsGrams": 4,
+    "fatGrams": 18,
+    "fridgeDays": 4,
+    "freezerFriendly": true,
+    "allergens": [
+      "eggs",
+      "dairy"
+    ],
+    "ingredients": [
+      {
+        "qty": 8,
+        "unit": null,
+        "item": "large eggs",
+        "note": null,
+        "allergens": [
+          "eggs"
+        ]
+      },
+      {
+        "qty": 0.5,
+        "unit": "cup",
+        "item": "cottage cheese",
+        "note": null,
+        "allergens": [
+          "dairy"
+        ]
+      },
+      {
+        "qty": 0.75,
+        "unit": "cup",
+        "item": "shredded cheddar cheese",
+        "note": null,
+        "allergens": [
+          "dairy"
+        ]
+      },
+      {
+        "qty": 4,
+        "unit": "oz",
+        "item": "ham",
+        "note": "diced",
+        "allergens": []
+      },
+      {
+        "qty": 2,
+        "unit": null,
+        "item": "scallions",
+        "note": "sliced",
+        "allergens": []
+      },
+      {
+        "qty": 0.25,
+        "unit": "tsp",
+        "item": "black pepper",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": 1,
+        "unit": "tbsp",
+        "item": "neutral oil",
+        "note": "for the tin",
+        "allergens": []
+      }
+    ],
+    "steps": [
+      "Blend the eggs, cottage cheese, and pepper until completely smooth.",
+      "Oil a 12-cup muffin tin and divide the ham, cheddar, and scallions among the cups.",
+      "Pour in the egg mixture and bake at 300F for 20 to 22 minutes, until just set.",
+      "Cool 5 minutes before releasing, then portion 3 bites per container."
+    ],
+    "storageNote": "Keeps 4 days refrigerated; freeze up to 2 months and microwave 60 seconds from frozen.",
+    "difficulty": 1
   },
   {
     "id": "pesto-chicken-pasta-salad",
@@ -9784,7 +10555,8 @@ var RECIPES = [
       "Portion the salad cold into 6 containers and refrigerate immediately."
     ],
     "storageNote": "Keeps 4 days refrigerated in airtight containers; eat cold or at room temperature, and do not freeze.",
-    "difficulty": 1
+    "difficulty": 1,
+    "meal": "main"
   },
   {
     "id": "beef-and-broccoli-stir-fry-with-rice",
@@ -9911,7 +10683,8 @@ var RECIPES = [
       "Portion the rice into 4 containers, top with the beef and broccoli, and finish with scallions; keep the broccoli slightly undercooked so it holds up when reheated."
     ],
     "storageNote": "Keeps 4 days refrigerated in airtight containers; freezing is not recommended because the broccoli turns mushy.",
-    "difficulty": 2
+    "difficulty": 2,
+    "meal": "main"
   },
   {
     "id": "salmon-cakes-with-lemon-dill-yogurt",
@@ -10042,7 +10815,8 @@ var RECIPES = [
       "Divide the quinoa and cucumber among 4 containers, add 2 salmon cakes to each, tuck in a sauce cup, and seal once fully cool."
     ],
     "storageNote": "Keeps 3 days refrigerated with the sauce stored separately; the cooked cakes freeze up to 2 months, but do not freeze the yogurt sauce.",
-    "difficulty": 2
+    "difficulty": 2,
+    "meal": "main"
   },
   {
     "id": "bbq-turkey-sloppy-joe-bowls",
@@ -10161,7 +10935,8 @@ var RECIPES = [
       "Divide the wedges and green beans among 4 containers, spoon the turkey mixture alongside, and cool completely before sealing."
     ],
     "storageNote": "Keeps 4 days refrigerated in airtight containers; freeze the turkey mixture up to 3 months and roast fresh wedges the week you serve it.",
-    "difficulty": 2
+    "difficulty": 2,
+    "meal": "main"
   },
   {
     "id": "moroccan-chickpea-and-lentil-stew-with-apricots",
@@ -10301,7 +11076,104 @@ var RECIPES = [
       "Cool 20 minutes, then ladle into 6 containers, leaving headroom in any bound for the freezer."
     ],
     "storageNote": "Keeps 5 days refrigerated in airtight containers; freezes up to 3 months, then thaw overnight and loosen with a splash of water when reheating.",
-    "difficulty": 3
+    "difficulty": 3,
+    "meal": "main"
+  },
+  {
+    "id": "mediterranean-breakfast-boxes",
+    "name": "Mediterranean Breakfast Boxes",
+    "description": "A cold box of jammy boiled eggs, hummus, pita wedges, olives, and crunchy vegetables. No morning cooking — open the lid and eat.",
+    "protein": "eggs",
+    "cuisine": "Mediterranean",
+    "meal": "breakfast",
+    "tags": [
+      "breakfast",
+      "no-cook",
+      "dairy-free",
+      "vegetarian",
+      "under-30-min"
+    ],
+    "baseServings": 4,
+    "prepMinutes": 20,
+    "cookMinutes": 10,
+    "caloriesPerServing": 410,
+    "proteinGrams": 20,
+    "carbsGrams": 38,
+    "fatGrams": 20,
+    "fridgeDays": 4,
+    "freezerFriendly": false,
+    "allergens": [
+      "eggs",
+      "wheat",
+      "sesame"
+    ],
+    "ingredients": [
+      {
+        "qty": 8,
+        "unit": null,
+        "item": "large eggs",
+        "note": null,
+        "allergens": [
+          "eggs"
+        ]
+      },
+      {
+        "qty": 1,
+        "unit": "cup",
+        "item": "hummus",
+        "note": null,
+        "allergens": [
+          "sesame"
+        ]
+      },
+      {
+        "qty": 2,
+        "unit": null,
+        "item": "whole-wheat pitas",
+        "note": "cut into wedges",
+        "allergens": [
+          "wheat"
+        ]
+      },
+      {
+        "qty": 2,
+        "unit": "cup",
+        "item": "cherry tomatoes",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": 3,
+        "unit": null,
+        "item": "persian cucumbers",
+        "note": "cut into spears",
+        "allergens": []
+      },
+      {
+        "qty": 0.5,
+        "unit": "cup",
+        "item": "kalamata olives",
+        "note": "pitted",
+        "allergens": []
+      },
+      {
+        "qty": 1,
+        "unit": "tsp",
+        "item": "za'atar",
+        "note": "for the hummus",
+        "allergens": [
+          "sesame"
+        ]
+      }
+    ],
+    "steps": [
+      "Boil the eggs 8 minutes for jammy yolks, then shock in ice water and peel.",
+      "Portion the hummus into small lidded cups and dust with za'atar.",
+      "Pack each box with 2 eggs, a hummus cup, pita wedges, tomatoes, cucumbers, and olives.",
+      "Refrigerate; the boxes are eaten cold."
+    ],
+    "storageNote": "Keeps 4 days refrigerated; pack pita in a paper towel so it stays dry. Do not freeze.",
+    "difficulty": 1
   },
   {
     "id": "garlic-butter-chicken-bites",
@@ -10420,7 +11292,8 @@ var RECIPES = [
       "Divide the mashed potatoes, chicken bites, and green beans among 4 airtight containers, spooning any garlic butter from the pan over the chicken, and refrigerate once cool."
     ],
     "storageNote": "Keeps 4 days refrigerated in airtight containers; chicken and mashed potatoes freeze up to 2 months, but green beans are best kept refrigerated only.",
-    "difficulty": 2
+    "difficulty": 2,
+    "meal": "main"
   },
   {
     "id": "meal-prep-spaghetti-bolognese",
@@ -10554,7 +11427,212 @@ var RECIPES = [
       "Portion the spaghetti into 6 containers, ladle the sauce over the top, and pack the parmesan separately to sprinkle on after reheating."
     ],
     "storageNote": "Keeps 5 days refrigerated; freeze the sauce alone up to 3 months and cook fresh pasta when serving.",
-    "difficulty": 2
+    "difficulty": 2,
+    "meal": "main"
+  },
+  {
+    "id": "smoked-salmon-breakfast-boxes",
+    "name": "Smoked Salmon Breakfast Boxes",
+    "description": "Smoked salmon, jammy eggs, cream cheese, cucumber, and a bagel packed cold, deli-case style. Assembles in the time it takes to boil the eggs.",
+    "protein": "fish",
+    "cuisine": "American",
+    "meal": "breakfast",
+    "tags": [
+      "breakfast",
+      "no-cook",
+      "high-protein",
+      "under-30-min"
+    ],
+    "baseServings": 4,
+    "prepMinutes": 15,
+    "cookMinutes": 10,
+    "caloriesPerServing": 400,
+    "proteinGrams": 24,
+    "carbsGrams": 36,
+    "fatGrams": 18,
+    "fridgeDays": 3,
+    "freezerFriendly": false,
+    "allergens": [
+      "fish",
+      "eggs",
+      "dairy",
+      "wheat"
+    ],
+    "ingredients": [
+      {
+        "qty": 8,
+        "unit": "oz",
+        "item": "smoked salmon",
+        "note": null,
+        "allergens": [
+          "fish"
+        ]
+      },
+      {
+        "qty": 6,
+        "unit": null,
+        "item": "large eggs",
+        "note": null,
+        "allergens": [
+          "eggs"
+        ]
+      },
+      {
+        "qty": 4,
+        "unit": "oz",
+        "item": "cream cheese",
+        "note": null,
+        "allergens": [
+          "dairy"
+        ]
+      },
+      {
+        "qty": 4,
+        "unit": null,
+        "item": "mini bagels",
+        "note": "halved",
+        "allergens": [
+          "wheat"
+        ]
+      },
+      {
+        "qty": 1,
+        "unit": null,
+        "item": "english cucumber",
+        "note": "sliced",
+        "allergens": []
+      },
+      {
+        "qty": 2,
+        "unit": "tbsp",
+        "item": "capers",
+        "note": "drained",
+        "allergens": []
+      },
+      {
+        "qty": 0.5,
+        "unit": null,
+        "item": "red onion",
+        "note": "thinly sliced",
+        "allergens": []
+      },
+      {
+        "qty": 1,
+        "unit": null,
+        "item": "lemon",
+        "note": "cut into wedges",
+        "allergens": []
+      }
+    ],
+    "steps": [
+      "Boil the eggs 8 minutes, shock in ice water, and peel.",
+      "Portion the cream cheese into small lidded cups.",
+      "Build each of 4 boxes with a quarter of the salmon, a bagel, halved eggs, cucumber, red onion, capers, and a lemon wedge.",
+      "Refrigerate; eaten cold, no reheating."
+    ],
+    "storageNote": "Keeps 3 days refrigerated. Do not freeze.",
+    "difficulty": 1
+  },
+  {
+    "id": "turkey-sausage-breakfast-sandwiches",
+    "name": "Turkey Sausage Breakfast Sandwiches",
+    "description": "Sage-and-maple turkey patties with baked eggs and cheddar on english muffins, wrapped for the freezer. The drive-through sandwich, a dollar a piece and half the sodium.",
+    "protein": "turkey",
+    "cuisine": "American",
+    "meal": "breakfast",
+    "tags": [
+      "breakfast",
+      "freezer-friendly",
+      "high-protein",
+      "kid-friendly"
+    ],
+    "baseServings": 6,
+    "prepMinutes": 15,
+    "cookMinutes": 25,
+    "caloriesPerServing": 400,
+    "proteinGrams": 28,
+    "carbsGrams": 32,
+    "fatGrams": 18,
+    "fridgeDays": 4,
+    "freezerFriendly": true,
+    "allergens": [
+      "wheat",
+      "eggs",
+      "dairy"
+    ],
+    "ingredients": [
+      {
+        "qty": 1.25,
+        "unit": "lb",
+        "item": "ground turkey",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": 1,
+        "unit": "tsp",
+        "item": "dried sage",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": 1,
+        "unit": "tbsp",
+        "item": "maple syrup",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": 6,
+        "unit": null,
+        "item": "english muffins",
+        "note": "split",
+        "allergens": [
+          "wheat"
+        ]
+      },
+      {
+        "qty": 6,
+        "unit": null,
+        "item": "large eggs",
+        "note": null,
+        "allergens": [
+          "eggs"
+        ]
+      },
+      {
+        "qty": 6,
+        "unit": "slice",
+        "item": "cheddar cheese",
+        "note": null,
+        "allergens": [
+          "dairy"
+        ]
+      },
+      {
+        "qty": 1,
+        "unit": "tbsp",
+        "item": "olive oil",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": null,
+        "unit": null,
+        "item": "salt and black pepper",
+        "note": "to taste",
+        "allergens": []
+      }
+    ],
+    "steps": [
+      "Mix the turkey with the sage, maple, salt, and pepper and form 6 thin patties.",
+      "Cook the patties in the oil over medium heat, about 4 minutes per side.",
+      "Bake the eggs in a greased muffin-top tin (or ramekins) at 350F for 12 minutes so they come out sandwich-shaped.",
+      "Toast the muffins lightly and build each sandwich: patty, egg, cheddar.",
+      "Wrap each sandwich in foil or parchment and refrigerate or freeze."
+    ],
+    "storageNote": "Keeps 4 days refrigerated; freeze up to 2 months and reheat wrapped in a damp paper towel, 90 seconds.",
+    "difficulty": 1
   },
   {
     "id": "edamame-quinoa-power-bowls-with-sesame-ginger-dressing",
@@ -10684,7 +11762,8 @@ var RECIPES = [
       "Pack the dressing in small lidded cups and pour over just before eating; serve cold."
     ],
     "storageNote": "Keeps 4 days refrigerated with the dressing packed separately; do not freeze, as the raw vegetables lose their crunch.",
-    "difficulty": 2
+    "difficulty": 2,
+    "meal": "main"
   },
   {
     "id": "harvest-chicken-salad",
@@ -10810,7 +11889,8 @@ var RECIPES = [
       "To serve, tip the chicken salad over the greens; refrigerate all containers as soon as they are packed."
     ],
     "storageNote": "Keeps 4 days refrigerated with the greens packed separately; do not freeze, as the mayo dressing and apples break down when thawed.",
-    "difficulty": 2
+    "difficulty": 2,
+    "meal": "main"
   },
   {
     "id": "chimichurri-steak-with-roasted-potatoes",
@@ -10927,7 +12007,98 @@ var RECIPES = [
       "Divide the potatoes, green beans, and steak among 4 containers, and pack the chimichurri in small sauce cups to spoon on after reheating."
     ],
     "storageNote": "Keeps 4 days refrigerated with the chimichurri packed separately; freezing is not recommended because roasted potatoes turn grainy.",
-    "difficulty": 2
+    "difficulty": 2,
+    "meal": "main"
+  },
+  {
+    "id": "maple-turkey-patties-with-roasted-apples",
+    "name": "Maple Turkey Patties with Roasted Apples and Sweet Potatoes",
+    "description": "Breakfast sausage patties made from scratch with maple and sage, roasted alongside apples and sweet potatoes. The whole box contains none of the big-9 allergens.",
+    "protein": "turkey",
+    "cuisine": "American",
+    "meal": "breakfast",
+    "tags": [
+      "breakfast",
+      "gluten-free",
+      "dairy-free",
+      "high-protein"
+    ],
+    "baseServings": 4,
+    "prepMinutes": 15,
+    "cookMinutes": 25,
+    "caloriesPerServing": 360,
+    "proteinGrams": 30,
+    "carbsGrams": 28,
+    "fatGrams": 14,
+    "fridgeDays": 4,
+    "freezerFriendly": true,
+    "allergens": [],
+    "ingredients": [
+      {
+        "qty": 1.5,
+        "unit": "lb",
+        "item": "ground turkey",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": 2,
+        "unit": "tbsp",
+        "item": "maple syrup",
+        "note": "divided",
+        "allergens": []
+      },
+      {
+        "qty": 1,
+        "unit": "tsp",
+        "item": "dried sage",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": 0.5,
+        "unit": "tsp",
+        "item": "fennel seeds",
+        "note": "crushed",
+        "allergens": []
+      },
+      {
+        "qty": 2,
+        "unit": null,
+        "item": "apples",
+        "note": "cut into wedges",
+        "allergens": []
+      },
+      {
+        "qty": 1.5,
+        "unit": "lb",
+        "item": "sweet potatoes",
+        "note": "diced",
+        "allergens": []
+      },
+      {
+        "qty": 1,
+        "unit": "tbsp",
+        "item": "olive oil",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": null,
+        "unit": null,
+        "item": "salt and black pepper",
+        "note": "to taste",
+        "allergens": []
+      }
+    ],
+    "steps": [
+      "Roast the sweet potatoes with the oil and salt at 425F for 15 minutes, then add the apple wedges drizzled with half the maple and roast 10 more.",
+      "Mix the turkey with the remaining maple, the sage, fennel, salt, and pepper and form 8 small patties.",
+      "Cook the patties in a skillet over medium heat, 4 minutes per side.",
+      "Portion 2 patties with roasted apples and sweet potatoes into each of 4 containers."
+    ],
+    "storageNote": "Keeps 4 days refrigerated; patties freeze up to 3 months.",
+    "difficulty": 1
   },
   {
     "id": "pinto-bean-burrito-bowls-with-fajita-vegetables",
@@ -11053,7 +12224,8 @@ var RECIPES = [
       "Pack the salsa in small lidded cups and spoon over after reheating."
     ],
     "storageNote": "Keeps 5 days refrigerated; the beans and rice freeze up to 2 months, so add the salsa fresh after reheating.",
-    "difficulty": 2
+    "difficulty": 2,
+    "meal": "main"
   },
   {
     "id": "cashew-chicken-stir-fry-with-rice",
@@ -11189,7 +12361,8 @@ var RECIPES = [
       "Divide the rice among 4 containers, top with the stir-fry, and cool completely before sealing."
     ],
     "storageNote": "Keeps 4 days refrigerated in airtight containers; freeze up to 2 months and add a few fresh cashews after reheating to restore crunch.",
-    "difficulty": 3
+    "difficulty": 3,
+    "meal": "main"
   },
   {
     "id": "beef-picadillo-with-rice-and-olives",
@@ -11315,7 +12488,8 @@ var RECIPES = [
       "Divide the rice among 6 containers, top with the picadillo, and cool completely before sealing."
     ],
     "storageNote": "Keeps 4 days refrigerated in airtight containers; the picadillo freezes up to 3 months, with or without the rice.",
-    "difficulty": 1
+    "difficulty": 1,
+    "meal": "main"
   },
   {
     "id": "peanut-tempeh-stir-fry-with-rice",
@@ -11450,7 +12624,8 @@ var RECIPES = [
       "Divide the rice among 4 containers, top with the stir-fry, and tuck a lime wedge into each."
     ],
     "storageNote": "Keeps 4 days refrigerated in airtight containers; freeze up to 2 months and loosen the sauce with a spoonful of warm water after reheating.",
-    "difficulty": 2
+    "difficulty": 2,
+    "meal": "main"
   },
   {
     "id": "chicken-satay-bowls-with-peanut-sauce",
@@ -11582,7 +12757,8 @@ var RECIPES = [
       "Portion rice and chicken into 4 containers, pack cucumber and carrots to one side, divide the peanut sauce into small lidded cups, and top with cilantro just before eating."
     ],
     "storageNote": "Keeps 4 days refrigerated in airtight containers; chicken and rice freeze up to 2 months, but pack the cucumber fresh.",
-    "difficulty": 3
+    "difficulty": 3,
+    "meal": "main"
   },
   {
     "id": "slow-cooker-pot-roast",
@@ -11670,6 +12846,101 @@ var RECIPES = [
       "Break the beef into chunks and portion with the vegetables and a spoonful of cooking liquid into 6 containers."
     ],
     "storageNote": "Keeps 4 days refrigerated in airtight containers; freezes up to 3 months.",
+    "difficulty": 1,
+    "meal": "main"
+  },
+  {
+    "id": "peanut-butter-banana-overnight-oats",
+    "name": "Peanut Butter Banana Overnight Oats",
+    "description": "Oats, peanut butter, and banana stirred together in jars the night before. Zero cooking, and the jars ride to work as-is.",
+    "protein": "beans",
+    "cuisine": "American",
+    "meal": "breakfast",
+    "tags": [
+      "breakfast",
+      "no-cook",
+      "vegan",
+      "under-30-min"
+    ],
+    "baseServings": 4,
+    "prepMinutes": 10,
+    "cookMinutes": 0,
+    "caloriesPerServing": 410,
+    "proteinGrams": 14,
+    "carbsGrams": 52,
+    "fatGrams": 16,
+    "fridgeDays": 4,
+    "freezerFriendly": false,
+    "allergens": [
+      "peanuts"
+    ],
+    "ingredients": [
+      {
+        "qty": 2,
+        "unit": "cup",
+        "item": "rolled oats",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": 0.5,
+        "unit": "cup",
+        "item": "natural peanut butter",
+        "note": null,
+        "allergens": [
+          "peanuts"
+        ]
+      },
+      {
+        "qty": 2,
+        "unit": null,
+        "item": "bananas",
+        "note": "one mashed, one sliced",
+        "allergens": []
+      },
+      {
+        "qty": 2.5,
+        "unit": "cup",
+        "item": "oat milk",
+        "note": "or any milk you use",
+        "allergens": []
+      },
+      {
+        "qty": 2,
+        "unit": "tbsp",
+        "item": "maple syrup",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": 2,
+        "unit": "tbsp",
+        "item": "chia seeds",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": 0.5,
+        "unit": "tsp",
+        "item": "ground cinnamon",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": null,
+        "unit": null,
+        "item": "salt",
+        "note": "a pinch per jar",
+        "allergens": []
+      }
+    ],
+    "steps": [
+      "Whisk the peanut butter, mashed banana, oat milk, and maple syrup until smooth.",
+      "Stir in the oats, chia, cinnamon, and salt.",
+      "Divide among 4 jars and refrigerate overnight.",
+      "Top with the sliced banana on the morning you eat each jar."
+    ],
+    "storageNote": "Keeps 4 days refrigerated in sealed jars; add fresh banana day-of. Do not freeze.",
     "difficulty": 1
   },
   {
@@ -11799,7 +13070,8 @@ var RECIPES = [
       "Portion noodles into 4 containers, top with sliced chicken, pickled carrots, and cucumber, tuck the herbs to one side, and pack the nuoc cham in small cups to pour on before eating."
     ],
     "storageNote": "Keeps 4 days refrigerated; eat cold or at room temperature with the dressing added just before serving.",
-    "difficulty": 3
+    "difficulty": 3,
+    "meal": "main"
   },
   {
     "id": "cheeseburger-bowls",
@@ -11890,6 +13162,97 @@ var RECIPES = [
       "Portion the potatoes and beef into 4 containers, top with cheddar and pickles, and pack the drizzle in small cups."
     ],
     "storageNote": "Keeps 4 days refrigerated in airtight containers; skip the freezer — the potatoes turn mealy.",
+    "difficulty": 1,
+    "meal": "main"
+  },
+  {
+    "id": "smoky-black-bean-breakfast-bowls",
+    "name": "Smoky Black Bean Breakfast Bowls",
+    "description": "Cumin-spiced black beans and quinoa with corn, salsa, and toasted pepitas. A savory vegan breakfast that contains none of the big-9 allergens.",
+    "protein": "beans",
+    "cuisine": "Tex-Mex",
+    "meal": "breakfast",
+    "tags": [
+      "breakfast",
+      "vegan",
+      "gluten-free",
+      "dairy-free"
+    ],
+    "baseServings": 4,
+    "prepMinutes": 10,
+    "cookMinutes": 20,
+    "caloriesPerServing": 410,
+    "proteinGrams": 18,
+    "carbsGrams": 58,
+    "fatGrams": 12,
+    "fridgeDays": 5,
+    "freezerFriendly": true,
+    "allergens": [],
+    "ingredients": [
+      {
+        "qty": 2,
+        "unit": "can (14 oz)",
+        "item": "black beans",
+        "note": "drained and rinsed",
+        "allergens": []
+      },
+      {
+        "qty": 1.25,
+        "unit": "cup",
+        "item": "quinoa",
+        "note": "dry, rinsed",
+        "allergens": []
+      },
+      {
+        "qty": 1.5,
+        "unit": "cup",
+        "item": "frozen corn",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": 1,
+        "unit": "cup",
+        "item": "jarred salsa",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": 1,
+        "unit": "tsp",
+        "item": "smoked paprika",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": 1,
+        "unit": "tsp",
+        "item": "ground cumin",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": 0.25,
+        "unit": "cup",
+        "item": "pepitas",
+        "note": "toasted",
+        "allergens": []
+      },
+      {
+        "qty": 1,
+        "unit": null,
+        "item": "lime",
+        "note": "cut into wedges",
+        "allergens": []
+      }
+    ],
+    "steps": [
+      "Cook the quinoa according to package directions and fluff.",
+      "Warm the beans with the salsa, paprika, and cumin until saucy, then stir in the corn.",
+      "Portion the quinoa and beans into 4 containers.",
+      "Top with toasted pepitas and pack a lime wedge in each."
+    ],
+    "storageNote": "Keeps 5 days refrigerated; freezes up to 2 months without the pepitas.",
     "difficulty": 1
   },
   {
@@ -12014,7 +13377,8 @@ var RECIPES = [
       "Cool slightly, then ladle into 6 containers, leaving headroom in any that are headed for the freezer."
     ],
     "storageNote": "Keeps 4 days refrigerated; freezes up to 3 months, and since the rice absorbs broth over time, thin with stock when reheating.",
-    "difficulty": 1
+    "difficulty": 1,
+    "meal": "main"
   },
   {
     "id": "one-pot-beef-and-shells",
@@ -12108,7 +13472,8 @@ var RECIPES = [
       "Cool briefly, then portion into 6 containers and refrigerate."
     ],
     "storageNote": "Keeps 4 days refrigerated; freezes up to 2 months — reheat with a splash of water.",
-    "difficulty": 1
+    "difficulty": 1,
+    "meal": "main"
   },
   {
     "id": "chicken-enchilada-bake",
@@ -12215,7 +13580,8 @@ var RECIPES = [
       "Cut into 6 portions and pack into containers, scattering cilantro over the top."
     ],
     "storageNote": "Keeps 4 days refrigerated; wrap individual portions and freeze up to 3 months, reheating covered at 350°F or in the microwave.",
-    "difficulty": 2
+    "difficulty": 2,
+    "meal": "main"
   },
   {
     "id": "steak-bites-and-potatoes-sheet-pan",
@@ -12297,7 +13663,8 @@ var RECIPES = [
       "Portion into 4 containers and refrigerate."
     ],
     "storageNote": "Keeps 4 days refrigerated; freezes up to 2 months. Reheat gently so the steak stays tender.",
-    "difficulty": 1
+    "difficulty": 1,
+    "meal": "main"
   },
   {
     "id": "tuscan-chicken-and-rice-with-sun-dried-tomatoes",
@@ -12413,7 +13780,8 @@ var RECIPES = [
       "Slice the chicken and portion it over the creamy rice in 4 containers, letting everything cool before sealing."
     ],
     "storageNote": "Keeps 4 days refrigerated; reheat covered with a spoonful of water or broth to bring the sauce back together — not recommended for freezing.",
-    "difficulty": 1
+    "difficulty": 1,
+    "meal": "main"
   },
   {
     "id": "slow-cooker-shredded-beef-tacos",
@@ -12501,7 +13869,8 @@ var RECIPES = [
       "Char the tortillas briefly over a flame or dry skillet, then portion the beef into 6 containers with tortillas wrapped separately in foil and a lime wedge each."
     ],
     "storageNote": "Keeps 4 days refrigerated; the beef freezes up to 3 months — char tortillas fresh.",
-    "difficulty": 1
+    "difficulty": 1,
+    "meal": "main"
   },
   {
     "id": "chicken-shawarma-bowls-with-turmeric-rice",
@@ -12630,7 +13999,8 @@ var RECIPES = [
       "Divide the rice and sliced chicken among 4 containers; pack the salad and tahini sauce in separate small containers and add after reheating."
     ],
     "storageNote": "Keeps 4 days refrigerated; store the salad and tahini sauce in separate small containers, and freeze the chicken and rice (without salad) up to 2 months.",
-    "difficulty": 3
+    "difficulty": 3,
+    "meal": "main"
   },
   {
     "id": "salisbury-beef-patties-with-mash",
@@ -12730,7 +14100,8 @@ var RECIPES = [
       "Return the patties to the gravy for 2 minutes, then portion the mash and patties into 4 containers with gravy spooned over."
     ],
     "storageNote": "Keeps 4 days refrigerated in airtight containers; freezes up to 2 months.",
-    "difficulty": 1
+    "difficulty": 1,
+    "meal": "main"
   },
   {
     "id": "orange-chicken-with-jasmine-rice-and-snap-peas",
@@ -12862,7 +14233,8 @@ var RECIPES = [
       "Divide the rice, chicken, and snap peas among 4 containers and top with the scallions."
     ],
     "storageNote": "Keeps 4 days refrigerated in airtight containers; the cornstarch-thickened sauce can weep when frozen, so this one is best not frozen.",
-    "difficulty": 3
+    "difficulty": 3,
+    "meal": "main"
   },
   {
     "id": "beef-and-cabbage-stir-fry",
@@ -12959,7 +14331,8 @@ var RECIPES = [
       "Portion the rice and stir-fry into 4 containers and top with scallions."
     ],
     "storageNote": "Keeps 4 days refrigerated in airtight containers; the cabbage goes soft if frozen.",
-    "difficulty": 1
+    "difficulty": 1,
+    "meal": "main"
   },
   {
     "id": "chicken-tinga-tacos",
@@ -13085,7 +14458,8 @@ var RECIPES = [
       "Portion the tinga into 4 containers; pack the tortillas, cabbage, cilantro, and lime wedges separately and build tacos after reheating."
     ],
     "storageNote": "Tinga keeps 4 days refrigerated and freezes up to 3 months; store tortillas and toppings separately and assemble after reheating.",
-    "difficulty": 2
+    "difficulty": 2,
+    "meal": "main"
   },
   {
     "id": "white-chicken-chili",
@@ -13222,7 +14596,8 @@ var RECIPES = [
       "Divide among 6 containers; pack the shredded monterey jack separately and stir into each portion after reheating."
     ],
     "storageNote": "Keeps 4 days refrigerated; freeze up to 3 months without the cheese, adding it after reheating for the best texture.",
-    "difficulty": 1
+    "difficulty": 1,
+    "meal": "main"
   },
   {
     "id": "jerk-chicken-with-coconut-rice-and-beans",
@@ -13355,7 +14730,8 @@ var RECIPES = [
       "Divide the coconut rice and beans and sliced chicken among 4 containers."
     ],
     "storageNote": "Keeps 4 days refrigerated in airtight containers; chicken and rice freeze together up to 2 months.",
-    "difficulty": 2
+    "difficulty": 2,
+    "meal": "main"
   },
   {
     "id": "slow-cooker-salsa-chicken-bowls",
@@ -13444,7 +14820,8 @@ var RECIPES = [
       "Portion the rice and salsa chicken into 6 containers and top with cilantro."
     ],
     "storageNote": "Keeps 4 days refrigerated in airtight containers; freezes up to 3 months.",
-    "difficulty": 1
+    "difficulty": 1,
+    "meal": "main"
   },
   {
     "id": "bbq-chicken-and-sweet-potato-sheet-pan",
@@ -13525,7 +14902,8 @@ var RECIPES = [
       "Slice the chicken and portion everything into 4 containers."
     ],
     "storageNote": "Keeps 4 days refrigerated in airtight containers; chicken and sweet potatoes freeze up to 2 months.",
-    "difficulty": 1
+    "difficulty": 1,
+    "meal": "main"
   },
   {
     "id": "italian-dressing-chicken-and-potatoes",
@@ -13606,7 +14984,8 @@ var RECIPES = [
       "Drizzle everything with the remaining dressing and portion into 4 containers."
     ],
     "storageNote": "Keeps 4 days refrigerated in airtight containers; freezes up to 2 months, though the green beans soften.",
-    "difficulty": 1
+    "difficulty": 1,
+    "meal": "main"
   },
   {
     "id": "rotisserie-chicken-burrito-bowls",
@@ -13688,7 +15067,8 @@ var RECIPES = [
       "Pack a lime wedge in each container and refrigerate."
     ],
     "storageNote": "Keeps 3 days refrigerated; eat within the rotisserie chicken’s use-by window and do not freeze.",
-    "difficulty": 1
+    "difficulty": 1,
+    "meal": "main"
   },
   {
     "id": "chicken-caprese-orzo-bowls",
@@ -13783,7 +15163,8 @@ var RECIPES = [
       "Portion the orzo, chicken, and mozzarella into 4 containers, scatter with basil, and drizzle with balsamic glaze."
     ],
     "storageNote": "Keeps 4 days refrigerated in airtight containers; do not freeze the fresh mozzarella.",
-    "difficulty": 1
+    "difficulty": 1,
+    "meal": "main"
   },
   {
     "id": "chicken-sausage-and-veggie-sheet-pan",
@@ -13864,7 +15245,8 @@ var RECIPES = [
       "Portion into 4 containers and refrigerate."
     ],
     "storageNote": "Keeps 4 days refrigerated in airtight containers; freezes up to 2 months.",
-    "difficulty": 1
+    "difficulty": 1,
+    "meal": "main"
   },
   {
     "id": "greek-yogurt-chicken-salad",
@@ -13957,7 +15339,8 @@ var RECIPES = [
       "Portion into 4 containers and refrigerate."
     ],
     "storageNote": "Keeps 3 days refrigerated; do not freeze. Pack crackers or bread separately.",
-    "difficulty": 1
+    "difficulty": 1,
+    "meal": "main"
   },
   {
     "id": "chicken-and-black-bean-quesadillas",
@@ -14044,7 +15427,8 @@ var RECIPES = [
       "Cool completely, then portion 2 halves per container and refrigerate."
     ],
     "storageNote": "Keeps 4 days refrigerated; freeze between parchment up to 2 months and reheat in a dry skillet.",
-    "difficulty": 1
+    "difficulty": 1,
+    "meal": "main"
   },
   {
     "id": "high-protein-chicken-enchiladas",
@@ -14137,6 +15521,275 @@ var RECIPES = [
       "Cool briefly, then portion 2 enchiladas per container with the pan sauce spooned over."
     ],
     "storageNote": "Keeps 4 days refrigerated in airtight containers; freeze baked or unbaked up to 3 months and thaw overnight before reheating.",
+    "difficulty": 1,
+    "meal": "main"
+  },
+  {
+    "id": "chicken-sausage-breakfast-hash",
+    "name": "Chicken Sausage Breakfast Hash",
+    "description": "Pre-cooked chicken sausage with crispy potatoes, kale, and peppers on one pan. Egg-free on purpose, so it reheats hard and fast without a texture penalty.",
+    "protein": "chicken",
+    "cuisine": "American",
+    "meal": "breakfast",
+    "tags": [
+      "breakfast",
+      "one-pan",
+      "gluten-free",
+      "dairy-free"
+    ],
+    "baseServings": 4,
+    "prepMinutes": 10,
+    "cookMinutes": 25,
+    "caloriesPerServing": 360,
+    "proteinGrams": 22,
+    "carbsGrams": 32,
+    "fatGrams": 16,
+    "fridgeDays": 4,
+    "freezerFriendly": true,
+    "allergens": [],
+    "ingredients": [
+      {
+        "qty": 12,
+        "unit": "oz",
+        "item": "pre-cooked chicken sausage links",
+        "note": "sliced into coins",
+        "allergens": []
+      },
+      {
+        "qty": 1.5,
+        "unit": "lb",
+        "item": "yukon gold potatoes",
+        "note": "diced small",
+        "allergens": []
+      },
+      {
+        "qty": 1,
+        "unit": null,
+        "item": "bell pepper",
+        "note": "diced",
+        "allergens": []
+      },
+      {
+        "qty": 2,
+        "unit": "cup",
+        "item": "chopped kale",
+        "note": "stems removed",
+        "allergens": []
+      },
+      {
+        "qty": 1,
+        "unit": null,
+        "item": "red onion",
+        "note": "diced",
+        "allergens": []
+      },
+      {
+        "qty": 2,
+        "unit": "tbsp",
+        "item": "olive oil",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": 1,
+        "unit": "tsp",
+        "item": "garlic powder",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": null,
+        "unit": null,
+        "item": "salt and black pepper",
+        "note": "to taste",
+        "allergens": []
+      }
+    ],
+    "steps": [
+      "Roast the potatoes with half the oil and salt at 425F for 15 minutes.",
+      "Add the sausage, pepper, and onion tossed with the remaining oil and the garlic powder and roast 10 minutes more.",
+      "Stir in the kale for the final 3 minutes so it wilts and crisps at the edges.",
+      "Portion into 4 containers and refrigerate."
+    ],
+    "storageNote": "Keeps 4 days refrigerated; freezes up to 2 months.",
     "difficulty": 1
+  },
+  {
+    "id": "chicken-and-shrimp-carbonara",
+    "name": "Chicken and Shrimp Carbonara",
+    "description": "A steakhouse-style carbonara: seared chicken and shrimp over spaghetti in a parmesan cream sauce tempered with egg yolks, with roasted red peppers and crisp bacon through it. It's rich, so the sauce is built a little loose on purpose and comes back to life with a splash of milk when you reheat.",
+    "protein": "chicken",
+    "meal": "main",
+    "cuisine": "Italian-American",
+    "tags": [
+      "high-protein",
+      "comfort-food",
+      "date-night"
+    ],
+    "baseServings": 6,
+    "prepMinutes": 25,
+    "cookMinutes": 25,
+    "caloriesPerServing": 940,
+    "proteinGrams": 66,
+    "carbsGrams": 67,
+    "fatGrams": 46,
+    "fridgeDays": 3,
+    "freezerFriendly": false,
+    "allergens": [
+      "dairy",
+      "eggs",
+      "shellfish",
+      "wheat"
+    ],
+    "ingredients": [
+      {
+        "qty": 1,
+        "unit": "lb",
+        "item": "spaghetti",
+        "note": null,
+        "allergens": [
+          "wheat"
+        ]
+      },
+      {
+        "qty": 1,
+        "unit": "lb",
+        "item": "boneless skinless chicken breast",
+        "note": "cut into strips",
+        "allergens": []
+      },
+      {
+        "qty": 1,
+        "unit": "lb",
+        "item": "large shrimp",
+        "note": "peeled and deveined",
+        "allergens": [
+          "shellfish"
+        ]
+      },
+      {
+        "qty": 6,
+        "unit": "slice",
+        "item": "bacon",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": 1,
+        "unit": "c",
+        "item": "roasted red peppers",
+        "note": "drained and sliced",
+        "allergens": []
+      },
+      {
+        "qty": 4,
+        "unit": "tbsp",
+        "item": "butter",
+        "note": null,
+        "allergens": [
+          "dairy"
+        ]
+      },
+      {
+        "qty": 4,
+        "unit": "clove",
+        "item": "garlic",
+        "note": "minced",
+        "allergens": []
+      },
+      {
+        "qty": 3,
+        "unit": "tbsp",
+        "item": "all-purpose flour",
+        "note": null,
+        "allergens": [
+          "wheat"
+        ]
+      },
+      {
+        "qty": 2,
+        "unit": "c",
+        "item": "whole milk",
+        "note": null,
+        "allergens": [
+          "dairy"
+        ]
+      },
+      {
+        "qty": 1,
+        "unit": "c",
+        "item": "heavy cream",
+        "note": null,
+        "allergens": [
+          "dairy"
+        ]
+      },
+      {
+        "qty": 1,
+        "unit": "c",
+        "item": "grated parmesan",
+        "note": null,
+        "allergens": [
+          "dairy"
+        ]
+      },
+      {
+        "qty": 0.5,
+        "unit": "c",
+        "item": "grated romano cheese",
+        "note": null,
+        "allergens": [
+          "dairy"
+        ]
+      },
+      {
+        "qty": 2,
+        "unit": null,
+        "item": "egg yolks",
+        "note": "lightly beaten",
+        "allergens": [
+          "eggs"
+        ]
+      },
+      {
+        "qty": 2,
+        "unit": "tbsp",
+        "item": "olive oil",
+        "note": null,
+        "allergens": []
+      },
+      {
+        "qty": 0.5,
+        "unit": "tsp",
+        "item": "red pepper flakes",
+        "note": "to taste",
+        "allergens": []
+      },
+      {
+        "qty": null,
+        "unit": null,
+        "item": "salt and black pepper",
+        "note": "to taste",
+        "allergens": []
+      },
+      {
+        "qty": 2,
+        "unit": "tbsp",
+        "item": "fresh parsley",
+        "note": "chopped",
+        "allergens": []
+      }
+    ],
+    "steps": [
+      "Boil the spaghetti in well-salted water until just shy of al dente. Reserve a cup of the pasta water, drain, and toss the pasta with a little olive oil so it doesn't clump while you build the rest.",
+      "Crisp the bacon in a large skillet over medium heat, then lift it out and chop; leave about a tablespoon of the fat in the pan.",
+      "Season the chicken with salt and pepper and sear in the bacon fat until cooked through (165°F), then rest and slice. Add the shrimp to the same pan and cook just until pink and opaque, 2 to 3 minutes; set aside with the chicken.",
+      "Make the sauce in the same pan: melt the butter, soften the garlic for a minute, then whisk in the flour and cook 1 minute. Slowly whisk in the milk and cream and simmer until it coats the back of a spoon. Take the pan off the heat, whisk a ladle of the warm sauce into the egg yolks to temper them, then stir the yolks back in along with the parmesan and romano until glossy.",
+      "Fold the pasta, chicken, shrimp, roasted red peppers, and most of the bacon into the sauce, loosening with the reserved pasta water a splash at a time until it's silky. Season with red pepper flakes, salt, and pepper.",
+      "Portion into containers, top with the remaining bacon and the parsley, and cool before sealing. Reheat with a splash of milk to bring the sauce back."
+    ],
+    "storageNote": "The sauce firms up cold and can break if blasted with heat — reheat gently with a splash of milk or a spoon of pasta water and stir. Best within 3 days because of the shrimp; add the shrimp fresh on later days if you want to stretch it. Not recommended for the freezer.",
+    "sourceUrl": "https://realhousemoms.com/wprm_print/copycat-olive-garden-chicken-and-shrimp-carbonara",
+    "difficulty": 3
   }
 ];

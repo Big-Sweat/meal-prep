@@ -26,19 +26,99 @@
     { id: "eggs", label: "Eggs" }
   ];
 
+  var MEALS = [
+    { id: "breakfast", label: "Breakfast" },
+    { id: "main", label: "Lunch & dinner" }
+  ];
+
   var SUGGEST_CANDIDATES = [
     "rice", "broccoli", "sweet potato", "quinoa", "black beans",
     "spinach", "noodles", "potatoes"
   ];
 
   var state = {
+    meals: new Set(),
     allergies: new Set(),
     proteins: new Set(),
     terms: [],
     servings: 4,
     maxDifficulty: 3,
-    query: ""
+    query: "",
+    favOnly: false
   };
+
+  /* ---------- profile, ratings, reviews, favorites ----------
+     Demo storage layer: everything lives in this browser's localStorage.
+     To go multi-user later, reimplement these few functions against a
+     backend (e.g. Supabase auth + tables) - the UI doesn't care. */
+
+  var PROFILE_KEY = "mise-profile";
+  var RATINGS_KEY = "mise-ratings";   // { recipeId: { profileName: 1-5 } }
+  var REVIEWS_KEY = "mise-reviews";   // { recipeId: [{author, stars, text, date}] }
+  var FAVS_PREFIX = "mise-favs-";     // per profile name -> [recipeId]
+
+  function lsRead(key, fallback) {
+    try { return JSON.parse(localStorage.getItem(key)) || fallback; }
+    catch (e) { return fallback; }
+  }
+  function lsWrite(key, value) {
+    try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) { /* ignore */ }
+  }
+
+  // Real auth (Supabase, see auth.js) when configured; demo profile otherwise.
+  var realAuth = typeof MiseAuth !== "undefined" && MiseAuth.enabled;
+  var profile = realAuth ? null : lsRead(PROFILE_KEY, null);
+  var favs = new Set();
+
+  function who() { return profile ? (profile.id || profile.name) : null; }
+
+  function loadFavs() {
+    favs = new Set(profile ? lsRead(FAVS_PREFIX + who(), []) : []);
+  }
+  loadFavs();
+
+  function saveFavs() {
+    if (profile) lsWrite(FAVS_PREFIX + who(), Array.from(favs));
+  }
+
+  function ratingSummary(id) {
+    var perUser = lsRead(RATINGS_KEY, {})[id] || {};
+    var names = Object.keys(perUser);
+    if (!names.length) return { avg: 0, count: 0 };
+    var sum = 0;
+    names.forEach(function (n) { sum += perUser[n]; });
+    return { avg: Math.round((sum / names.length) * 10) / 10, count: names.length };
+  }
+
+  function myRating(id) {
+    if (!profile) return 0;
+    return (lsRead(RATINGS_KEY, {})[id] || {})[who()] || 0;
+  }
+
+  function setMyRating(id, stars) {
+    var all = lsRead(RATINGS_KEY, {});
+    (all[id] = all[id] || {})[who()] = stars;
+    lsWrite(RATINGS_KEY, all);
+  }
+
+  function reviewsFor(id) {
+    return lsRead(REVIEWS_KEY, {})[id] || [];
+  }
+
+  function upsertReview(id, text) {
+    var all = lsRead(REVIEWS_KEY, {});
+    var me = who();
+    var list = (all[id] || []).filter(function (rv) { return (rv.by || rv.author) !== me && rv.author !== profile.name; });
+    list.unshift({
+      by: me,
+      author: profile.name,
+      stars: myRating(id) || null,
+      text: text,
+      date: new Date().toISOString().slice(0, 10)
+    });
+    all[id] = list;
+    lsWrite(REVIEWS_KEY, all);
+  }
 
   // one lowercase haystack per recipe: name, description, cuisine, tags, ingredients
   var HAYSTACKS = {};
@@ -131,6 +211,8 @@
   /* ---------- filtering ---------- */
 
   function matches(r) {
+    if (state.favOnly && !favs.has(r.id)) return false;
+    if (state.meals.size && !state.meals.has(r.meal)) return false;
     if (state.allergies.size) {
       for (var i = 0; i < r.allergens.length; i++) {
         if (state.allergies.has(r.allergens[i])) return false;
@@ -156,8 +238,8 @@
   }
 
   function activeFilterCount() {
-    return state.allergies.size + state.proteins.size + state.terms.length +
-      (state.maxDifficulty < 3 ? 1 : 0);
+    return state.meals.size + state.allergies.size + state.proteins.size + state.terms.length +
+      (state.maxDifficulty < 3 ? 1 : 0) + (state.favOnly ? 1 : 0);
   }
 
   /* ---------- rendering ---------- */
@@ -174,7 +256,9 @@
   }
 
   function recipeImageSrc(r) {
-    return "assets/recipes/" + r.id + ".png";
+    // WebP, not PNG: same pixels, ~92% smaller. Cards/modal hide the frame via
+    // the img onerror handler for recipes with no photo.
+    return "assets/recipes/" + r.id + ".webp";
   }
 
   function cardHTML(r) {
@@ -182,6 +266,11 @@
     var contains = r.allergens.length
       ? "contains " + r.allergens.join(" · ")
       : "no major allergens";
+    var rating = ratingSummary(r.id);
+    var ratingMeta = rating.count
+      ? "<span>&#9733; " + rating.avg + "</span><span class=\"sep\">/</span>"
+      : "";
+    var isFav = favs.has(r.id);
     return (
       '<li class="card">' +
         '<span class="tape mono" aria-hidden="true">' + esc(proteinLabel(r.protein)).toUpperCase() + "</span>" +
@@ -191,6 +280,7 @@
         '<h3><button class="card-btn" data-id="' + esc(r.id) + '">' + esc(r.name) + "</button></h3>" +
         '<p class="card-desc">' + esc(r.description) + "</p>" +
         '<p class="card-meta">' +
+          ratingMeta +
           "<span>" + DIFF_WORDS[r.difficulty].toUpperCase() + "</span><span class=\"sep\">/</span>" +
           "<span>" + total + " MIN</span><span class=\"sep\">/</span>" +
           "<span>" + r.caloriesPerServing + " CAL/SERV</span><span class=\"sep\">/</span>" +
@@ -199,6 +289,9 @@
         "</p>" +
         '<div class="card-foot">' +
           '<p class="card-allergens' + (r.allergens.length ? "" : " none") + '">' + esc(contains) + "</p>" +
+          '<button class="fav-btn' + (isFav ? " on" : "") + '" data-fav="' + esc(r.id) + '" aria-pressed="' + isFav + '" aria-label="' + (isFav ? "Remove " : "Save ") + esc(r.name) + (isFav ? " from favorites" : " to favorites") + '">' +
+            (isFav ? "&#9829;" : "&#9825;") +
+          "</button>" +
           '<button class="plan-btn' + (plan.has(r.id) ? " on" : "") + '" data-plan="' + esc(r.id) + '" aria-pressed="' + plan.has(r.id) + '">' +
             (plan.has(r.id) ? "&#10003; PLANNED" : "+ PLAN") +
           "</button>" +
@@ -231,6 +324,8 @@
 
   function buildToggleChips(containerId, defs, set, extraClass) {
     var host = $(containerId);
+    // a stale cached index.html may predate this container; skip rather than crash
+    if (!host) return;
     defs.forEach(function (d) {
       var b = document.createElement("button");
       b.type = "button";
@@ -362,6 +457,9 @@
       '<div class="modal-top">' +
         '<span class="modal-tape">' + esc(proteinLabel(r.protein)).toUpperCase() + "</span>" +
         '<div class="modal-actions">' +
+          '<button class="plan-tool" id="modal-fav" type="button" aria-pressed="' + favs.has(r.id) + '">' +
+            (favs.has(r.id) ? "&#9829; SAVED" : "&#9825; SAVE") +
+          "</button>" +
           '<button class="plan-tool" id="modal-plan" type="button" aria-pressed="' + plan.has(r.id) + '">' +
             (plan.has(r.id) ? "&#10003; ON THE PLAN" : "+ ADD TO PLAN") +
           "</button>" +
@@ -399,6 +497,11 @@
         "<span>PER SERVING</span>" +
       "</p>" +
       '<p class="modal-contains' + (r.allergens.length ? "" : " none") + '">' + esc(contains) + "</p>" +
+      '<div class="rate-row">' +
+        '<span class="rate-label mono">YOUR RATING</span>' +
+        '<div class="stars" id="modal-stars" role="group" aria-label="Rate this recipe"></div>' +
+        '<span class="rate-avg mono" id="rate-avg"></span>' +
+      "</div>" +
       '<div class="modal-cols">' +
         "<div>" +
           '<p class="modal-section-title">Ingredients</p>' +
@@ -421,6 +524,16 @@
             '<span class="mono">STORAGE</span>' + esc(r.storageNote) +
           "</div>" +
         "</div>" +
+      "</div>" +
+      '<div class="modal-reviews">' +
+        '<p class="modal-section-title">Reviews</p>' +
+        '<div id="reviews-list"></div>' +
+        '<form id="review-form" hidden>' +
+          '<label class="visually-hidden" for="review-text">Your review</label>' +
+          '<textarea id="review-text" maxlength="500" placeholder="How did it prep? How did day 4 taste?"></textarea>' +
+          '<button type="submit" class="review-post">Post review</button>' +
+        "</form>" +
+        '<button id="review-signin" class="review-signin mono" type="button" hidden>SIGN IN TO RATE &amp; REVIEW &rarr;</button>' +
       "</div>";
 
     var mServings = servings;
@@ -433,6 +546,37 @@
       }
     );
 
+    renderModalRating(r.id);
+    renderReviews(r.id);
+
+    $("#modal-stars").addEventListener("click", function (e) {
+      var star = e.target.closest(".star");
+      if (!star) return;
+      if (!profile) { openAuth(); return; }
+      setMyRating(r.id, parseInt(star.getAttribute("data-star"), 10));
+      renderModalRating(r.id);
+      renderReviews(r.id);
+      render(); // card meta shows the new average
+    });
+
+    $("#review-form").addEventListener("submit", function (e) {
+      e.preventDefault();
+      var text = $("#review-text").value.trim();
+      if (!text || !profile) return;
+      upsertReview(r.id, text);
+      $("#review-text").value = "";
+      renderReviews(r.id);
+    });
+
+    $("#review-signin").addEventListener("click", openAuth);
+
+    $("#modal-fav").addEventListener("click", function () {
+      toggleFav(r.id);
+      var on = favs.has(r.id);
+      this.innerHTML = on ? "&#9829; SAVED" : "&#9825; SAVE";
+      this.setAttribute("aria-pressed", String(on));
+    });
+
     $("#modal-close").addEventListener("click", function () { modalEl.close(); });
     $("#modal-plan").addEventListener("click", function () {
       togglePlan(r.id, null);
@@ -441,7 +585,14 @@
       this.setAttribute("aria-pressed", String(on));
     });
     $("#modal-print").addEventListener("click", function () {
-      showAdThen("PRINT NOW", function () { window.print(); });
+      showAdThen("PRINT NOW", function () {
+        // Android has no window.print(); the share sheet carries Print instead.
+        if (window.MiseNative && MiseNative.isNative) {
+          MiseNative.sharePDF(recipeToPDFModel(r, mServings), r.id + ".pdf", r.name);
+        } else {
+          window.print();
+        }
+      });
     });
     $("#modal-download").addEventListener("click", function () {
       showAdThen("DOWNLOAD NOW", function () {
@@ -464,6 +615,11 @@
   });
 
   cardsEl.addEventListener("click", function (e) {
+    var favBtn = e.target.closest(".fav-btn");
+    if (favBtn) {
+      toggleFav(favBtn.getAttribute("data-fav"));
+      return;
+    }
     var planBtn = e.target.closest(".plan-btn");
     if (planBtn) {
       togglePlan(planBtn.getAttribute("data-plan"), planBtn);
@@ -478,6 +634,215 @@
     var id = btn.getAttribute("data-id");
     var recipe = RECIPES.find(function (r) { return r.id === id; });
     if (recipe) { openerBtn = btn; openModal(recipe); }
+  });
+
+  /* ---------- rating + review rendering ---------- */
+
+  function renderModalRating(id) {
+    var mine = myRating(id);
+    var html = "";
+    for (var i = 1; i <= 5; i++) {
+      html += '<button type="button" class="star' + (i <= mine ? " on" : "") + '" data-star="' + i +
+        '" aria-label="Rate ' + i + " of 5" + (i === mine ? ", your current rating" : "") + '">' +
+        (i <= mine ? "&#9733;" : "&#9734;") + "</button>";
+    }
+    $("#modal-stars").innerHTML = html;
+    var s = ratingSummary(id);
+    $("#rate-avg").textContent = s.count
+      ? "★ " + s.avg + " · " + s.count + (s.count === 1 ? " RATING" : " RATINGS")
+      : "NO RATINGS YET";
+  }
+
+  function renderReviews(id) {
+    var list = reviewsFor(id);
+    var host = $("#reviews-list");
+    if (!list.length) {
+      host.innerHTML = '<p class="review-empty">No reviews yet &mdash; cook it and be the first.</p>';
+    } else {
+      host.innerHTML = list.map(function (rv) {
+        var n = Math.max(0, Math.min(5, parseInt(rv.stars, 10) || 0));
+        var stars = n ? "&#9733;".repeat(n) + '<span class="review-stars-off">' + "&#9734;".repeat(5 - n) + "</span>" : "";
+        return '<div class="review">' +
+          '<p class="review-head mono">' +
+            (stars ? '<span class="review-stars">' + stars + "</span> " : "") +
+            esc(rv.author.toUpperCase()) + " &middot; " + esc(rv.date) +
+          "</p>" +
+          '<p class="review-text">' + esc(rv.text) + "</p>" +
+        "</div>";
+      }).join("");
+    }
+    $("#review-form").hidden = !profile;
+    $("#review-signin").hidden = !!profile;
+  }
+
+  /* ---------- auth + favorites UI ---------- */
+
+  var authModal = $("#auth-modal");
+  var authBtn = $("#auth-btn");
+  var favChip = $("#fav-chip");
+
+  function updateAuthUI() {
+    authBtn.textContent = profile ? "HI, " + profile.name.toUpperCase() : "SIGN IN";
+    $("#auth-real").hidden = !!profile || !realAuth;
+    $("#auth-signedout").hidden = !!profile || realAuth;
+    $("#auth-signedin").hidden = !profile;
+    if (profile) {
+      $("#auth-greeting").textContent = "Signed in as " + profile.name +
+        (profile.email ? " (" + profile.email + ")" : "");
+      var me = who();
+      var ratings = lsRead(RATINGS_KEY, {});
+      var rated = Object.keys(ratings).filter(function (id) { return ratings[id][me]; }).length;
+      var reviews = lsRead(REVIEWS_KEY, {});
+      var written = Object.keys(reviews).filter(function (id) {
+        return reviews[id].some(function (rv) { return (rv.by || rv.author) === me; });
+      }).length;
+      $("#auth-stats").textContent =
+        favs.size + " FAVORITES · " + rated + " RATED · " + written + " REVIEWED";
+    }
+  }
+
+  function openAuth() {
+    updateAuthUI();
+    authModal.showModal();
+    if (!profile) $(realAuth ? "#real-email" : "#auth-name").focus();
+  }
+
+  function toggleFav(id) {
+    if (!profile) { openAuth(); return; }
+    if (favs.has(id)) favs.delete(id);
+    else favs.add(id);
+    saveFavs();
+    var on = favs.has(id);
+    var btn = document.querySelector('.fav-btn[data-fav="' + id + '"]');
+    if (btn) {
+      btn.classList.toggle("on", on);
+      btn.setAttribute("aria-pressed", String(on));
+      btn.innerHTML = on ? "&#9829;" : "&#9825;";
+    }
+    if (state.favOnly) render();
+  }
+
+  authBtn.addEventListener("click", openAuth);
+  $("#auth-close").addEventListener("click", function () { authModal.close(); });
+
+  authModal.addEventListener("click", function (e) {
+    if (e.target === authModal) authModal.close();
+  });
+
+  $("#auth-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var name = $("#auth-name").value.trim();
+    if (!name) return;
+    profile = { name: name };
+    lsWrite(PROFILE_KEY, profile);
+    favs = new Set(lsRead(FAVS_PREFIX + name, []));
+    updateAuthUI();
+    render();
+    authModal.close();
+  });
+
+  $("#auth-signout").addEventListener("click", function () {
+    if (realAuth) {
+      MiseAuth.signOut(); // onChange listener resets the UI
+      authModal.close();
+      return;
+    }
+    profile = null;
+    try { localStorage.removeItem(PROFILE_KEY); } catch (e) { /* ignore */ }
+    favs = new Set();
+    state.favOnly = false;
+    favChip.setAttribute("aria-pressed", "false");
+    updateAuthUI();
+    render();
+    authModal.close();
+  });
+
+  /* ---------- real auth (Supabase) wiring ---------- */
+
+  if (realAuth) {
+    var authMode = "signin";
+
+    var authMsg = function (text, ok) {
+      var el = $("#auth-error");
+      el.hidden = !text;
+      el.textContent = text || "";
+      el.classList.toggle("ok", !!ok);
+    };
+
+    MiseAuth.onChange(function (user) {
+      profile = user ? { id: user.id, name: user.name, email: user.email } : null;
+      if (!profile) {
+        state.favOnly = false;
+        favChip.setAttribute("aria-pressed", "false");
+      }
+      loadFavs();
+      updateAuthUI();
+      render();
+      if (profile && authModal.open) authModal.close();
+    });
+
+    $("#auth-mode-toggle").addEventListener("click", function () {
+      authMode = authMode === "signin" ? "signup" : "signin";
+      $("#real-submit").textContent = authMode === "signin" ? "Sign in" : "Create account";
+      $("#real-password").setAttribute("autocomplete",
+        authMode === "signin" ? "current-password" : "new-password");
+      this.innerHTML = authMode === "signin"
+        ? "NEW HERE? CREATE AN ACCOUNT &rarr;"
+        : "ALREADY HAVE AN ACCOUNT? SIGN IN &rarr;";
+      authMsg("");
+    });
+
+    $("#real-auth-form").addEventListener("submit", function (e) {
+      e.preventDefault();
+      authMsg("");
+      if (!MiseAuth.isReady()) {
+        authMsg("Still connecting to the sign-in service — try again in a second.");
+        return;
+      }
+      var email = $("#real-email").value.trim();
+      var password = $("#real-password").value;
+      var submit = $("#real-submit");
+      submit.disabled = true;
+      var action = authMode === "signup"
+        ? MiseAuth.signUp(email, password)
+        : MiseAuth.signIn(email, password);
+      action.then(function (res) {
+        submit.disabled = false;
+        if (res.error) { authMsg(res.error.message); return; }
+        if (authMode === "signup" && res.data && res.data.user && !res.data.session) {
+          authMsg("Almost there — check your email for a confirmation link, then sign in.", true);
+          return;
+        }
+        // a session means success; the onChange listener closes the dialog
+      }).catch(function () {
+        submit.disabled = false;
+        authMsg("Could not reach the sign-in service. Check your connection and try again.");
+      });
+    });
+
+    var oauth = function (provider) {
+      authMsg("");
+      if (!MiseAuth.isReady()) {
+        authMsg("Still connecting to the sign-in service — try again in a second.");
+        return;
+      }
+      MiseAuth.signInWith(provider).then(function (res) {
+        if (res.error) authMsg(res.error.message);
+        // on success the browser redirects to the provider
+      }).catch(function () {
+        authMsg("Could not reach the sign-in service. Check your connection and try again.");
+      });
+    };
+
+    $("#oauth-google").addEventListener("click", function () { oauth("google"); });
+    $("#oauth-apple").addEventListener("click", function () { oauth("apple"); });
+  }
+
+  favChip.addEventListener("click", function () {
+    if (!profile) { openAuth(); return; }
+    state.favOnly = !state.favOnly;
+    favChip.setAttribute("aria-pressed", String(state.favOnly));
+    render();
   });
 
   /* ---------- pre-print sponsored interstitial ---------- */
@@ -608,13 +973,32 @@
     return { items: items, pantry: Object.keys(pantry).sort() };
   }
 
+  // Android: the plan goes out as text through the share sheet — a shopping
+  // list you can paste into notes or send to whoever is at the shop.
+  function planAsText() {
+    var entries = planEntries();
+    var list = buildShoppingList(entries);
+    var out = ["MISE — THE WEEK'S PLAN", ""];
+    out.push("SHOPPING LIST");
+    list.items.forEach(function (it) { out.push("- " + it.amount + "  " + it.item); });
+    if (list.pantry.length) out.push("- from the pantry, to taste: " + list.pantry.join(", "));
+    out.push("", "RECIPES");
+    entries.forEach(function (e) {
+      out.push("- " + e.r.name + " (" + e.servings + " servings, " +
+        (e.r.prepMinutes + e.r.cookMinutes) + " min)");
+    });
+    return out.join("\n");
+  }
+
   function renderPlanBody() {
     var entries = planEntries();
     var head =
       '<div class="modal-top">' +
         '<span class="modal-tape">THE WEEK&rsquo;S PLAN</span>' +
         '<div class="plan-head-actions">' +
-          (entries.length ? '<button class="plan-tool" id="plan-print" type="button">PRINT / SAVE PDF</button>' : "") +
+          (entries.length ? '<button class="plan-tool" id="plan-print" type="button">' +
+            (window.MiseNative && MiseNative.isNative ? "SHARE PLAN" : "PRINT / SAVE PDF") +
+            "</button>" : "") +
           (entries.length ? '<button class="plan-tool" id="plan-clear" type="button">CLEAR PLAN</button>' : "") +
           '<button class="modal-close" id="plan-close" aria-label="Close plan">&times;</button>' +
         "</div>" +
@@ -674,7 +1058,11 @@
   planBody.addEventListener("click", function (e) {
     if (e.target.closest("#plan-close")) { planModal.close(); return; }
     if (e.target.closest("#plan-print")) {
-      showAdThen("PRINT NOW", function () { window.print(); });
+      var native = !!(window.MiseNative && MiseNative.isNative);
+      showAdThen(native ? "SHARE NOW" : "PRINT NOW", function () {
+        if (native) MiseNative.shareText("Mise — the week's plan", planAsText());
+        else window.print();
+      });
       return;
     }
     if (e.target.closest("#plan-clear")) {
@@ -735,6 +1123,7 @@
   document.addEventListener("keydown", function (e) {
     if (e.key !== "Escape") return;
     if (adModal.open) { adModal.close(); return; }
+    if (authModal.open) { authModal.close(); return; }
     if (modalEl.open) { modalEl.close(); return; }
     if (planModal.open) { planModal.close(); return; }
     if (railEl.classList.contains("open") && window.innerWidth < 1024) setRail(false);
@@ -742,6 +1131,7 @@
 
   /* ---------- wire up ---------- */
 
+  buildToggleChips("#meal-chips", MEALS, state.meals);
   buildToggleChips("#allergy-chips", ALLERGENS, state.allergies);
   buildToggleChips("#protein-chips", PROTEINS, state.proteins);
   buildSuggestions();
@@ -791,9 +1181,11 @@
   diffSlider.setAttribute("aria-valuetext", DIFF_OUT[state.maxDifficulty]);
 
   clearBtn.addEventListener("click", function () {
+    state.meals.clear();
     state.allergies.clear();
     state.proteins.clear();
     state.terms = [];
+    state.favOnly = false;
     state.query = "";
     searchInput.value = "";
     searchClear.hidden = true;
@@ -810,4 +1202,5 @@
 
   render();
   updatePlanUI();
+  updateAuthUI();
 })();

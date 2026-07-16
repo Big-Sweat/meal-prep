@@ -18,8 +18,9 @@ https://makedrinks.org/wp-json/mv-create/v1/creations/228/print
   — skipped: this is a smoothie (a single-serving drink), and the library's
   format is built around batch meals with protein categories and fridge
   storage. Remove the link, or tell Claude if you'd like a drinks section.
-
+https://www.tiktok.com/t/ZP8GvB3ch/
 ## Added
 
 <!-- processed links move here automatically -->
 - https://laurenfitfoodie.com/chicken-enchiladas/ → high-protein-chicken-enchiladas (2026-07-14)
+- https://realhousemoms.com/wprm_print/copycat-olive-garden-chicken-and-shrimp-carbonara → chicken-and-shrimp-carbonara (2026-07-15, source page was blocked by egress policy; recipe built from the standard dish)

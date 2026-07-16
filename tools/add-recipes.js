@@ -92,6 +92,10 @@ for (const r of ADD) {
   if (r.tags.some(t => HANDS_OFF.includes(t))) raw -= 3;
   r.difficulty = raw <= 26 ? 1 : raw <= 31 ? 2 : 3;
 
+  if (r.meal !== 'breakfast' && r.meal !== 'main') {
+    r.meal = r.tags.includes('breakfast') ? 'breakfast' : 'main';
+  }
+
   const est = 4 * r.proteinGrams + 4 * r.carbsGrams + 9 * r.fatGrams;
   if (Math.abs(est - r.caloriesPerServing) / r.caloriesPerServing > 0.2) {
     problems.push(r.id + ': macros inconsistent (4P+4C+9F = ' + est + ' vs ' + r.caloriesPerServing + ' cal)');
