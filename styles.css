@@ -1349,6 +1349,7 @@ button {
 .goals-btn:hover { background: var(--tape); }
 .goals-btn-line { font-weight: 600; font-size: 14.5px; }
 .goals-btn-note { font-size: 10.5px; letter-spacing: 0.08em; color: var(--kale-deep); flex-shrink: 0; }
+.goals-btn-note--locked { color: var(--faded); }
 
 .profile-modal { width: min(560px, calc(100vw - 32px)); }
 

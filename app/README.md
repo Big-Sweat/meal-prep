@@ -165,6 +165,9 @@ signup would kill the ratings/reviews/favorites the site already has.
 - The weekly plan + combined shopping list. Note *adding* to the plan stays
   free — the wall is on opening it, so people build the basket first and meet
   the paywall where the value actually is.
+- The goals profile and daily calorie target — and with it, the "% of your day"
+  reading on every recipe card. A lapsed subscriber keeps their saved profile;
+  it simply stops displaying until they come back.
 - No sponsored tickets on the board
 
 **Two ways to buy:** `$0.99/month` (`mise_plus_monthly`) or `$4.99 once`

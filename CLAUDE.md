@@ -104,8 +104,12 @@ in rough sync when you change the workflow described here.
 - The `unspecified` sex constant (−78) is the midpoint and is **not a validated
   equation** — there is no sex-neutral Mifflin. It exists so people who won't
   state a sex aren't blocked; the UI admits the error.
-- Stored per user at `mise-nutrition-<id>`, free (not Plus-gated). The target
-  feeds `calorieTarget()` in app.js, which puts "% OF YOUR DAY" on recipe cards.
+- Stored per user at `mise-nutrition-<id>`. **Plus-gated**, and the gate lives in
+  `calorieTarget()` — one place, so the card "% OF YOUR DAY" and the masthead
+  figure follow the entitlement automatically. `openProfile()` also calls
+  `requirePlus()`. A lapsed subscriber **keeps their saved profile**; the number
+  just stops showing until they resubscribe. Never delete it on lapse — nobody
+  should have to retype their body.
 
 **Auth**
 - `auth.js` — Supabase sign-in (email/password + Google + Apple OAuth). While

@@ -749,10 +749,14 @@
       $("#auth-stats").textContent =
         favs.size + " FAVORITES · " + rated + " RATED · " + written + " REVIEWED";
 
-      var target = calorieTarget();
+      // Say it's a Plus feature up front rather than springing the wall after
+      // the click.
       var note = $("#auth-goals-note");
       if (note) {
-        note.textContent = target ? target + " KCAL/DAY →" : "SET UP →";
+        var plus = typeof MiseSub === "undefined" || MiseSub.isPlus();
+        var target = calorieTarget();
+        note.textContent = !plus ? "MISE PLUS →" : (target ? target + " KCAL/DAY →" : "SET UP →");
+        note.classList.toggle("goals-btn-note--locked", !plus);
       }
     }
   }
@@ -922,8 +926,13 @@
     if (profile) lsWrite(NUTRITION_PREFIX + who(), p);
   }
 
-  // The one number the rest of the app cares about; null until it's set up.
+  /* The one number the rest of the app cares about; null until it's set up.
+     Gated here rather than at each call site, so everything downstream — the
+     card percentages, the masthead — follows the entitlement automatically. A
+     lapsed profile keeps its saved data: resubscribing brings the number back
+     rather than making someone retype their body. */
   function calorieTarget() {
+    if (typeof MiseSub !== "undefined" && !MiseSub.isPlus()) return null;
     var n = loadNutrition();
     if (!n) return null;
     var r = MiseNutrition.dailyCalories(n);
@@ -1124,6 +1133,7 @@
 
   function openProfile() {
     if (!profile) { openAuth(); return; }
+    if (requirePlus()) return;
     draft = loadNutrition() || blankDraft();
     if (!draft.units) draft.units = "imperial";
     renderProfileBody();
@@ -1160,8 +1170,8 @@
           '<button class="modal-close" id="sub-close" aria-label="Close">&times;</button>' +
         "</div>" +
         '<h2 id="sub-title">You&rsquo;re on Plus</h2>' +
-        '<p class="modal-desc">Printing, PDFs, and the weekly plan are unlocked, and the board is ' +
-          "clear of sponsored tickets." +
+        '<p class="modal-desc">Printing, PDFs, the weekly plan, and your calorie target are ' +
+          "unlocked, and the board is clear of sponsored tickets." +
           (live ? "" : " This is the demo unlock — nothing was charged.") + "</p>" +
         '<button class="clear-btn" id="sub-cancel">' +
           (live
@@ -1185,6 +1195,8 @@
       '<ul class="sub-list">' +
         "<li>Print a recipe, or save it as a PDF</li>" +
         "<li>The weekly plan and its combined shopping list</li>" +
+        "<li>Your goals and a daily calorie target &mdash; every recipe then shows " +
+          "what share of your day it is</li>" +
         "<li>No sponsored tickets on the board</li>" +
       "</ul>" +
       '<p class="sub-free mono">FREE FOREVER: ALL ' + RECIPES.length + " RECIPES, EVERY FILTER, " +
