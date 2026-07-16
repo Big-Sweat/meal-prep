@@ -24,3 +24,7 @@ keystore.properties
 android/keystore.properties
 *.jks
 *.keystore
+
+# Kotlin compiler daemon session state — throwaway build artifact
+.kotlin/
+android/.kotlin/
