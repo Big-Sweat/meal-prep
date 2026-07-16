@@ -189,18 +189,106 @@ var MiseStore = (function () {
   }
   function setAllergies(w, list) { if (w) write(ALLERGY_PREFIX + w, list); }
 
+  /* ---------- the progress log ---------- */
+
+  /* ONE typed, append-only log per person rather than a key per kind, so
+     adding a kind later is a new `t` and a new form — not a new storage key, a
+     new migration and a fourth copy of this plumbing:
+
+       { id, d: "2026-07-16", t: "weight", kg }
+       { id, d, t: "lift", ex, sets, reps, kg }
+       { id, d, t: "run",  km, mins }
+
+     Canonical units are ALWAYS kg and km. Display converts (see log.js); what's
+     stored never depends on which toggle someone last pressed, so switching
+     units can't corrupt history. */
+  var LOG_PREFIX = "mise-log-";
+
+  var LOG_TYPES = {
+    weight: ["kg"],
+    lift: ["sets", "reps", "kg"],
+    run: ["km", "mins"]
+  };
+
+  function validEntry(e) {
+    if (!e || typeof e !== "object") return false;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(e.d)) return false;
+    if (isNaN(Date.parse(e.d + "T00:00:00Z"))) return false;   // rejects 2026-02-31
+    var fields = LOG_TYPES[e.t];
+    if (!fields) return false;
+    for (var i = 0; i < fields.length; i++) {
+      var v = e[fields[i]];
+      if (typeof v !== "number" || !isFinite(v) || v <= 0) return false;
+    }
+    if (e.t === "lift" && !(typeof e.ex === "string" && e.ex.trim())) return false;
+    return true;
+  }
+
+  /* Validated on the way out, like nutrition(): a hand-edited or half-written
+     localStorage entry is dropped rather than fed to the maths or drawn on a
+     chart. Sorted oldest-first — every caller wants it that way. */
+  function logEntries(w) {
+    if (!w) return [];
+    var raw = read(LOG_PREFIX + w, []);
+    if (!Array.isArray(raw)) return [];
+    return raw.filter(validEntry).sort(function (a, b) {
+      return a.d < b.d ? -1 : a.d > b.d ? 1 : 0;
+    });
+  }
+
+  function logOfType(w, t) {
+    return logEntries(w).filter(function (e) { return e.t === t; });
+  }
+
+  function addLogEntry(w, e) {
+    if (!w || !validEntry(e)) return null;
+    var all = logEntries(w);
+    // Date.now alone collides when two entries are added in the same tick.
+    e.id = String(Date.now()) + "-" + Math.random().toString(36).slice(2, 8);
+    all.push(e);
+    write(LOG_PREFIX + w, all);
+    return e.id;
+  }
+
+  function removeLogEntry(w, id) {
+    if (!w) return;
+    write(LOG_PREFIX + w, logEntries(w).filter(function (e) { return e.id !== id; }));
+  }
+
+  /* Closes the loop the calorie target opens: a weigh-in updates the body the
+     target is computed from, so the number follows you instead of going stale
+     the day after you set it up. Only weight is touched — goal, activity, age
+     and height stay exactly as they were set.
+
+     Deliberately NOT gated. The nutrition profile is stored for free and
+     calorieTarget() decides who may *see* the result, so a lapsed subscriber's
+     weight keeps up to date and resubscribing shows a current number rather
+     than one from months ago. Reads raw rather than via nutrition(): a profile
+     that's invalid for some other reason (no age yet) should still record a
+     weight instead of silently discarding it. */
+  function syncNutritionWeight(w, kg) {
+    if (!w || !(kg > 0)) return false;
+    var p = read(NUTRITION_PREFIX + w, null);
+    if (!p || typeof p !== "object") return false;
+    p.weightKg = kg;
+    write(NUTRITION_PREFIX + w, p);
+    return true;
+  }
+
   /* ---------- summary ---------- */
 
   function stats(w) {
     return {
       favorites: favs(w).length,
       rated: myRatings(w).length,
-      reviewed: myReviews(w).length
+      reviewed: myReviews(w).length,
+      logged: logEntries(w).length
     };
   }
 
   return {
     ALLERGENS: ALLERGENS,
+    LOG_TYPES: LOG_TYPES,
     who: who,
     account: account, setAccount: setAccount, clearAccount: clearAccount,
     favs: favs, setFavs: setFavs,
@@ -209,6 +297,8 @@ var MiseStore = (function () {
     nutrition: nutrition, setNutrition: setNutrition, clearNutrition: clearNutrition,
     calorieTarget: calorieTarget,
     allergies: allergies, setAllergies: setAllergies,
+    logEntries: logEntries, logOfType: logOfType, addLogEntry: addLogEntry,
+    removeLogEntry: removeLogEntry, syncNutritionWeight: syncNutritionWeight,
     stats: stats
   };
 })();

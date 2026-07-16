@@ -2,16 +2,18 @@
 
 `CLAUDE.md` is the canonical guide — read it first. This is the short version.
 
-Static site, **no build step, no dependencies**. Three pages: `index.html` (the
+Static site, **no build step, no dependencies**. Four pages: `index.html` (the
 board — `app.js`), `profile.html` (**"your kitchen"**, the per-account page —
-`profile.js`), and `products.html` (affiliate prep gear — `products.js`), over
-`styles.css` + `recipes.js` (the data).
+`profile.js`), `log.html` (**"the log"** — weight/lifts/runs — `log.js`), and
+`products.html` (affiliate prep gear — `products.js`), over `styles.css` +
+`recipes.js` (the data).
 
 Shared modules: `store.js` (`MiseStore` — **the only place a per-user storage
 key is written down**, plus the big-9 `ALLERGENS` list; both pages read it),
 `plus-ui.js` (`MisePlusUI` — the one upgrade dialog, shared; `require()` is the
 gate, and it builds its own markup), `subscription.js` (`MiseSub` — the
 entitlement; `isPlus()` is THE gate), `nutrition.js` (pure calorie maths),
+`progress.js` (pure trend/1RM/pace maths — **`node tools/test-progress.js`**),
 `auth.js` (Supabase — demo name-only profile fallback while its keys are empty),
 `pdf.js` (recipe PDF), `ads.js`, `apps.js` (store links — both empty because
 nothing is published; the footer block hides itself rather than show a dead
@@ -31,16 +33,23 @@ Design rules: `CLAUDEwebdesign copy (1).md`.
 
 Local preview: `python -m http.server 8347` (launch.json name `mise-static`).
 
-**Cache-busting:** asset links in all three HTML files carry `?v=N`. Bump the
+**Cache-busting:** asset links in all four HTML files carry `?v=N`. Bump the
 version anywhere a file you changed is referenced, or returning visitors get
-stale caches. `styles.css` is linked from **all three** HTML files — keep them in
+stale caches. `styles.css` is linked from **all four** HTML files — keep them in
 step. This bites during local testing too: a reload will re-run a cached `.js`
 while the server has the new one, so a fix looks like it failed.
 
+**The log is a log, not a coach.** No streaks, no goal-weight countdown, nothing
+congratulatory; always lead with the 7-day trend, never the last weigh-in. Weight
+tracking is a known route into disordered eating and `nutrition.js` already
+treats that seriously. See CLAUDE.md before changing anything in `progress.js`.
+
 **Paid vs free:** Plus buys print, PDF, the weekly plan, the calorie target, and
 no ads. Free forever: browsing, filters, search, ratings, reviews, favorites,
-standing allergies, the whole profile page, and accounts — **never paywall
-signup**, it's what a purchase restores into.
+standing allergies, the whole profile page, **the log**, and accounts — **never
+paywall signup**, it's what a purchase restores into. The log being free costs
+nothing: a weigh-in updates the nutrition profile and `calorieTarget()` is
+already gated, so "your target follows your body" is a Plus benefit for free.
 
 **Adding recipes:** don't hand-edit `recipes.js`. Build recipe objects in the
 schema (see CLAUDE.md), save as a JSON array, and run

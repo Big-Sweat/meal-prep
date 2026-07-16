@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Your kitchen — Mise</title>
-  <meta name="description" content="Your standing allergies, your daily calorie target, and every recipe you've saved, rated, or reviewed.">
+  <title>The log — Mise</title>
+  <meta name="description" content="Track your weight, your lifts and your runs — and let your calorie target follow your body.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&family=Permanent+Marker&display=swap" rel="stylesheet">
@@ -17,35 +17,35 @@
     <div class="mast-inner">
       <div class="mast-brand">
         <h1 class="wordmark"><a class="wordmark-link" href="index.html">Mise<span class="wordmark-dot">.</span></a></h1>
-        <p class="mast-line">Your kitchen. What you can’t eat, what you’re aiming for, and
-        every recipe you’ve saved, rated, or written up.</p>
+        <p class="mast-line">The log. What you weigh, what you lifted, and how far you ran —
+        written down, so the trend can tell you something a single day can’t.</p>
       </div>
       <div class="mast-meta mono">
-        <span>YOUR KITCHEN</span>
-        <a class="mast-link" href="log.html">THE LOG &rarr;</a>
+        <span>THE LOG</span>
+        <a class="mast-link" href="profile.html">YOUR KITCHEN &rarr;</a>
         <a class="mast-link" href="index.html">&larr; BACK TO THE RECIPES</a>
       </div>
     </div>
   </header>
 
-  <!-- profile.js renders everything below: the account arrives asynchronously
-       from Supabase, so there is nothing honest to put here at parse time. -->
-  <main class="kitchen" id="kitchen">
-    <p class="kit-loading mono">LOADING YOUR KITCHEN&hellip;</p>
+  <!-- log.js renders everything below: the account arrives asynchronously from
+       Supabase, so there is nothing honest to put here at parse time. -->
+  <main class="kitchen" id="log">
+    <p class="kit-loading mono">LOADING YOUR LOG&hellip;</p>
   </main>
 
   <footer class="footer">
-    <p class="mono">MISE — DEMO BUILD · RECIPE DATA IS ILLUSTRATIVE.
-    IF AN ALLERGY IS SEVERE, ALWAYS VERIFY EVERY LABEL YOURSELF.</p>
+    <p class="mono">MISE — DEMO BUILD · YOUR LOG LIVES IN THIS BROWSER.
+    NOTHING HERE IS MEDICAL ADVICE.</p>
   </footer>
 
-  <script src="recipes.js?v=8"></script>
   <script src="subscription.js?v=2"></script>
   <script src="nutrition.js?v=3"></script>
+  <script src="progress.js?v=1"></script>
   <script src="store.js?v=2"></script>
   <script src="plus-ui.js?v=2"></script>
   <script src="auth.js?v=2"></script>
   <script src="native.js?v=3"></script>
-  <script src="profile.js?v=4"></script>
+  <script src="log.js?v=2"></script>
 </body>
 </html>
