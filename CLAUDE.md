@@ -89,6 +89,24 @@ in rough sync when you change the workflow described here.
   logos** — both companies require their official badge artwork for store links
   and forbid redrawing it; swap to real badges at launch (see `app/README.md`).
 
+**Nutrition profile (calorie target)**
+- `nutrition.js` — `MiseNutrition`: pure maths, no DOM, no storage, so it can be
+  checked on its own. Mifflin-St Jeor BMR × an activity multiplier ± a goal
+  delta. **The coefficients were verified against the 1990 paper and the
+  Academy of Nutrition and Dietetics EAL — do not "tidy" them.** `10 / 6.25 / 5`
+  with `+5` (male) / `−161` (female).
+- Health-adjacent, so it is deliberately conservative: targets are **clamped to
+  a floor** (1200 kcal female / 1500 male, the bottom of the 2013 AHA/ACC/TOS
+  ranges) and say so when clamped; `blocker()` **refuses** to compute for
+  under-18s and explains why rather than showing a validation error;
+  `warnings()` flags over-65, high/low BMI, athletes, and the sex-neutral
+  option. Keep all of that if you touch this.
+- The `unspecified` sex constant (−78) is the midpoint and is **not a validated
+  equation** — there is no sex-neutral Mifflin. It exists so people who won't
+  state a sex aren't blocked; the UI admits the error.
+- Stored per user at `mise-nutrition-<id>`, free (not Plus-gated). The target
+  feeds `calorieTarget()` in app.js, which puts "% OF YOUR DAY" on recipe cards.
+
 **Auth**
 - `auth.js` — Supabase sign-in (email/password + Google + Apple OAuth). While
   `SUPABASE_URL`/`SUPABASE_ANON_KEY` are empty it loads nothing external and the

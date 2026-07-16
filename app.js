@@ -271,6 +271,11 @@
       ? "<span>&#9733; " + rating.avg + "</span><span class=\"sep\">/</span>"
       : "";
     var isFav = favs.has(r.id);
+    // With a calorie target set, the raw number means something: show the share.
+    var target = calorieTarget();
+    var calMeta = target
+      ? r.caloriesPerServing + " CAL &middot; " + Math.round(r.caloriesPerServing / target * 100) + "% OF YOUR DAY"
+      : r.caloriesPerServing + " CAL/SERV";
     return (
       '<li class="card">' +
         '<span class="tape mono" aria-hidden="true">' + esc(proteinLabel(r.protein)).toUpperCase() + "</span>" +
@@ -283,7 +288,7 @@
           ratingMeta +
           "<span>" + DIFF_WORDS[r.difficulty].toUpperCase() + "</span><span class=\"sep\">/</span>" +
           "<span>" + total + " MIN</span><span class=\"sep\">/</span>" +
-          "<span>" + r.caloriesPerServing + " CAL/SERV</span><span class=\"sep\">/</span>" +
+          "<span>" + calMeta + "</span><span class=\"sep\">/</span>" +
           "<span>KEEPS " + r.fridgeDays + " DAYS</span>" +
           (r.freezerFriendly ? '<span class="sep">/</span><span>FREEZES</span>' : "") +
         "</p>" +
@@ -743,6 +748,12 @@
       }).length;
       $("#auth-stats").textContent =
         favs.size + " FAVORITES · " + rated + " RATED · " + written + " REVIEWED";
+
+      var target = calorieTarget();
+      var note = $("#auth-goals-note");
+      if (note) {
+        note.textContent = target ? target + " KCAL/DAY →" : "SET UP →";
+      }
     }
   }
 
@@ -769,6 +780,10 @@
 
   authBtn.addEventListener("click", openAuth);
   $("#auth-close").addEventListener("click", function () { authModal.close(); });
+  $("#auth-goals").addEventListener("click", function () {
+    authModal.close();
+    openProfile();
+  });
 
   authModal.addEventListener("click", function (e) {
     if (e.target === authModal) authModal.close();
@@ -888,6 +903,236 @@
     state.favOnly = !state.favOnly;
     favChip.setAttribute("aria-pressed", String(state.favOnly));
     render();
+  });
+
+  /* ---------- nutrition profile (goals + calorie target) ---------- */
+
+  var NUTRITION_PREFIX = "mise-nutrition-";   // per profile, like favorites
+  var profileModal = $("#profile-modal");
+  var profileBody = $("#profile-body");
+  var draft = null;   // the form's working copy, committed on save
+
+  function loadNutrition() {
+    if (!profile) return null;
+    var p = lsRead(NUTRITION_PREFIX + who(), null);
+    return (p && MiseNutrition.valid(p)) ? p : null;
+  }
+
+  function saveNutrition(p) {
+    if (profile) lsWrite(NUTRITION_PREFIX + who(), p);
+  }
+
+  // The one number the rest of the app cares about; null until it's set up.
+  function calorieTarget() {
+    var n = loadNutrition();
+    if (!n) return null;
+    var r = MiseNutrition.dailyCalories(n);
+    return r ? r.target : null;
+  }
+
+  function blankDraft() {
+    return {
+      goal: "maintain",
+      sex: "unspecified",
+      age: null,
+      heightCm: null,
+      weightKg: null,
+      activity: "moderate",
+      units: "imperial"
+    };
+  }
+
+  function chipRow(name, options, current) {
+    return options.map(function (o) {
+      return '<button type="button" class="chip nut-chip" data-field="' + name + '" data-val="' + o.id +
+        '" aria-pressed="' + (current === o.id) + '">' + esc(o.label) + "</button>";
+    }).join("");
+  }
+
+  function renderProfileBody() {
+    var d = draft;
+    var imperial = d.units === "imperial";
+    var ready = MiseNutrition.valid(d);
+    var calc = ready ? MiseNutrition.dailyCalories(d) : null;
+    var warns = ready ? MiseNutrition.warnings(d) : [];
+
+    // height/weight shown in whichever units are selected
+    var ft = d.heightCm ? Math.floor(MiseNutrition.cmToIn(d.heightCm) / 12) : "";
+    var inch = d.heightCm ? Math.round(MiseNutrition.cmToIn(d.heightCm) % 12) : "";
+    var lb = d.weightKg ? Math.round(MiseNutrition.kgToLb(d.weightKg)) : "";
+
+    profileBody.innerHTML =
+      '<div class="modal-top">' +
+        '<span class="modal-tape">YOUR GOALS</span>' +
+        '<button class="modal-close" id="profile-close" aria-label="Close">&times;</button>' +
+      "</div>" +
+      '<h2 id="profile-title">Your calorie target</h2>' +
+      '<p class="modal-desc">An estimate from the Mifflin-St Jeor equation — the one dietitians ' +
+        "generally use. It&rsquo;s a starting point, not a prescription.</p>" +
+
+      '<div class="nut-group">' +
+        '<p class="nut-label mono">GOAL</p>' +
+        '<div class="chip-row">' + chipRow("goal", [
+          { id: "cut", label: "Cut" }, { id: "maintain", label: "Maintain" }, { id: "bulk", label: "Bulk" }
+        ], d.goal) + "</div>" +
+        '<p class="nut-hint">' + esc(MiseNutrition.GOALS[d.goal].hint) + "</p>" +
+      "</div>" +
+
+      '<div class="nut-group">' +
+        '<p class="nut-label mono">SEX</p>' +
+        '<div class="chip-row">' + chipRow("sex", [
+          { id: "female", label: "Female" }, { id: "male", label: "Male" }, { id: "unspecified", label: "Rather not say" }
+        ], d.sex) + "</div>" +
+        '<p class="nut-hint">The equation uses a different constant for each &mdash; they differ ' +
+          "by 166 kcal a day. &ldquo;Rather not say&rdquo; splits the difference, which is honest " +
+          "but less accurate.</p>" +
+      "</div>" +
+
+      '<div class="nut-group">' +
+        '<div class="nut-units">' +
+          '<p class="nut-label mono">YOU</p>' +
+          '<div class="chip-row">' +
+            '<button type="button" class="chip nut-unit' + (imperial ? " on" : "") + '" data-units="imperial">ft / lb</button>' +
+            '<button type="button" class="chip nut-unit' + (imperial ? "" : " on") + '" data-units="metric">cm / kg</button>' +
+          "</div>" +
+        "</div>" +
+        '<div class="nut-fields">' +
+          '<label class="nut-field"><span class="mono">AGE</span>' +
+            '<input id="nut-age" type="number" inputmode="numeric" min="18" max="100" value="' + (d.age || "") + '" placeholder="30"></label>' +
+          (imperial
+            ? '<label class="nut-field"><span class="mono">HEIGHT</span>' +
+                '<span class="nut-pair">' +
+                  '<input id="nut-ft" type="number" inputmode="numeric" min="3" max="8" value="' + ft + '" placeholder="5"><em>ft</em>' +
+                  '<input id="nut-in" type="number" inputmode="numeric" min="0" max="11" value="' + inch + '" placeholder="10"><em>in</em>' +
+                "</span></label>" +
+              '<label class="nut-field"><span class="mono">WEIGHT</span>' +
+                '<span class="nut-pair"><input id="nut-lb" type="number" inputmode="numeric" min="66" max="660" value="' + lb + '" placeholder="175"><em>lb</em></span></label>'
+            : '<label class="nut-field"><span class="mono">HEIGHT</span>' +
+                '<span class="nut-pair"><input id="nut-cm" type="number" inputmode="numeric" min="120" max="250" value="' + (d.heightCm ? Math.round(d.heightCm) : "") + '" placeholder="178"><em>cm</em></span></label>' +
+              '<label class="nut-field"><span class="mono">WEIGHT</span>' +
+                '<span class="nut-pair"><input id="nut-kg" type="number" inputmode="numeric" min="30" max="300" value="' + (d.weightKg ? Math.round(d.weightKg) : "") + '" placeholder="80"><em>kg</em></span></label>') +
+        "</div>" +
+      "</div>" +
+
+      '<div class="nut-group">' +
+        '<p class="nut-label mono">ACTIVITY</p>' +
+        '<div class="nut-activity">' +
+          Object.keys(MiseNutrition.ACTIVITY).map(function (k) {
+            var a = MiseNutrition.ACTIVITY[k];
+            return '<button type="button" class="nut-act' + (d.activity === k ? " on" : "") + '" data-field="activity" data-val="' + k + '">' +
+              "<strong>" + esc(a.label) + "</strong>" +
+              '<span class="nut-act-hint">' + esc(a.hint) + "</span>" +
+            "</button>";
+          }).join("") +
+        "</div>" +
+      "</div>" +
+
+      (calc
+        ? '<div class="nut-result">' +
+            '<p class="nut-result-label mono">YOUR DAILY TARGET</p>' +
+            '<p class="nut-big">' + calc.target + ' <span class="nut-big-unit">kcal</span></p>' +
+            '<p class="nut-math mono">BMR ' + calc.bmr + " &middot; TDEE " + calc.tdee +
+              (calc.delta ? " &middot; " + (calc.delta > 0 ? "+" : "") + calc.delta + " TO " + esc(MiseNutrition.GOALS[d.goal].label.toUpperCase()) : " &middot; MAINTAIN") +
+            "</p>" +
+            (calc.floored
+              ? '<p class="nut-warn">That works out below ' + calc.floor + " kcal, so we&rsquo;ve held it there. " +
+                "Eating under that isn&rsquo;t something to do without a doctor.</p>"
+              : "") +
+            warns.map(function (w) { return '<p class="nut-warn">' + esc(w) + "</p>"; }).join("") +
+          "</div>"
+        : '<p class="nut-incomplete">' + esc(MiseNutrition.blocker(d) || "") + "</p>") +
+
+      '<div class="nut-actions">' +
+        '<button class="sub-buy" id="nut-save"' + (calc ? "" : " disabled") + ">Save my target</button>" +
+        (loadNutrition() ? '<button class="review-signin mono" id="nut-clear">CLEAR MY PROFILE</button>' : "") +
+      "</div>" +
+      '<p class="nut-disclaimer">Mise isn&rsquo;t a doctor or a dietitian. This is a population-average ' +
+        "estimate; if you have a health condition, are pregnant, or are treating an eating disorder, " +
+        "get a number from a professional instead.</p>";
+
+    wireProfileBody();
+  }
+
+  function readNumber(id) {
+    var el = $(id);
+    if (!el) return null;
+    var v = parseFloat(el.value);
+    return isFinite(v) ? v : null;
+  }
+
+  // Pull the form back into the draft, then re-render so the target updates live.
+  function syncDraftFromForm() {
+    draft.age = readNumber("#nut-age");
+    if (draft.units === "imperial") {
+      var ft = readNumber("#nut-ft"), inch = readNumber("#nut-in"), lb = readNumber("#nut-lb");
+      draft.heightCm = (ft !== null) ? MiseNutrition.inToCm(ft * 12 + (inch || 0)) : null;
+      draft.weightKg = (lb !== null) ? MiseNutrition.lbToKg(lb) : null;
+    } else {
+      draft.heightCm = readNumber("#nut-cm");
+      draft.weightKg = readNumber("#nut-kg");
+    }
+  }
+
+  function wireProfileBody() {
+    $("#profile-close").addEventListener("click", function () { profileModal.close(); });
+
+    profileBody.querySelectorAll("[data-field]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        syncDraftFromForm();
+        draft[this.getAttribute("data-field")] = this.getAttribute("data-val");
+        renderProfileBody();
+      });
+    });
+
+    profileBody.querySelectorAll("[data-units]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        syncDraftFromForm();               // keep the values, just change the display
+        draft.units = this.getAttribute("data-units");
+        renderProfileBody();
+      });
+    });
+
+    profileBody.querySelectorAll(".nut-fields input").forEach(function (i) {
+      i.addEventListener("input", function () {
+        var id = this.id, pos = this.selectionStart;
+        syncDraftFromForm();
+        renderProfileBody();
+        var again = $("#" + id);          // re-render blows away focus; put it back
+        if (again) { again.focus(); try { again.setSelectionRange(pos, pos); } catch (e) {} }
+      });
+    });
+
+    var save = $("#nut-save");
+    if (save) save.addEventListener("click", function () {
+      syncDraftFromForm();
+      if (!MiseNutrition.valid(draft)) return;
+      saveNutrition(draft);
+      updateAuthUI();
+      render();
+      profileModal.close();
+    });
+
+    var clear = $("#nut-clear");
+    if (clear) clear.addEventListener("click", function () {
+      try { localStorage.removeItem(NUTRITION_PREFIX + who()); } catch (e) { /* ignore */ }
+      draft = blankDraft();
+      renderProfileBody();
+      updateAuthUI();
+      render();
+    });
+  }
+
+  function openProfile() {
+    if (!profile) { openAuth(); return; }
+    draft = loadNutrition() || blankDraft();
+    if (!draft.units) draft.units = "imperial";
+    renderProfileBody();
+    profileModal.showModal();
+    profileModal.scrollTop = 0;
+  }
+
+  profileModal.addEventListener("click", function (e) {
+    if (e.target === profileModal) profileModal.close();
   });
 
   /* ---------- Mise Plus (remove-ads subscription) ---------- */
@@ -1225,6 +1470,7 @@
   document.addEventListener("keydown", function (e) {
     if (e.key !== "Escape") return;
     if (subModal.open) { subModal.close(); return; }
+    if (profileModal.open) { profileModal.close(); return; }
     if (authModal.open) { authModal.close(); return; }
     if (modalEl.open) { modalEl.close(); return; }
     if (planModal.open) { planModal.close(); return; }

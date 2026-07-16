@@ -20,7 +20,7 @@
      open. Close what's on top instead; exit only from the bare board. */
   if (platform === "android" && P.App) {
     P.App.addListener("backButton", function () {
-      var dialogs = ["sub-modal", "auth-modal", "recipe-modal", "plan-modal"];
+      var dialogs = ["sub-modal", "profile-modal", "auth-modal", "recipe-modal", "plan-modal"];
       for (var i = 0; i < dialogs.length; i++) {
         var d = document.getElementById(dialogs[i]);
         if (d && d.open) { d.close(); return; }

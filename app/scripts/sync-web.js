@@ -20,6 +20,7 @@ const FILES = [
   "ads.js",
   "apps.js",
   "subscription.js",
+  "nutrition.js",
   "auth.js",
   "pdf.js",
   "native.js"
