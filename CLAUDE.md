@@ -59,6 +59,15 @@ in rough sync when you change the workflow described here.
   `NETWORK_AD_HTML` is empty, the slot shows *house ads* (two random picks from
   `PRODUCTS`). Paste an ad-network embed into `NETWORK_AD_HTML` to run real ads.
 
+**App download links**
+- `apps.js` — `IOS_APP_URL` / `ANDROID_APP_URL`. Both empty as of Jul 2026
+  because **nothing is published to either store yet**; the footer block
+  (`#app-links`, rendered by `renderAppLinks()` in app.js) stays hidden and
+  emits no markup until a URL is set, so the site never shows a dead store link.
+  Do not invent URLs here. The buttons deliberately carry **no Apple/Google
+  logos** — both companies require their official badge artwork for store links
+  and forbid redrawing it; swap to real badges at launch (see `app/README.md`).
+
 **Auth**
 - `auth.js` — Supabase sign-in (email/password + Google + Apple OAuth). While
   `SUPABASE_URL`/`SUPABASE_ANON_KEY` are empty it loads nothing external and the

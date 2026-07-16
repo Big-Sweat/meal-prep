@@ -1200,7 +1200,43 @@
     render();
   });
 
+  /* ---------- app download links ---------- */
+
+  // apps.js carries the two store URLs. While both are empty this renders
+  // nothing at all, so the site never links to a listing that doesn't exist.
+  // Deliberately no Apple/Google logos here: those are trademarks, and the
+  // licensed way to show them is each store's official badge, which may not be
+  // redrawn. Swap these text buttons for the real badges at launch — see apps.js.
+  function renderAppLinks() {
+    var ios = typeof IOS_APP_URL !== "undefined" ? IOS_APP_URL : "";
+    var android = typeof ANDROID_APP_URL !== "undefined" ? ANDROID_APP_URL : "";
+    var host = $("#app-links");
+    if (!host || (!ios && !android)) return;
+
+    var buttons = "";
+    if (ios) {
+      buttons += '<a class="app-link" href="' + esc(ios) + '" target="_blank" rel="noopener">' +
+        "GET IT FOR IPHONE &rarr;</a>";
+    }
+    if (android) {
+      buttons += '<a class="app-link" href="' + esc(android) + '" target="_blank" rel="noopener">' +
+        "GET IT FOR ANDROID &rarr;</a>";
+    }
+
+    host.innerHTML =
+      '<p class="app-links-title mono" id="app-links-title">MISE ON YOUR PHONE</p>' +
+      '<p class="app-links-line">All ' + RECIPES.length + " recipes live inside the app, so the board, " +
+        "your plan, and the shopping list all work with no signal at the shop.</p>" +
+      '<div class="app-links-row">' + buttons + "</div>" +
+      // Google's current legal-line tool emits exactly this. The widely copied
+      // "…and the Google Play logo are trademarks…" is legacy text from the
+      // retired badge generator.
+      (android ? '<p class="app-links-legal">Google Play is a trademark of Google LLC.</p>' : "");
+    host.hidden = false;
+  }
+
   render();
   updatePlanUI();
   updateAuthUI();
+  renderAppLinks();
 })();

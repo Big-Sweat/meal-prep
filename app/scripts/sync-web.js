@@ -18,6 +18,7 @@ const FILES = [
   "recipes.js",
   "products.js",
   "ads.js",
+  "apps.js",
   "auth.js",
   "pdf.js",
   "native.js"

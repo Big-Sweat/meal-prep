@@ -119,6 +119,44 @@ ask you to pick a team.
   signed `.aab`.
 - **App Store** — needs the Apple Developer Program ($99/year).
 
+### Turning on the website's download links
+
+The site has a "MISE ON YOUR PHONE" block ready to go, but it **renders nothing
+until a store URL exists** — there is no "coming soon", no dead link. Once a
+listing is live, paste its URL into `apps.js` in the repo root:
+
+```js
+var IOS_APP_URL     = "https://apps.apple.com/app/id<YOUR_NUMERIC_APP_ID>";
+var ANDROID_APP_URL = "https://play.google.com/store/apps/details?id=com.deadliftdigital.mise";
+```
+
+Fill in one and only that button appears. Two caveats, both easy to trip on:
+
+1. **Bump `apps.js?v=1` in index.html** when you edit it, or returning visitors
+   keep the cached empty file and never see the block.
+2. **The store badges are optional — but all-or-nothing.** Checked against both
+   companies' own docs: neither *requires* a badge to link (Google's "Linking to
+   Google Play" page documents plain https URLs; Apple has no rule against a
+   text link). So the plain type buttons are fine as-is. If you do want the real
+   badges, you must use their downloadable artwork unmodified — never redraw or
+   rebuild it in CSS, which is why there are no Apple/Google logos in this repo.
+   Then the strict rules apply: Apple wants its badge **first** in a lineup,
+   Google wants its badge **the same size or larger** than the others (those two
+   rules fight — lay it out carefully). Artwork:
+   <https://developer.apple.com/app-store/marketing/guidelines/> and
+   <https://partnermarketinghub.withgoogle.com/brands/google-play/visual-identity/badge-guidelines/>
+   (the old `play.google.com/intl/en_us/badges` generator is retired and
+   redirects; don't hotlink Google's hosted images — those URLs expire in 24h).
+
+### Do not publish the debug APK
+
+It is tempting to just put `app-debug.apk` on the site as a direct download.
+Don't: debug builds are signed with a throwaway debug key and are marked
+debuggable, which lets anyone attach a debugger and read app data. They also get
+no auto-updates and force users through "install unknown apps" warnings. If you
+ever do want direct distribution, build a **release-signed** APK and host that —
+but the stores are the right path.
+
 **On the "minimum functionality" policy:** both stores reject apps that are just
 a website in a wrapper (Google's minimum-functionality rule, Apple's guideline
 4.2). This app is not one — the entire recipe library is bundled and works

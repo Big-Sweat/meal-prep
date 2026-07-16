@@ -126,6 +126,9 @@
   </main>
 
   <footer class="footer">
+    <!-- Rendered by app.js only when apps.js has a store URL. Stays out of the
+         DOM entirely while nothing is published — no dead links. -->
+    <section id="app-links" class="app-links" hidden aria-labelledby="app-links-title"></section>
     <p class="mono">MISE — DEMO BUILD · RECIPE DATA IS ILLUSTRATIVE.
     IF AN ALLERGY IS SEVERE, ALWAYS VERIFY EVERY LABEL YOURSELF.</p>
   </footer>
@@ -196,9 +199,10 @@
   <script src="recipes.js?v=8"></script>
   <script src="products.js?v=1"></script>
   <script src="ads.js?v=1"></script>
+  <script src="apps.js?v=1"></script>
   <script src="auth.js?v=2"></script>
   <script src="pdf.js?v=4"></script>
   <script src="native.js?v=1"></script>
-  <script src="app.js?v=13"></script>
+  <script src="app.js?v=14"></script>
 </body>
 </html>

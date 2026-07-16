@@ -1410,6 +1410,64 @@ button {
   .house-ads { grid-template-columns: 1fr 1fr; }
 }
 
+/* ---------- app download links ----------
+   Rendered by app.js only when apps.js carries a store URL; hidden otherwise. */
+
+.app-links {
+  border: 1px solid var(--ink);
+  background: var(--ticket);
+  padding: 20px;
+  margin-bottom: 24px;
+  max-width: 560px;
+}
+
+.app-links[hidden] { display: none; }
+
+.app-links-title {
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  color: var(--faded);
+  margin-bottom: 8px;
+}
+
+.app-links-line {
+  font-family: var(--font-body);
+  font-size: 14.5px;
+  color: var(--ink);
+  margin-bottom: 16px;
+}
+
+.app-links-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.app-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+  text-decoration: none;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  padding: 12px 14px;
+  min-height: 44px;
+}
+
+.app-link:hover { background: var(--kale); border-color: var(--kale); }
+
+.app-links-legal {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.04em;
+  color: var(--faded);
+  margin-top: 12px;
+}
+
 /* ---------- footer ---------- */
 
 .footer {
