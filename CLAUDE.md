@@ -59,20 +59,26 @@ in rough sync when you change the workflow described here.
   `NETWORK_AD_HTML` is empty, the slot shows *house ads* (two random picks from
   `PRODUCTS`). Paste an ad-network embed into `NETWORK_AD_HTML` to run real ads.
 
-**Subscription (Mise Plus)**
-- `subscription.js` — `MiseSub`: the ad-free entitlement. `BILLING_ANDROID_KEY`
-  / `BILLING_IOS_KEY` are empty, so it runs in **demo mode**: the purchase
-  button flips a localStorage flag, charges nothing, and the dialog says so in
-  red. Real billing needs a Play Console account ($25) + merchant profile + one
-  uploaded build containing the Billing Library + an ACTIVE product; that's why
-  demo mode exists. Note (checked against Google's docs, Jul 2026): billing
-  **can** be tested on a sideloaded debug APK once those exist — license testers
-  bypass the install-source check. The rest of the app only touches
-  `isAdFree() / purchase() / restore()`, so swapping in a real SDK shouldn't
-  touch app.js.
-- Ads gated on it: the in-feed `SPONSORED` ticket every `AD_EVERY` (12) recipes
-  in `render()`, and the pre-print interstitial in `showAdThen()`. **Never make
-  the ad-free path merely shorter** — subscribers must skip it entirely.
+**Subscription (Mise Plus) — the paid tier**
+- `subscription.js` — `MiseSub`. **`isPlus()` is the single gate**; call sites
+  use `requirePlus()` in app.js, which opens the upgrade dialog and returns true
+  when the caller should stop. Two products, same entitlement:
+  `mise_plus_monthly` ($0.99/mo) and `mise_plus_lifetime` ($4.99 once).
+- **Paid:** print, PDF download, the weekly plan view, no ads.
+  **Free forever:** browsing, filters, search, ratings, reviews, favorites, and
+  **accounts** — never paywall signup; it's where a purchase restores to.
+  *Adding* to the plan is free on purpose; the wall is on opening it.
+- `BILLING_ANDROID_KEY` / `BILLING_IOS_KEY` are empty, so it runs in **demo
+  mode**: purchase flips a localStorage flag, charges nothing, and the dialog
+  says so in red. Real billing needs a Play Console account ($25) + merchant
+  profile + one uploaded build with the Billing Library + ACTIVE products. Note
+  (checked against Google's docs, Jul 2026): billing **can** be tested on a
+  sideloaded debug APK once those exist — license testers bypass the
+  install-source check.
+- **One ad slot only:** the in-feed `SPONSORED` ticket every `AD_EVERY` (12)
+  recipes in `render()`, honouring `NETWORK_AD_HTML`. The old pre-print
+  interstitial was deleted — print is Plus-only and Plus removes ads, so it was
+  unreachable. Don't reintroduce it without changing that logic.
 
 **App download links**
 - `apps.js` — `IOS_APP_URL` / `ANDROID_APP_URL`. Both empty as of Jul 2026

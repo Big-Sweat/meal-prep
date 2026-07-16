@@ -148,20 +148,36 @@ Fill in one and only that button appears. Two caveats, both easy to trip on:
    (the old `play.google.com/intl/en_us/badges` generator is retired and
    redirects; don't hotlink Google's hosted images — those URLs expire in 24h).
 
-## Mise Plus — the $0.99/month remove-ads subscription
+## Mise Plus — the paid tier
 
 The whole flow is built and works on a phone today, but **in demo mode: it
 charges nothing** and says so on the purchase screen. Real money needs a store
 account, which is the one thing that can't be faked.
 
-**What's live now**
-- Ads a reader actually meets: a `SPONSORED` ticket every 12 recipes on the
-  board (house ads drawn from `products.js`), plus the existing before-you-print
-  interstitial.
-- An upgrade dialog at `$0.99/month`, reachable from every sponsored ticket and
-  from the interstitial itself.
-- Subscribing removes **both** — the sponsored tickets and the print wait.
-- A "restore purchase" path, which both stores require you to offer.
+**Free forever** — browsing all recipes, every filter, search, ratings, reviews,
+favorites, and making an account. Accounts are deliberately *not* paywalled:
+they're the container a purchase restores into on a new phone, and charging for
+signup would kill the ratings/reviews/favorites the site already has.
+
+**Plus unlocks** (one entitlement, bought either way):
+- Printing a recipe or the weekly plan
+- Downloading a recipe PDF
+- The weekly plan + combined shopping list. Note *adding* to the plan stays
+  free — the wall is on opening it, so people build the basket first and meet
+  the paywall where the value actually is.
+- No sponsored tickets on the board
+
+**Two ways to buy:** `$0.99/month` (`mise_plus_monthly`) or `$4.99 once`
+(`mise_plus_lifetime`). Both grant the same entitlement. Prices are display
+labels in `subscription.js`; the store is the source of truth once billing is
+live, so keep them in step.
+
+**Ads:** one placement — a `SPONSORED` ticket every 12 recipes, drawn from
+`products.js` house ads, or an ad-network embed if you set `NETWORK_AD_HTML` in
+`ads.js`. The old before-you-print interstitial is **gone**: print is Plus-only
+and Plus removes ads, so it could never have fired again.
+
+**A "restore purchase" path exists** because both stores require you to offer one.
 
 **What it takes to charge real money**
 1. **Google Play Console account** ($25 one-time) **plus a Google payments /
@@ -171,9 +187,10 @@ account, which is the one thing that can't be faked.
    Library to a track (internal testing is enough). Play Console won't let you
    create a subscription product until such a build exists — this is the gate
    most people hit.
-3. Create the product: id `mise_plus_monthly`, $0.99, monthly, and mark it
-   **ACTIVE**. An inactive or unpropagated product makes queries return an empty
-   list *with no error*, which looks exactly like a code bug.
+3. Create **both** products and mark each **ACTIVE**: `mise_plus_monthly`
+   (subscription, $0.99/month) and `mise_plus_lifetime` (one-time /
+   non-consumable, $4.99). An inactive or unpropagated product makes queries
+   return an empty list *with no error*, which looks exactly like a code bug.
 4. Wire the SDK and set `BILLING_ANDROID_KEY` / `BILLING_IOS_KEY` in
    `subscription.js`. Non-empty key turns demo mode off. The app only calls
    `MiseSub.isAdFree() / purchase() / restore()`, so nothing else changes.

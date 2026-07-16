@@ -1330,86 +1330,6 @@ button {
 
 #auth-signedin .clear-btn { margin-top: 0; }
 
-/* ---------- pre-print sponsored interstitial ---------- */
-
-.ad-modal { width: min(560px, calc(100vw - 32px)); }
-
-.ad-modal h2.ad-title {
-  font-size: 22px;
-  margin: 10px 0 16px;
-}
-
-.ad-slot { margin-bottom: 20px; }
-
-.house-ads {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 12px;
-  margin-bottom: 12px;
-}
-
-.house-ad {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  border: 1px solid var(--ink);
-  background: var(--paper);
-  padding: 14px 16px;
-  color: var(--ink);
-  text-decoration: none;
-}
-
-.house-ad:hover { background: var(--tape); }
-
-.house-ad strong {
-  font-size: 15.5px;
-  font-weight: 650;
-  letter-spacing: -0.01em;
-}
-
-.house-ad-price {
-  font-size: 10.5px;
-  letter-spacing: 0.06em;
-  color: var(--kale-deep);
-}
-
-.house-ad-more {
-  display: inline-block;
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  color: var(--faded);
-  text-decoration: none;
-  border-bottom: 1px dashed var(--faded);
-  padding-bottom: 2px;
-}
-
-.house-ad-more:hover { color: var(--kale); border-bottom-color: var(--kale); }
-
-.ad-continue {
-  width: 100%;
-  border: 1px solid var(--ink);
-  background: var(--ticket);
-  color: var(--faded);
-  font-family: var(--font-mono);
-  font-size: 13px;
-  letter-spacing: 0.08em;
-  padding: 14px;
-  min-height: 50px;
-}
-
-.ad-continue.go {
-  background: var(--kale);
-  border-color: var(--kale);
-  color: #F4F8F0;
-  cursor: pointer;
-}
-
-.ad-continue:disabled { cursor: wait; }
-
-@media (min-width: 560px) {
-  .house-ads { grid-template-columns: 1fr 1fr; }
-}
-
 /* ---------- in-feed sponsored ticket + Mise Plus ---------- */
 
 /* Reads as a ticket but never impersonates a recipe: paper stock, no photo,
@@ -1451,19 +1371,6 @@ button {
 
 .ad-card-remove:hover { color: var(--kale); border-bottom-color: var(--kale); }
 
-.ad-remove-link {
-  display: block;
-  width: 100%;
-  margin-top: 12px;
-  font-size: 10.5px;
-  letter-spacing: 0.08em;
-  color: var(--faded);
-  padding: 8px 0;
-  min-height: 36px;
-}
-
-.ad-remove-link:hover { color: var(--kale-deep); }
-
 .sub-modal { width: min(460px, calc(100vw - 32px)); }
 
 .sub-demo {
@@ -1476,17 +1383,55 @@ button {
   margin: 16px 0;
 }
 
+.sub-list {
+  font-family: var(--font-body);
+  font-size: 15px;
+  margin: 0 0 16px 20px;
+}
+
+.sub-list li { padding: 3px 0; }
+
+.sub-free {
+  font-size: 9.5px;
+  letter-spacing: 0.06em;
+  line-height: 1.6;
+  color: var(--kale-deep);
+  border-top: 1px dashed var(--line);
+  padding-top: 10px;
+  margin-bottom: 4px;
+}
+
+.sub-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 16px;
+}
+
 .sub-buy {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
   width: 100%;
   border: 1px solid var(--kale);
   background: var(--kale);
   color: #F4F8F0;
-  font-weight: 700;
-  font-size: 15px;
-  padding: 14px;
-  min-height: 50px;
-  margin-top: 4px;
+  padding: 12px 14px;
+  min-height: 56px;
 }
+
+.sub-buy-price { font-weight: 700; font-size: 16px; }
+.sub-buy-note { font-size: 9.5px; letter-spacing: 0.08em; opacity: 0.85; }
+
+/* the pay-once option is the alternative, not the default */
+.sub-buy--alt {
+  background: var(--ticket);
+  border-color: var(--ink);
+  color: var(--ink);
+}
+
+.sub-buy--alt:hover { background: var(--tape); }
 
 .sub-buy:disabled { opacity: 0.6; cursor: wait; }
 

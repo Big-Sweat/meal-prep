@@ -305,7 +305,21 @@
   // get none of these; see subscription.js.
   var AD_EVERY = 12;
 
+  // This is now the only ad slot on the site, so it is also where a real ad
+  // network lands: set NETWORK_AD_HTML in ads.js and it renders that embed
+  // instead of a house ad.
   function adCardHTML() {
+    if (typeof NETWORK_AD_HTML !== "undefined" && NETWORK_AD_HTML) {
+      return (
+        '<li class="card card--ad card--ad-network">' +
+          '<span class="tape tape--ad mono" aria-hidden="true">SPONSORED</span>' +
+          '<div class="ad-network-slot">' + NETWORK_AD_HTML + "</div>" +
+          '<div class="card-foot">' +
+            '<button class="ad-card-remove mono" data-remove-ads>REMOVE ADS</button>' +
+          "</div>" +
+        "</li>"
+      );
+    }
     var flat = [];
     if (typeof PRODUCTS !== "undefined") {
       PRODUCTS.forEach(function (g) { g.items.forEach(function (p) { flat.push(p); }); });
@@ -618,19 +632,17 @@
       this.setAttribute("aria-pressed", String(on));
     });
     $("#modal-print").addEventListener("click", function () {
-      showAdThen("PRINT NOW", function () {
-        // Android has no window.print(); the share sheet carries Print instead.
-        if (window.MiseNative && MiseNative.isNative) {
-          MiseNative.sharePDF(recipeToPDFModel(r, mServings), r.id + ".pdf", r.name);
-        } else {
-          window.print();
-        }
-      });
+      if (requirePlus()) return;
+      // Android has no window.print(); the share sheet carries Print instead.
+      if (window.MiseNative && MiseNative.isNative) {
+        MiseNative.sharePDF(recipeToPDFModel(r, mServings), r.id + ".pdf", r.name);
+      } else {
+        window.print();
+      }
     });
     $("#modal-download").addEventListener("click", function () {
-      showAdThen("DOWNLOAD NOW", function () {
-        MisePDF.download(recipeToPDFModel(r, mServings), r.id + ".pdf");
-      });
+      if (requirePlus()) return;
+      MisePDF.download(recipeToPDFModel(r, mServings), r.id + ".pdf");
     });
     modalEl.showModal();
     modalEl.scrollTop = 0;
@@ -883,23 +895,37 @@
   var subModal = $("#sub-modal");
   var subBody = $("#sub-body");
 
+  /* The paywall in one place. Call at the top of any Plus-only action:
+       if (requirePlus()) return;
+     Returns true when the caller should stop (and the upgrade dialog is up). */
+  function requirePlus() {
+    if (MiseSub.isPlus()) return false;
+    openSub();
+    return true;
+  }
+
   function renderSubBody() {
-    var adFree = MiseSub.isAdFree();
     var live = MiseSub.isLive();
 
-    if (adFree) {
+    if (MiseSub.isPlus()) {
+      var kind = MiseSub.kind();
       subBody.innerHTML =
         '<div class="modal-top">' +
           '<span class="modal-tape">MISE PLUS</span>' +
           '<button class="modal-close" id="sub-close" aria-label="Close">&times;</button>' +
         "</div>" +
-        '<h2 id="sub-title">Ads are off</h2>' +
-        '<p class="modal-desc">The sponsored tickets and the before-you-print slot are gone.' +
+        '<h2 id="sub-title">You&rsquo;re on Plus</h2>' +
+        '<p class="modal-desc">Printing, PDFs, and the weekly plan are unlocked, and the board is ' +
+          "clear of sponsored tickets." +
           (live ? "" : " This is the demo unlock — nothing was charged.") + "</p>" +
-        '<button class="clear-btn" id="sub-cancel">' + (live ? "Manage subscription" : "Turn ads back on") + "</button>";
+        '<button class="clear-btn" id="sub-cancel">' +
+          (live
+            ? (kind === "lifetime" ? "Manage purchase" : "Manage subscription")
+            : "Switch back to free") +
+        "</button>";
       $("#sub-close").addEventListener("click", function () { subModal.close(); });
       $("#sub-cancel").addEventListener("click", function () {
-        MiseSub.cancel().then(function () { renderSubBody(); render(); });
+        MiseSub.cancel().then(function () { renderSubBody(); render(); updatePlanUI(); });
       });
       return;
     }
@@ -909,42 +935,58 @@
         '<span class="modal-tape">MISE PLUS</span>' +
         '<button class="modal-close" id="sub-close" aria-label="Close">&times;</button>' +
       "</div>" +
-      '<h2 id="sub-title">Cook without the ads</h2>' +
-      '<p class="modal-desc">' + esc(MiseSub.priceLabel()) + ". No sponsored tickets on the board, " +
-        "and no waiting on the slot before you print or save a PDF. Everything else is identical — " +
-        "the recipes, the plan, and the shopping list are free and stay free.</p>" +
+      '<h2 id="sub-title">Take it to the kitchen</h2>' +
+      '<p class="modal-desc">Plus unlocks the parts you use once you&rsquo;ve decided to cook:</p>' +
+      '<ul class="sub-list">' +
+        "<li>Print a recipe, or save it as a PDF</li>" +
+        "<li>The weekly plan and its combined shopping list</li>" +
+        "<li>No sponsored tickets on the board</li>" +
+      "</ul>" +
+      '<p class="sub-free mono">FREE FOREVER: ALL ' + RECIPES.length + " RECIPES, EVERY FILTER, " +
+        "SEARCH, RATINGS, REVIEWS, FAVORITES, AND YOUR ACCOUNT.</p>" +
       (live
         ? ""
-        : '<p class="sub-demo mono">DEMO BUILD — THIS CHARGES NOTHING. REAL BILLING NEEDS THE APP ' +
-          "PUBLISHED ON A STORE; SEE SUBSCRIPTION.JS.</p>") +
-      '<button class="sub-buy" id="sub-buy">' +
-        (live ? "Subscribe — " + esc(MiseSub.priceLabel()) : "Turn ads off (demo)") +
-      "</button>" +
+        : '<p class="sub-demo mono">DEMO BUILD — THIS CHARGES NOTHING. REAL BILLING NEEDS A STORE ' +
+          "ACCOUNT AND A PUBLISHED PRODUCT; SEE SUBSCRIPTION.JS.</p>") +
+      '<div class="sub-options">' +
+        '<button class="sub-buy" id="sub-buy-month">' +
+          '<span class="sub-buy-price">' + esc(MiseSub.monthlyPrice()) + "</span>" +
+          '<span class="sub-buy-note mono">' + (live ? "SUBSCRIBE" : "DEMO UNLOCK") + " &middot; CANCEL ANYTIME</span>" +
+        "</button>" +
+        '<button class="sub-buy sub-buy--alt" id="sub-buy-life">' +
+          '<span class="sub-buy-price">' + esc(MiseSub.lifetimePrice()) + "</span>" +
+          '<span class="sub-buy-note mono">' + (live ? "PAY ONCE" : "DEMO UNLOCK") + " &middot; KEEP IT FOREVER</span>" +
+        "</button>" +
+      "</div>" +
       '<button class="review-signin mono" id="sub-restore">RESTORE PURCHASE</button>' +
       '<p id="sub-error" class="auth-error" hidden></p>';
 
     $("#sub-close").addEventListener("click", function () { subModal.close(); });
-    $("#sub-buy").addEventListener("click", function () {
-      var btn = this;
+
+    function buy(kind, btn) {
       btn.disabled = true;
-      MiseSub.purchase().then(function () {
+      MiseSub.purchase(kind).then(function () {
         renderSubBody();
         render();
+        updatePlanUI();
       }).catch(function (e) {
         btn.disabled = false;
         var err = $("#sub-error");
         err.hidden = false;
         err.textContent = e.message;
       });
-    });
+    }
+    $("#sub-buy-month").addEventListener("click", function () { buy("monthly", this); });
+    $("#sub-buy-life").addEventListener("click", function () { buy("lifetime", this); });
+
     $("#sub-restore").addEventListener("click", function () {
       MiseSub.restore().then(function (res) {
-        if (res.adFree) { renderSubBody(); render(); return; }
+        if (res.plus) { renderSubBody(); render(); updatePlanUI(); return; }
         var err = $("#sub-error");
         err.hidden = false;
         err.textContent = res.demo
           ? "Nothing to restore in the demo — there is no store account behind it yet."
-          : "No active subscription found on this account.";
+          : "No purchase found on this account.";
       });
     });
   }
@@ -963,81 +1005,7 @@
     var t = e.target.closest("[data-remove-ads]");
     if (!t) return;
     e.preventDefault();
-    if (adModal.open) adModal.close();
     openSub();
-  });
-
-  /* ---------- pre-print sponsored interstitial ---------- */
-
-  var adModal = $("#ad-modal");
-  var adBody = $("#ad-body");
-  var adTimer = null;
-
-  function houseAdsHTML() {
-    if (typeof PRODUCTS === "undefined") return "";
-    var flat = [];
-    PRODUCTS.forEach(function (g) { g.items.forEach(function (p) { flat.push(p); }); });
-    var a = flat[Math.floor(Math.random() * flat.length)];
-    var b = flat[Math.floor(Math.random() * flat.length)];
-    while (b === a && flat.length > 1) b = flat[Math.floor(Math.random() * flat.length)];
-    return (
-      '<div class="house-ads">' +
-        [a, b].map(function (p) {
-          return '<a class="house-ad" href="' + esc(productUrl(p)) + '" target="_blank" rel="sponsored noopener">' +
-            "<strong>" + esc(p.name) + "</strong>" +
-            '<span class="house-ad-price mono">' + esc(p.priceBand) + " &middot; VIEW ON AMAZON &rarr;</span>" +
-          "</a>";
-        }).join("") +
-      "</div>" +
-      '<a class="house-ad-more mono" href="products.html">SEE ALL PREP GEAR &rarr;</a>'
-    );
-  }
-
-  function showAdThen(actionLabel, fn) {
-    // Subscribers skip the interstitial entirely — that is the thing they paid
-    // for, so it must not merely be shortened.
-    if (typeof MiseSub !== "undefined" && MiseSub.isAdFree()) { fn(); return; }
-
-    var slot = (typeof NETWORK_AD_HTML !== "undefined" && NETWORK_AD_HTML) ? NETWORK_AD_HTML : houseAdsHTML();
-    adBody.innerHTML =
-      '<div class="modal-top">' +
-        '<span class="modal-tape">SPONSORED</span>' +
-        '<button class="modal-close" id="ad-close" aria-label="Cancel and close">&times;</button>' +
-      "</div>" +
-      '<h2 id="ad-title" class="ad-title">A word while your pages get ready</h2>' +
-      '<div class="ad-slot">' + slot + "</div>" +
-      '<button class="ad-continue" id="ad-continue" disabled>READY IN 3&hellip;</button>' +
-      '<button class="ad-remove-link mono" data-remove-ads>OR REMOVE ADS FOR ' +
-        esc(MiseSub.priceLabel().toUpperCase()) + " &rarr;</button>";
-
-    var count = 3;
-    var btn = $("#ad-continue");
-    adTimer = setInterval(function () {
-      count--;
-      if (count > 0) { btn.innerHTML = "READY IN " + count + "&hellip;"; return; }
-      clearInterval(adTimer);
-      adTimer = null;
-      btn.disabled = false;
-      btn.textContent = actionLabel;
-      btn.classList.add("go");
-    }, 1000);
-
-    btn.addEventListener("click", function () {
-      if (btn.disabled) return;
-      adModal.close();
-      fn();
-    });
-    $("#ad-close").addEventListener("click", function () { adModal.close(); });
-    adModal.showModal();
-  }
-
-  adModal.addEventListener("close", function () {
-    if (adTimer) { clearInterval(adTimer); adTimer = null; }
-    adBody.innerHTML = "";
-  });
-
-  adModal.addEventListener("click", function (e) {
-    if (e.target === adModal) adModal.close();
   });
 
   /* ---------- weekly plan UI ---------- */
@@ -1186,11 +1154,13 @@
   planBody.addEventListener("click", function (e) {
     if (e.target.closest("#plan-close")) { planModal.close(); return; }
     if (e.target.closest("#plan-print")) {
-      var native = !!(window.MiseNative && MiseNative.isNative);
-      showAdThen(native ? "SHARE NOW" : "PRINT NOW", function () {
-        if (native) MiseNative.shareText("Mise — the week's plan", planAsText());
-        else window.print();
-      });
+      // only reachable behind the plan gate, but belt and braces
+      if (requirePlus()) return;
+      if (window.MiseNative && MiseNative.isNative) {
+        MiseNative.shareText("Mise — the week's plan", planAsText());
+      } else {
+        window.print();
+      }
       return;
     }
     if (e.target.closest("#plan-clear")) {
@@ -1224,7 +1194,11 @@
     }
   });
 
+  // Adding to the plan stays free — it costs nothing and lets people build the
+  // basket. The wall is here, on opening it, because the value is the combined
+  // shopping list, not the act of ticking a box.
   $("#open-plan").addEventListener("click", function () {
+    if (requirePlus()) return;
     renderPlanBody();
     planModal.showModal();
     planModal.scrollTop = 0;
@@ -1250,7 +1224,6 @@
 
   document.addEventListener("keydown", function (e) {
     if (e.key !== "Escape") return;
-    if (adModal.open) { adModal.close(); return; }
     if (subModal.open) { subModal.close(); return; }
     if (authModal.open) { authModal.close(); return; }
     if (modalEl.open) { modalEl.close(); return; }
