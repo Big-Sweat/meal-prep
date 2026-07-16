@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The wordmark's "M" plus its kale-green dot, in olive-black ink.
+     Geometry is deliberate: an adaptive icon is only guaranteed to show the
+     centre 72dp, i.e. everything must sit within 36 units of (54,54). The
+     farthest point of the dot lands at ~31.9 and the M's corners at ~32.8,
+     so no launcher mask — circle, squircle, or teardrop — can clip them. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <path
+        android:fillColor="#26291F"
+        android:pathData="M28,74 L28,34 L37.2,34 L50,54 L62.8,34 L72,34 L72,74 L64.7,74 L64.7,47 L52.8,66 L47.3,66 L35.3,47 L35.3,74 Z" />
+
+    <path
+        android:fillColor="#3A6B35"
+        android:pathData="M77.5,70 m-3.5,0 a3.5,3.5 0 1,0 7,0 a3.5,3.5 0 1,0 -7,0" />
+</vector>

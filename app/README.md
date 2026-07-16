@@ -36,6 +36,51 @@ prompted and *keep it safe* — it's the only way to update the app later).
 
 After any change to the website files, re-run `npm run sync`.
 
+### Building from the command line
+
+Android Studio writes `android/local.properties` for you when you open the
+project. To build without opening it, that file must exist and point at the SDK:
+
+```
+sdk.dir=C:/Users/jake/AppData/Local/Android/Sdk
+```
+
+**Use forward slashes.** It's a Java properties file, where `\` is an escape
+character — `C:\Users\jake\…` silently parses as `C:Usersjake…` and the build
+dies with a misleading `java.io.IOException: Invalid file path`. The file is
+gitignored (it's machine-specific).
+
+Then, since `java` isn't on PATH — Studio keeps its own JDK:
+
+```bash
+cd app/android
+export JAVA_HOME="/c/Program Files/Android/Android Studio/jbr"
+export ANDROID_HOME="/c/Users/jake/AppData/Local/Android/Sdk"
+./gradlew assembleDebug
+```
+
+### Where the APK goes, and why it isn't in `build/`
+
+This repo sits inside **OneDrive**, which is hostile to building. A build emits
+thousands of files into `build/`; OneDrive immediately opens them to sync, and
+Gradle can't then delete its own intermediates — the build dies on
+`mergeDebugResources` with `Unable to delete directory`. (Confirmed here: the
+first build passed, every one after it failed, and OneDrive was the only process
+holding the files.)
+
+So `android/build.gradle` sends build output **outside the synced tree**:
+
+```
+%TEMP%/mise-gradle-build/app/outputs/apk/debug/app-debug.apk
+```
+
+Override with `-PmiseBuildDir=/some/path`. This also spares OneDrive ~1GB of
+throwaway artifacts per build.
+
+**The real fix is to move this repo out of OneDrive** (e.g. `C:\Users\jake\GitHub\meal-prep`)
+— synced folders and build tools mix badly, and `node_modules` is syncing too.
+The redirect above is a workaround, not a cure.
+
 ## Play Store
 
 Needs a Google Play Console account ($25, one time). Upload the signed `.aab`,
@@ -64,7 +109,10 @@ The web app runs unmodified except where Android genuinely differs:
 - **Untested on a device.** The native paths above are written but nothing has
   been run on an emulator or phone yet — that needs Android Studio. Test Google
   sign-in first; it's the most intricate path.
-- **No app icon or splash yet** — still the default Capacitor icon. Replace the
-  files under `android/app/src/main/res/` (Android Studio's Image Asset tool is
-  the easy way) before shipping.
+- **Icon:** the adaptive icon (Android 8+, so effectively everyone) is the Mise
+  mark — paper, a strip of manila tape, the wordmark's M and green dot, drawn as
+  vectors in `res/drawable/mise_icon_*.xml`. The raster fallbacks in `mipmap-*/`
+  are still Capacitor's default, which only Android 7 devices would ever see;
+  regenerate them with Studio's Image Asset tool if you care.
+- **Splash screen** is still the Capacitor default.
 - The plan is shared as text on Android, not as a PDF.

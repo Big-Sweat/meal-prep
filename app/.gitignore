@@ -3,6 +3,10 @@ www/
 
 node_modules/
 
+# Android Studio / IntelliJ editor state — machine-specific
+.idea/
+*.iml
+
 # Android build output
 android/app/build/
 android/build/

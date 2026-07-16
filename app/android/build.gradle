@@ -22,8 +22,18 @@ allprojects {
         google()
         mavenCentral()
     }
+
+    // This repo lives inside OneDrive. A build writes thousands of files into
+    // build/, OneDrive grabs them to sync, and Gradle then can't delete its own
+    // intermediates — mergeDebugResources dies with "Unable to delete directory".
+    // Keeping build output outside the synced tree avoids the fight entirely
+    // (and stops OneDrive uploading ~1GB of throwaway artifacts).
+    // Override with -PmiseBuildDir=/some/path if you want it elsewhere.
+    def outRoot = project.findProperty('miseBuildDir') ?:
+            "${System.getProperty('java.io.tmpdir')}/mise-gradle-build"
+    layout.buildDirectory = file("${outRoot}/${project.name}")
 }
 
 task clean(type: Delete) {
-    delete rootProject.buildDir
+    delete rootProject.layout.buildDirectory
 }
