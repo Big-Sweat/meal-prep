@@ -6,7 +6,9 @@ Static site, **no build step, no dependencies**: `index.html` + `styles.css` +
 `app.js` + `recipes.js` (the data). Extras: `pdf.js` (recipe PDF download),
 `products.html` / `products.js` (affiliate prep-gear page), `ads.js` (pre-print
 interstitial config), `auth.js` (Supabase auth config — demo profile fallback
-while its keys are empty), `assets/recipes/<id>.png` (optional card images). Live via
+while its keys are empty), `native.js` (Android adaptations, no-op on web),
+`app/` (Capacitor Android project — see `app/README.md`; add any new top-level
+web file to `app/scripts/sync-web.js`), `assets/recipes/<id>.png` (optional card images). Live via
 GitHub Pages at https://big-sweat.github.io/meal-prep/ — pushes to `main` deploy
 automatically. Design rules: `CLAUDEwebdesign copy (1).md`.
 

@@ -583,7 +583,14 @@
       this.setAttribute("aria-pressed", String(on));
     });
     $("#modal-print").addEventListener("click", function () {
-      showAdThen("PRINT NOW", function () { window.print(); });
+      showAdThen("PRINT NOW", function () {
+        // Android has no window.print(); the share sheet carries Print instead.
+        if (window.MiseNative && MiseNative.isNative) {
+          MiseNative.sharePDF(recipeToPDFModel(r, mServings), r.id + ".pdf", r.name);
+        } else {
+          window.print();
+        }
+      });
     });
     $("#modal-download").addEventListener("click", function () {
       showAdThen("DOWNLOAD NOW", function () {
@@ -964,13 +971,32 @@
     return { items: items, pantry: Object.keys(pantry).sort() };
   }
 
+  // Android: the plan goes out as text through the share sheet — a shopping
+  // list you can paste into notes or send to whoever is at the shop.
+  function planAsText() {
+    var entries = planEntries();
+    var list = buildShoppingList(entries);
+    var out = ["MISE — THE WEEK'S PLAN", ""];
+    out.push("SHOPPING LIST");
+    list.items.forEach(function (it) { out.push("- " + it.amount + "  " + it.item); });
+    if (list.pantry.length) out.push("- from the pantry, to taste: " + list.pantry.join(", "));
+    out.push("", "RECIPES");
+    entries.forEach(function (e) {
+      out.push("- " + e.r.name + " (" + e.servings + " servings, " +
+        (e.r.prepMinutes + e.r.cookMinutes) + " min)");
+    });
+    return out.join("\n");
+  }
+
   function renderPlanBody() {
     var entries = planEntries();
     var head =
       '<div class="modal-top">' +
         '<span class="modal-tape">THE WEEK&rsquo;S PLAN</span>' +
         '<div class="plan-head-actions">' +
-          (entries.length ? '<button class="plan-tool" id="plan-print" type="button">PRINT / SAVE PDF</button>' : "") +
+          (entries.length ? '<button class="plan-tool" id="plan-print" type="button">' +
+            (window.MiseNative && MiseNative.isNative ? "SHARE PLAN" : "PRINT / SAVE PDF") +
+            "</button>" : "") +
           (entries.length ? '<button class="plan-tool" id="plan-clear" type="button">CLEAR PLAN</button>' : "") +
           '<button class="modal-close" id="plan-close" aria-label="Close plan">&times;</button>' +
         "</div>" +
@@ -1030,7 +1056,11 @@
   planBody.addEventListener("click", function (e) {
     if (e.target.closest("#plan-close")) { planModal.close(); return; }
     if (e.target.closest("#plan-print")) {
-      showAdThen("PRINT NOW", function () { window.print(); });
+      var native = !!(window.MiseNative && MiseNative.isNative);
+      showAdThen(native ? "SHARE NOW" : "PRINT NOW", function () {
+        if (native) MiseNative.shareText("Mise — the week's plan", planAsText());
+        else window.print();
+      });
       return;
     }
     if (e.target.closest("#plan-clear")) {

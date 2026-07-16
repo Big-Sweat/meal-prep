@@ -62,6 +62,18 @@ in rough sync when you change the workflow described here.
   configured. Ratings/reviews/favorites still live in localStorage either way —
   moving them to Supabase tables (shared across visitors) is the known next step.
 
+**Android app**
+- `app/` — Capacitor project (app id `com.deadliftdigital.mise`). The repo root
+  is the source of truth; `app/scripts/sync-web.js` copies the web files into
+  `app/www/` (gitignored) and `npm run sync` then runs `cap sync`. **If you add
+  a new top-level web file, add it to that script's `FILES` allowlist or it
+  won't ship in the app.** Building an APK needs Android Studio (not installed
+  as of Jul 2026). See `app/README.md`.
+- `native.js` (repo root) — Android adaptations; a no-op on the web
+  (`MiseNative.isNative`). Back button, PDF/print via the native share sheet.
+  Native OAuth (system browser + `com.deadliftdigital.mise://auth` deep link)
+  lives in `auth.js`, since it needs the Supabase client.
+
 **Docs / meta**
 - `README.md` — public-facing readme (recipe count is patched by the tool).
 - `recipe-inbox/links.md` — drop-box for recipe URLs (see below).

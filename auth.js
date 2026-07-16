@@ -30,6 +30,13 @@ var MiseAuth = (function () {
   var currentUser = null;
   var listeners = [];
 
+  // Android (Capacitor). Google refuses OAuth from an embedded WebView
+  // ("disallowed_useragent"), so on native we hand the sign-in URL to the
+  // system browser and catch the result on a deep link back into the app.
+  var isNative = !!(window.Capacitor && window.Capacitor.isNativePlatform &&
+    window.Capacitor.isNativePlatform());
+  var NATIVE_REDIRECT = "com.deadliftdigital.mise://auth";
+
   function mapUser(u) {
     if (!u) return null;
     var meta = u.user_metadata || {};
@@ -42,12 +49,38 @@ var MiseAuth = (function () {
     listeners.forEach(function (fn) { fn(currentUser); });
   }
 
+  // Android only: Supabase sends the browser to com.deadliftdigital.mise://auth?code=…
+  // once the provider is done. Trade that code for a session and close the tab.
+  function listenForDeepLink() {
+    var P = (window.Capacitor && window.Capacitor.Plugins) || {};
+    if (!P.App) return;
+    P.App.addListener("appUrlOpen", function (data) {
+      if (!data || !data.url || data.url.indexOf(NATIVE_REDIRECT) !== 0) return;
+      var code = null;
+      try { code = new URL(data.url).searchParams.get("code"); } catch (e) { /* ignore */ }
+      if (!code) return;
+      client.auth.exchangeCodeForSession(code).then(function () {
+        if (P.Browser) P.Browser.close();
+      });
+    });
+  }
+
   function init() {
     if (!enabled) return;
     var s = document.createElement("script");
     s.src = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
     s.onload = function () {
-      client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        auth: {
+          // PKCE is required for the deep-link flow: the app finishes sign-in
+          // by exchanging a code, with no secret on the device.
+          flowType: "pkce",
+          persistSession: true,
+          autoRefreshToken: true,
+          // On native the callback arrives as a deep link, not a page load.
+          detectSessionInUrl: !isNative
+        }
+      });
       client.auth.getSession().then(function (res) {
         currentUser = mapUser(res.data.session && res.data.session.user);
         notify();
@@ -56,6 +89,7 @@ var MiseAuth = (function () {
         currentUser = mapUser(session && session.user);
         notify();
       });
+      if (isNative) listenForDeepLink();
     };
     document.head.appendChild(s);
   }
@@ -72,9 +106,21 @@ var MiseAuth = (function () {
       return client.auth.signInWithPassword({ email: email, password: password });
     },
     signInWith: function (provider) {
+      if (!isNative) {
+        return client.auth.signInWithOAuth({
+          provider: provider,
+          options: { redirectTo: window.location.origin + window.location.pathname }
+        });
+      }
+      // Native: get the URL but open it ourselves, in the system browser.
       return client.auth.signInWithOAuth({
         provider: provider,
-        options: { redirectTo: window.location.origin + window.location.pathname }
+        options: { redirectTo: NATIVE_REDIRECT, skipBrowserRedirect: true }
+      }).then(function (res) {
+        if (res.error || !res.data || !res.data.url) return res;
+        var P = (window.Capacitor && window.Capacitor.Plugins) || {};
+        if (!P.Browser) return { error: { message: "Browser plugin unavailable." } };
+        return P.Browser.open({ url: res.data.url }).then(function () { return res; });
       });
     },
     signOut: function () { return client.auth.signOut(); },
