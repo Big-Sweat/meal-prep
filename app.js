@@ -2,17 +2,10 @@
 (function () {
   "use strict";
 
-  var ALLERGENS = [
-    { id: "dairy", label: "Dairy" },
-    { id: "eggs", label: "Eggs" },
-    { id: "fish", label: "Fish" },
-    { id: "shellfish", label: "Shellfish" },
-    { id: "tree nuts", label: "Tree nuts" },
-    { id: "peanuts", label: "Peanuts" },
-    { id: "wheat", label: "Wheat / gluten" },
-    { id: "soy", label: "Soy" },
-    { id: "sesame", label: "Sesame" }
-  ];
+  /* The big-9 list lives in store.js: the profile page draws its standing-
+     allergy chips from the same array, and an allergen vocabulary that
+     disagreed with itself across two pages is the last bug this feature wants. */
+  var ALLERGENS = MiseStore.ALLERGENS;
 
   var PROTEINS = [
     { id: "chicken", label: "Chicken" },
@@ -54,77 +47,35 @@
     favOnly: false
   };
 
-  /* ---------- profile, ratings, reviews, favorites ----------
-     Demo storage layer: everything lives in this browser's localStorage.
-     To go multi-user later, reimplement these few functions against a
-     backend (e.g. Supabase auth + tables) - the UI doesn't care. */
+  /* The allergies saved to this account (see the standing-allergies section).
+     Cached rather than re-read: activeFilterCount() runs on every render, and
+     hitting localStorage on every keystroke of the search box would be silly. */
+  var standingAllergies = [];
 
-  var PROFILE_KEY = "mise-profile";
-  var RATINGS_KEY = "mise-ratings";   // { recipeId: { profileName: 1-5 } }
-  var REVIEWS_KEY = "mise-reviews";   // { recipeId: [{author, stars, text, date}] }
-  var FAVS_PREFIX = "mise-favs-";     // per profile name -> [recipeId]
-
-  function lsRead(key, fallback) {
-    try { return JSON.parse(localStorage.getItem(key)) || fallback; }
-    catch (e) { return fallback; }
-  }
-  function lsWrite(key, value) {
-    try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) { /* ignore */ }
-  }
+  /* ---------- account, ratings, reviews, favorites ----------
+     The bytes live in store.js, shared with the profile page. What stays here
+     is the board's own session: who is signed in, and their favorites as a Set
+     the filter can test cheaply on every keystroke. */
 
   // Real auth (Supabase, see auth.js) when configured; demo profile otherwise.
   var realAuth = typeof MiseAuth !== "undefined" && MiseAuth.enabled;
-  var profile = realAuth ? null : lsRead(PROFILE_KEY, null);
+  var profile = realAuth ? null : MiseStore.account();
   var favs = new Set();
 
-  function who() { return profile ? (profile.id || profile.name) : null; }
+  function who() { return MiseStore.who(profile); }
 
-  function loadFavs() {
-    favs = new Set(profile ? lsRead(FAVS_PREFIX + who(), []) : []);
-  }
+  function loadFavs() { favs = new Set(MiseStore.favs(who())); }
   loadFavs();
 
-  function saveFavs() {
-    if (profile) lsWrite(FAVS_PREFIX + who(), Array.from(favs));
-  }
+  function saveFavs() { MiseStore.setFavs(who(), Array.from(favs)); }
 
-  function ratingSummary(id) {
-    var perUser = lsRead(RATINGS_KEY, {})[id] || {};
-    var names = Object.keys(perUser);
-    if (!names.length) return { avg: 0, count: 0 };
-    var sum = 0;
-    names.forEach(function (n) { sum += perUser[n]; });
-    return { avg: Math.round((sum / names.length) * 10) / 10, count: names.length };
-  }
-
-  function myRating(id) {
-    if (!profile) return 0;
-    return (lsRead(RATINGS_KEY, {})[id] || {})[who()] || 0;
-  }
-
-  function setMyRating(id, stars) {
-    var all = lsRead(RATINGS_KEY, {});
-    (all[id] = all[id] || {})[who()] = stars;
-    lsWrite(RATINGS_KEY, all);
-  }
-
-  function reviewsFor(id) {
-    return lsRead(REVIEWS_KEY, {})[id] || [];
-  }
+  function ratingSummary(id) { return MiseStore.ratingSummary(id); }
+  function myRating(id) { return MiseStore.myRating(who(), id); }
+  function setMyRating(id, stars) { MiseStore.setMyRating(who(), id, stars); }
+  function reviewsFor(id) { return MiseStore.reviewsFor(id); }
 
   function upsertReview(id, text) {
-    var all = lsRead(REVIEWS_KEY, {});
-    var me = who();
-    var list = (all[id] || []).filter(function (rv) { return (rv.by || rv.author) !== me && rv.author !== profile.name; });
-    list.unshift({
-      by: me,
-      author: profile.name,
-      stars: myRating(id) || null,
-      text: text,
-      date: new Date().toISOString().slice(0, 10)
-    });
-    all[id] = list;
-    lsWrite(REVIEWS_KEY, all);
+    MiseStore.upsertReview(who(), profile.name, id, text, myRating(id) || null);
   }
 
   // one lowercase haystack per recipe: name, description, cuisine, tags, ingredients
@@ -253,8 +204,18 @@
     return true;
   }
 
+  /* Counts what you switched on *this session*. Standing allergies are the
+     baseline the board starts from, so they don't light up the badge and don't
+     make "clear all filters" appear when nothing has been touched — otherwise
+     anyone with a saved allergy would see a permanent "2" and a clear button
+     that looks broken, because clearing resets to those allergies rather than
+     wiping them. */
   function activeFilterCount() {
-    return state.goals.size + state.meals.size + state.allergies.size + state.proteins.size + state.terms.length +
+    var extraAllergies = 0;
+    state.allergies.forEach(function (id) {
+      if (standingAllergies.indexOf(id) === -1) extraAllergies++;
+    });
+    return state.goals.size + state.meals.size + extraAllergies + state.proteins.size + state.terms.length +
       (state.maxDifficulty < 3 ? 1 : 0) + (state.favOnly ? 1 : 0);
   }
 
@@ -287,6 +248,11 @@
       ? "<span>&#9733; " + rating.avg + "</span><span class=\"sep\">/</span>"
       : "";
     var isFav = favs.has(r.id);
+    // With a calorie target set, the raw number means something: show the share.
+    var target = calorieTarget();
+    var calMeta = target
+      ? r.caloriesPerServing + " CAL &middot; " + Math.round(r.caloriesPerServing / target * 100) + "% OF YOUR DAY"
+      : r.caloriesPerServing + " CAL/SERV";
     return (
       '<li class="card">' +
         '<span class="tape mono" aria-hidden="true">' + esc(proteinLabel(r.protein)).toUpperCase() + "</span>" +
@@ -299,7 +265,7 @@
           ratingMeta +
           "<span>" + DIFF_WORDS[r.difficulty].toUpperCase() + "</span><span class=\"sep\">/</span>" +
           "<span>" + total + " MIN</span><span class=\"sep\">/</span>" +
-          "<span>" + r.caloriesPerServing + " CAL/SERV</span><span class=\"sep\">/</span>" +
+          "<span>" + calMeta + "</span><span class=\"sep\">/</span>" +
           "<span>KEEPS " + r.fridgeDays + " DAYS</span>" +
           (r.freezerFriendly ? '<span class="sep">/</span><span>FREEZES</span>' : "") +
         "</p>" +
@@ -394,7 +360,10 @@
       b.type = "button";
       b.className = "chip" + (extraClass || "");
       b.textContent = d.label;
-      b.setAttribute("aria-pressed", "false");
+      b.setAttribute("data-chip", d.id);
+      // read from the set rather than assuming off: standing allergies are
+      // already in it before these are drawn
+      b.setAttribute("aria-pressed", String(set.has(d.id)));
       b.addEventListener("click", function () {
         if (set.has(d.id)) { set.delete(d.id); b.setAttribute("aria-pressed", "false"); }
         else {
@@ -410,6 +379,16 @@
         render();
       });
       host.appendChild(b);
+    });
+  }
+
+  // Push a set back onto already-drawn chips. Needed because real auth resolves
+  // after the rail is built, so someone's standing allergies can arrive late.
+  function syncToggleChips(containerId, set) {
+    var host = $(containerId);
+    if (!host) return;
+    host.querySelectorAll("[data-chip]").forEach(function (b) {
+      b.setAttribute("aria-pressed", String(set.has(b.getAttribute("data-chip"))));
     });
   }
 
@@ -751,24 +730,13 @@
   var authBtn = $("#auth-btn");
   var favChip = $("#fav-chip");
 
+  /* Signed out, the masthead opens the sign-in dialog; signed in, it's the way
+     through to profile.html. The account, the goals and sign-out all live on
+     that page now, so this dialog only ever has to do the one job. */
   function updateAuthUI() {
-    authBtn.textContent = profile ? "HI, " + profile.name.toUpperCase() : "SIGN IN";
+    authBtn.textContent = profile ? "HI, " + profile.name.toUpperCase() + " →" : "SIGN IN";
     $("#auth-real").hidden = !!profile || !realAuth;
     $("#auth-signedout").hidden = !!profile || realAuth;
-    $("#auth-signedin").hidden = !profile;
-    if (profile) {
-      $("#auth-greeting").textContent = "Signed in as " + profile.name +
-        (profile.email ? " (" + profile.email + ")" : "");
-      var me = who();
-      var ratings = lsRead(RATINGS_KEY, {});
-      var rated = Object.keys(ratings).filter(function (id) { return ratings[id][me]; }).length;
-      var reviews = lsRead(REVIEWS_KEY, {});
-      var written = Object.keys(reviews).filter(function (id) {
-        return reviews[id].some(function (rv) { return (rv.by || rv.author) === me; });
-      }).length;
-      $("#auth-stats").textContent =
-        favs.size + " FAVORITES · " + rated + " RATED · " + written + " REVIEWED";
-    }
   }
 
   function openAuth() {
@@ -792,7 +760,10 @@
     if (state.favOnly) render();
   }
 
-  authBtn.addEventListener("click", openAuth);
+  authBtn.addEventListener("click", function () {
+    if (profile) { window.location.href = "profile.html"; return; }
+    openAuth();
+  });
   $("#auth-close").addEventListener("click", function () { authModal.close(); });
 
   authModal.addEventListener("click", function (e) {
@@ -804,24 +775,9 @@
     var name = $("#auth-name").value.trim();
     if (!name) return;
     profile = { name: name };
-    lsWrite(PROFILE_KEY, profile);
-    favs = new Set(lsRead(FAVS_PREFIX + name, []));
-    updateAuthUI();
-    render();
-    authModal.close();
-  });
-
-  $("#auth-signout").addEventListener("click", function () {
-    if (realAuth) {
-      MiseAuth.signOut(); // onChange listener resets the UI
-      authModal.close();
-      return;
-    }
-    profile = null;
-    try { localStorage.removeItem(PROFILE_KEY); } catch (e) { /* ignore */ }
-    favs = new Set();
-    state.favOnly = false;
-    favChip.setAttribute("aria-pressed", "false");
+    MiseStore.setAccount(profile);
+    loadFavs();
+    applyStandingAllergies();
     updateAuthUI();
     render();
     authModal.close();
@@ -846,6 +802,7 @@
         favChip.setAttribute("aria-pressed", "false");
       }
       loadFavs();
+      applyStandingAllergies();  // per-account, so they arrive with the session
       updateAuthUI();
       render();
       if (profile && authModal.open) authModal.close();
@@ -915,123 +872,40 @@
     render();
   });
 
-  /* ---------- Mise Plus (remove-ads subscription) ---------- */
+  /* ---------- standing allergies ---------- */
 
-  var subModal = $("#sub-modal");
-  var subBody = $("#sub-body");
+  /* The board's allergy chips are a session: untick one and it is back on the
+     next load. The ones saved to an account are a different thing — they apply
+     on every visit, which is the right default for the one filter where being
+     wrong means someone eats what they react to. So they land in state before
+     the first render, and the rail says where they came from.
 
-  /* The paywall in one place. Call at the top of any Plus-only action:
-       if (requirePlus()) return;
-     Returns true when the caller should stop (and the upgrade dialog is up). */
-  function requirePlus() {
-    if (MiseSub.isPlus()) return false;
-    openSub();
-    return true;
+     Ticking a chip on the board deliberately does NOT rewrite the account: a
+     temporary "what does the board look like without the dairy filter" must not
+     quietly un-set an allergy someone lives with. profile.html is the only
+     place that writes them. */
+  function applyStandingAllergies() {
+    standingAllergies = MiseStore.allergies(who());
+    // Mutate in place. The chip handlers closed over this exact Set, so
+    // reassigning state.allergies would leave them pointing at the old one.
+    state.allergies.clear();
+    standingAllergies.forEach(function (id) { state.allergies.add(id); });
+    syncToggleChips("#allergy-chips", state.allergies);
+    var note = $("#allergy-standing");
+    if (note) note.hidden = standingAllergies.length === 0;
   }
 
-  function renderSubBody() {
-    var live = MiseSub.isLive();
+  /* Thin wrapper so the card and masthead call sites read as they did before.
+     The Plus gate itself lives in store.js — once, for both pages. */
+  function calorieTarget() { return MiseStore.calorieTarget(who()); }
 
-    if (MiseSub.isPlus()) {
-      var kind = MiseSub.kind();
-      subBody.innerHTML =
-        '<div class="modal-top">' +
-          '<span class="modal-tape">MISE PLUS</span>' +
-          '<button class="modal-close" id="sub-close" aria-label="Close">&times;</button>' +
-        "</div>" +
-        '<h2 id="sub-title">You&rsquo;re on Plus</h2>' +
-        '<p class="modal-desc">Printing, PDFs, and the weekly plan are unlocked, and the board is ' +
-          "clear of sponsored tickets." +
-          (live ? "" : " This is the demo unlock — nothing was charged.") + "</p>" +
-        '<button class="clear-btn" id="sub-cancel">' +
-          (live
-            ? (kind === "lifetime" ? "Manage purchase" : "Manage subscription")
-            : "Switch back to free") +
-        "</button>";
-      $("#sub-close").addEventListener("click", function () { subModal.close(); });
-      $("#sub-cancel").addEventListener("click", function () {
-        MiseSub.cancel().then(function () { renderSubBody(); render(); updatePlanUI(); });
-      });
-      return;
-    }
+  /* ---------- Mise Plus ---------- */
 
-    subBody.innerHTML =
-      '<div class="modal-top">' +
-        '<span class="modal-tape">MISE PLUS</span>' +
-        '<button class="modal-close" id="sub-close" aria-label="Close">&times;</button>' +
-      "</div>" +
-      '<h2 id="sub-title">Take it to the kitchen</h2>' +
-      '<p class="modal-desc">Plus unlocks the parts you use once you&rsquo;ve decided to cook:</p>' +
-      '<ul class="sub-list">' +
-        "<li>Print a recipe, or save it as a PDF</li>" +
-        "<li>The weekly plan and its combined shopping list</li>" +
-        "<li>No sponsored tickets on the board</li>" +
-      "</ul>" +
-      '<p class="sub-free mono">FREE FOREVER: ALL ' + RECIPES.length + " RECIPES, EVERY FILTER, " +
-        "SEARCH, RATINGS, REVIEWS, FAVORITES, AND YOUR ACCOUNT.</p>" +
-      (live
-        ? ""
-        : '<p class="sub-demo mono">DEMO BUILD — THIS CHARGES NOTHING. REAL BILLING NEEDS A STORE ' +
-          "ACCOUNT AND A PUBLISHED PRODUCT; SEE SUBSCRIPTION.JS.</p>") +
-      '<div class="sub-options">' +
-        '<button class="sub-buy" id="sub-buy-month">' +
-          '<span class="sub-buy-price">' + esc(MiseSub.monthlyPrice()) + "</span>" +
-          '<span class="sub-buy-note mono">' + (live ? "SUBSCRIBE" : "DEMO UNLOCK") + " &middot; CANCEL ANYTIME</span>" +
-        "</button>" +
-        '<button class="sub-buy sub-buy--alt" id="sub-buy-life">' +
-          '<span class="sub-buy-price">' + esc(MiseSub.lifetimePrice()) + "</span>" +
-          '<span class="sub-buy-note mono">' + (live ? "PAY ONCE" : "DEMO UNLOCK") + " &middot; KEEP IT FOREVER</span>" +
-        "</button>" +
-      "</div>" +
-      '<button class="review-signin mono" id="sub-restore">RESTORE PURCHASE</button>' +
-      '<p id="sub-error" class="auth-error" hidden></p>';
+  /* The dialog and the gate both live in plus-ui.js, shared with the profile
+     page. All this page has to say is what to redraw once someone buys. */
+  function requirePlus() { return MisePlusUI.require(); }
 
-    $("#sub-close").addEventListener("click", function () { subModal.close(); });
-
-    function buy(kind, btn) {
-      btn.disabled = true;
-      MiseSub.purchase(kind).then(function () {
-        renderSubBody();
-        render();
-        updatePlanUI();
-      }).catch(function (e) {
-        btn.disabled = false;
-        var err = $("#sub-error");
-        err.hidden = false;
-        err.textContent = e.message;
-      });
-    }
-    $("#sub-buy-month").addEventListener("click", function () { buy("monthly", this); });
-    $("#sub-buy-life").addEventListener("click", function () { buy("lifetime", this); });
-
-    $("#sub-restore").addEventListener("click", function () {
-      MiseSub.restore().then(function (res) {
-        if (res.plus) { renderSubBody(); render(); updatePlanUI(); return; }
-        var err = $("#sub-error");
-        err.hidden = false;
-        err.textContent = res.demo
-          ? "Nothing to restore in the demo — there is no store account behind it yet."
-          : "No purchase found on this account.";
-      });
-    });
-  }
-
-  function openSub() {
-    renderSubBody();
-    subModal.showModal();
-  }
-
-  subModal.addEventListener("click", function (e) {
-    if (e.target === subModal) subModal.close();
-  });
-
-  // One delegated handler for every "remove ads" affordance on the page.
-  document.addEventListener("click", function (e) {
-    var t = e.target.closest("[data-remove-ads]");
-    if (!t) return;
-    e.preventDefault();
-    openSub();
-  });
+  MisePlusUI.onChange(function () { render(); updatePlanUI(); });
 
   /* ---------- weekly plan UI ---------- */
 
@@ -1249,7 +1123,7 @@
 
   document.addEventListener("keydown", function (e) {
     if (e.key !== "Escape") return;
-    if (subModal.open) { subModal.close(); return; }
+    if (MisePlusUI.isOpen()) { MisePlusUI.close(); return; }
     if (authModal.open) { authModal.close(); return; }
     if (modalEl.open) { modalEl.close(); return; }
     if (planModal.open) { planModal.close(); return; }
@@ -1325,6 +1199,10 @@
     document.querySelectorAll('.chip[aria-pressed="true"]').forEach(function (c) {
       c.setAttribute("aria-pressed", "false");
     });
+    // Back to the baseline, not to nothing: an account's standing allergies
+    // survive "clear all filters". Clearing the board should never be the thing
+    // that serves someone the food they can't eat.
+    applyStandingAllergies();
     renderTermChips();
     render();
   });
@@ -1364,8 +1242,22 @@
     host.hidden = false;
   }
 
+  /* A link from the profile page carries the recipe in the hash
+     (index.html#chicken-tikka), so favorites and reviews over there can open
+     the real ticket here. Inbound only — no pushState on every modal open,
+     which would put a history entry between the board and the back button that
+     native.js relies on. */
+  function openFromHash() {
+    var id = (window.location.hash || "").replace(/^#/, "");
+    if (!id) return;
+    var r = RECIPES.find(function (x) { return x.id === id; });
+    if (r) openModal(r);
+  }
+
+  applyStandingAllergies();
   render();
   updatePlanUI();
   updateAuthUI();
   renderAppLinks();
+  openFromHash();
 })();
