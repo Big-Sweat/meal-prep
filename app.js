@@ -737,6 +737,8 @@
     authBtn.textContent = profile ? "HI, " + profile.name.toUpperCase() + " →" : "SIGN IN";
     $("#auth-real").hidden = !!profile || !realAuth;
     $("#auth-signedout").hidden = !!profile || realAuth;
+    var logLink = $("#log-link");
+    if (logLink) logLink.hidden = !profile;   // no account, nothing to log against
   }
 
   function openAuth() {

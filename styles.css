@@ -1694,6 +1694,172 @@ button {
 }
 .kit-cta:hover { background: var(--kale); border-color: var(--kale); }
 
+/* ---------- the log (log.html) ---------- */
+
+.log-side-label { font-size: 10px; letter-spacing: 0.12em; color: var(--faded); margin-bottom: 4px; }
+.log-side-unit { font-size: 14px; font-weight: 500; color: var(--faded); margin-left: 4px; }
+.log-side-none { font-family: var(--font-body); font-style: italic; font-size: 14px; color: var(--faded); }
+
+.log-side-link {
+  display: inline-block;
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  padding: 4px 0;
+}
+.log-side-link:hover { color: var(--kale-deep); }
+
+.log-delta { font-size: 10.5px; letter-spacing: 0.08em; color: var(--faded); }
+
+.log-note,
+.log-side-none + .log-note {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--faded);
+  margin-top: 8px;
+}
+
+/* The calorie-target loop. Kale when it's live, faded when it's behind Plus —
+   never chile: that colour is allergens only. */
+.log-link {
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--kale-deep);
+  border-top: 1px solid var(--line);
+  margin-top: 16px;
+  padding-top: 12px;
+}
+.log-link--muted { color: var(--faded); }
+.log-link--muted a { color: var(--kale-deep); }
+.log-link-locked { color: var(--faded); }
+
+/* ---------- the add forms ---------- */
+
+.log-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+  border-top: 1px solid var(--line);
+  margin-top: 16px;
+  padding-top: 16px;
+}
+
+.log-form .ing-add { min-height: 44px; }
+.nut-field--sm { width: 68px; }
+.nut-field--grow { flex: 1 1 140px; min-width: 0; }
+
+.log-form input[type="date"],
+.log-form input[type="text"] {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  color: var(--ink);
+  padding: 9px 10px;
+  min-height: 40px;
+  width: 100%;
+  border-radius: 0;
+}
+
+.log-form input[type="date"]:focus-visible,
+.log-form input[type="text"]:focus-visible { outline: 2px solid var(--kale); outline-offset: 1px; }
+
+.log-err {
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  color: var(--chile);
+  margin-top: 10px;
+}
+
+/* ---------- history ---------- */
+
+.log-hist { margin-top: 4px; }
+
+.log-hist-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  min-height: 44px;
+}
+
+.log-hist-date { font-size: 10px; letter-spacing: 0.06em; color: var(--faded); width: 52px; flex-shrink: 0; }
+.log-hist-what { font-size: 13.5px; flex: 1; min-width: 0; }
+.log-hist-note { font-family: var(--font-mono); font-size: 10px; color: var(--faded); }
+.log-hist-del { flex-shrink: 0; }
+
+.log-pr-list .log-pr { display: flex; flex-direction: column; gap: 3px; padding: 10px 0; }
+
+/* ---------- the chart ----------
+   Hand-rolled SVG (no dependencies — see log.js). preserveAspectRatio="none"
+   lets it stretch to the card; every stroke below is vector-effect'd so the
+   stretch doesn't smear the line weights. */
+
+.chart {
+  display: block;
+  width: 100%;
+  height: 180px;
+  margin-top: 14px;
+  overflow: visible;
+}
+
+.chart-grid {
+  stroke: var(--line);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.chart-dot {
+  fill: var(--faded);
+  opacity: 0.45;
+  vector-effect: non-scaling-stroke;
+}
+
+.chart-line {
+  fill: none;
+  stroke: var(--kale);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.chart-tick {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  fill: var(--faded);
+  text-anchor: end;
+}
+.chart-tick--x { text-anchor: start; }
+
+.chart-key {
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  color: var(--faded);
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.chart-key-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--faded); opacity: 0.45;
+  display: inline-block; flex-shrink: 0;
+}
+
+.chart-key-line {
+  width: 16px; height: 2px;
+  background: var(--kale);
+  display: inline-block; flex-shrink: 0;
+  margin-left: 8px;
+}
+
 /* ---------- in-feed sponsored ticket + Mise Plus ---------- */
 
 /* Reads as a ticket but never impersonates a recipe: paper stock, no photo,

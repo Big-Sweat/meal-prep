@@ -23,7 +23,8 @@ in rough sync when you change the workflow described here.
 **The site**
 - `index.html` — the recipe library (the home page). Wires up the filter rail,
   results grid, search box, and three `<dialog>` modals (recipe, weekly plan,
-  pre-print ad).
+  sign-in). The Plus dialog is NOT here — `plus-ui.js` builds it on first open;
+  the old pre-print ad interstitial was deleted (see below).
 - `styles.css` — all styling. Editorial "prep board" look (see the design doc).
 - `app.js` — all **board** behavior (~1200 lines, one IIFE, `"use strict"`):
   filtering, rendering, serving-scale math with proper fractions, the recipe
@@ -42,7 +43,7 @@ in rough sync when you change the workflow described here.
   since each page tracks the signed-in user itself. Still the demo layer (it all
   lives in this browser); reimplementing these functions against Supabase tables
   is the known next step, and no caller would change.
-- `plus-ui.js` — `MisePlusUI`: the upgrade dialog, **shared by both pages** so
+- `plus-ui.js` — `MisePlusUI`: the upgrade dialog, **shared by every page** so
   there is only ever one paywall. It builds its own `<dialog>` on first open, so
   no HTML file carries the markup. `MisePlusUI.require()` is the call-site gate
   (`if (MisePlusUI.require()) return;`), and pages get `onChange(fn)` to redraw
@@ -53,6 +54,13 @@ in rough sync when you change the workflow described here.
   Standing allergies, the calorie target, favorites, and your ratings/reviews.
   The masthead's "HI, NAME →" goes here when signed in. See the profile-page
   section below.
+- `log.html` / `log.js` — **"the log": weight, lifts and runs.** Free. Does not
+  load `recipes.js` (no use for 448KB of recipe data here). See the log section
+  below.
+- `progress.js` — `MiseProgress`: the log's maths. Pure, no DOM, no storage —
+  same deal as `nutrition.js`, and for the same reason. **Checked by
+  `node tools/test-progress.js` (37 assertions, no dependencies) — run it if you
+  touch this.** The trend/rate maths is subtler than it looks; see below.
 - `recipes.js` — **the data.** `var RECIPES = [ … ]` (currently 131 recipes).
   Everything on the site — filters, suggestions, counts, macros — derives from
   this array. Do not hand-edit it to add recipes; use the tool (below).
@@ -90,9 +98,11 @@ in rough sync when you change the workflow described here.
 - **Paid:** print, PDF download, the weekly plan view, the calorie target,
   no ads.
   **Free forever:** browsing, filters, search, ratings, reviews, favorites,
-  standing allergies, **the whole profile page**, and **accounts** — never
-  paywall signup; it's where a purchase restores to. *Adding* to the plan is
-  free on purpose; the wall is on opening it.
+  standing allergies, **the whole profile page**, **the log**, and **accounts** —
+  never paywall signup; it's where a purchase restores to. *Adding* to the plan
+  is free on purpose; the wall is on opening it. The log is free at no cost to
+  the tier: it writes weight into the nutrition profile, and `calorieTarget()` is
+  already gated, so "your target follows your body" is a Plus benefit for free.
 - `BILLING_ANDROID_KEY` / `BILLING_IOS_KEY` are empty, so it runs in **demo
   mode**: purchase flips a localStorage flag, charges nothing, and the dialog
   says so in red. Real billing needs a Play Console account ($25) + merchant
@@ -164,6 +174,40 @@ in rough sync when you change the workflow described here.
   form doesn't redraw the page. That form re-renders per keystroke and restores
   focus by hand — same trick the old modal used; don't "tidy" it away.
 
+**The log ("the log") — `log.html` + `log.js` + `progress.js`**
+- Weight, lifts and runs. **One typed, append-only log** per person at
+  `mise-log-<id>` (`{ id, d, t, … }`, `t` = `weight` | `lift` | `run`), so
+  another kind is a new `t` and a new form — not a fourth storage key and a
+  migration. **Canonical units are always kg and km**; the toggle only converts
+  for display, so switching it can never corrupt history.
+- **Free, and the Plus benefit costs no new gate:** a weigh-in writes
+  `weightKg` into the nutrition profile, and `MiseStore.calorieTarget()` is
+  already gated — so "your target follows your body" is paid for nothing.
+  `maybeSyncWeight()` runs on **render**, not just on submit, or the page would
+  show a target computed from a weight typed weeks ago while claiming to follow
+  the log. It always syncs the *newest* weigh-in, so a backdated entry can't
+  overwrite today and a deletion falls back correctly.
+- **Tone is deliberate: a log, not a coach.** No streaks, no confetti, no
+  goal-weight countdown, nothing congratulatory. Weight tracking is a known
+  route into disordered eating and `nutrition.js` already takes that seriously.
+  Everything user-facing leads with the **7-day trend, never the last reading** —
+  bodyweight swings 1-2kg on water and food alone, which is more than a good
+  week of real change. `MiseProgress.warnings()` flags losing faster than ~1% of
+  bodyweight/week. Keep all of it.
+- **The trend maths has a trap.** A trailing average lags its window by about
+  half its width, and at the start of a log the window is truncated so it lags
+  *less* — so comparing two trend points and dividing by the calendar gap
+  under-reports the rate by ~9% on a month-old log, which would make the safety
+  warning fire late. `trend()` therefore returns `at` (the mean date of the
+  averaged points — what the average actually describes) and `change()` measures
+  `perWeek` off those centroids. Don't "simplify" it back.
+- **`epley1RM` refuses over 10 reps** rather than guessing: the formula drifts
+  badly and confidently past there. It's a tracking number, and the copy says
+  plainly it is **not a lift to attempt**.
+- The chart is hand-rolled inline SVG (no build step, no dependencies — same
+  call as `pdf.js`). Raw readings faint, trend solid; `role="img"` plus a
+  summary, with the history list as the real text alternative.
+
 **Auth**
 - `auth.js` — Supabase sign-in (email/password + Google + Apple OAuth). While
   `SUPABASE_URL`/`SUPABASE_ANON_KEY` are empty it loads nothing external and the
@@ -202,12 +246,12 @@ in rough sync when you change the workflow described here.
 
 ## Cache-busting — do not skip this
 
-Asset links in `index.html`, `products.html` and `profile.html` carry `?v=N`
-query strings, e.g. `app.js?v=21`, `styles.css?v=18`. GitHub Pages sets long
+Asset links in `index.html`, `products.html`, `profile.html` and `log.html`
+carry `?v=N` query strings, e.g. `app.js?v=22`, `styles.css?v=19`. GitHub Pages sets long
 cache headers, so **if you change a file, bump its `?v=N` everywhere it's
 referenced**, or returning visitors get a stale cache (this has caused real
 breakage — a stale `recipes.js` against fresh HTML). Note `styles.css` is
-referenced from **all three** HTML files — keep the versions in step. The
+referenced from **all four** HTML files — keep the versions in step. The
 recipe tool bumps `recipes.js?v=` for you; everything else is manual.
 
 This bites *during local testing too*, not just in production: a plain reload
