@@ -316,9 +316,56 @@
     );
   }
 
+  // An in-feed sponsored ticket every AD_EVERY recipes. Without a placement the
+  // reader actually meets, "remove ads" would be selling nothing. Subscribers
+  // get none of these; see subscription.js.
+  var AD_EVERY = 12;
+
+  // This is now the only ad slot on the site, so it is also where a real ad
+  // network lands: set NETWORK_AD_HTML in ads.js and it renders that embed
+  // instead of a house ad.
+  function adCardHTML() {
+    if (typeof NETWORK_AD_HTML !== "undefined" && NETWORK_AD_HTML) {
+      return (
+        '<li class="card card--ad card--ad-network">' +
+          '<span class="tape tape--ad mono" aria-hidden="true">SPONSORED</span>' +
+          '<div class="ad-network-slot">' + NETWORK_AD_HTML + "</div>" +
+          '<div class="card-foot">' +
+            '<button class="ad-card-remove mono" data-remove-ads>REMOVE ADS</button>' +
+          "</div>" +
+        "</li>"
+      );
+    }
+    var flat = [];
+    if (typeof PRODUCTS !== "undefined") {
+      PRODUCTS.forEach(function (g) { g.items.forEach(function (p) { flat.push(p); }); });
+    }
+    if (!flat.length) return "";
+    var p = flat[Math.floor(Math.random() * flat.length)];
+    return (
+      '<li class="card card--ad">' +
+        '<span class="tape tape--ad mono" aria-hidden="true">SPONSORED</span>' +
+        "<h3>" + esc(p.name) + "</h3>" +
+        '<p class="card-desc">' + esc(p.blurb) + "</p>" +
+        '<p class="card-meta"><span>' + esc(p.priceBand) + "</span></p>" +
+        '<div class="card-foot">' +
+          '<a class="ad-card-link mono" href="' + esc(productUrl(p)) + '" target="_blank" rel="sponsored noopener">VIEW ON AMAZON &rarr;</a>' +
+          '<button class="ad-card-remove mono" data-remove-ads>REMOVE ADS</button>' +
+        "</div>" +
+      "</li>"
+    );
+  }
+
   function render() {
     var visible = RECIPES.filter(matches);
-    cardsEl.innerHTML = visible.map(cardHTML).join("");
+    var adFree = typeof MiseSub !== "undefined" && MiseSub.isAdFree();
+    var html = "";
+    visible.forEach(function (r, i) {
+      html += cardHTML(r);
+      // never trail an ad off the end of the list
+      if (!adFree && (i + 1) % AD_EVERY === 0 && i + 1 < visible.length) html += adCardHTML();
+    });
+    cardsEl.innerHTML = html;
     if (firstRender) { cardsEl.classList.add("reveal"); firstRender = false; }
     else { cardsEl.classList.remove("reveal"); }
 
@@ -610,19 +657,17 @@
       this.setAttribute("aria-pressed", String(on));
     });
     $("#modal-print").addEventListener("click", function () {
-      showAdThen("PRINT NOW", function () {
-        // Android has no window.print(); the share sheet carries Print instead.
-        if (window.MiseNative && MiseNative.isNative) {
-          MiseNative.sharePDF(recipeToPDFModel(r, mServings), r.id + ".pdf", r.name);
-        } else {
-          window.print();
-        }
-      });
+      if (requirePlus()) return;
+      // Android has no window.print(); the share sheet carries Print instead.
+      if (window.MiseNative && MiseNative.isNative) {
+        MiseNative.sharePDF(recipeToPDFModel(r, mServings), r.id + ".pdf", r.name);
+      } else {
+        window.print();
+      }
     });
     $("#modal-download").addEventListener("click", function () {
-      showAdThen("DOWNLOAD NOW", function () {
-        MisePDF.download(recipeToPDFModel(r, mServings), r.id + ".pdf");
-      });
+      if (requirePlus()) return;
+      MisePDF.download(recipeToPDFModel(r, mServings), r.id + ".pdf");
     });
     modalEl.showModal();
     modalEl.scrollTop = 0;
@@ -870,71 +915,122 @@
     render();
   });
 
-  /* ---------- pre-print sponsored interstitial ---------- */
+  /* ---------- Mise Plus (remove-ads subscription) ---------- */
 
-  var adModal = $("#ad-modal");
-  var adBody = $("#ad-body");
-  var adTimer = null;
+  var subModal = $("#sub-modal");
+  var subBody = $("#sub-body");
 
-  function houseAdsHTML() {
-    if (typeof PRODUCTS === "undefined") return "";
-    var flat = [];
-    PRODUCTS.forEach(function (g) { g.items.forEach(function (p) { flat.push(p); }); });
-    var a = flat[Math.floor(Math.random() * flat.length)];
-    var b = flat[Math.floor(Math.random() * flat.length)];
-    while (b === a && flat.length > 1) b = flat[Math.floor(Math.random() * flat.length)];
-    return (
-      '<div class="house-ads">' +
-        [a, b].map(function (p) {
-          return '<a class="house-ad" href="' + esc(productUrl(p)) + '" target="_blank" rel="sponsored noopener">' +
-            "<strong>" + esc(p.name) + "</strong>" +
-            '<span class="house-ad-price mono">' + esc(p.priceBand) + " &middot; VIEW ON AMAZON &rarr;</span>" +
-          "</a>";
-        }).join("") +
-      "</div>" +
-      '<a class="house-ad-more mono" href="products.html">SEE ALL PREP GEAR &rarr;</a>'
-    );
+  /* The paywall in one place. Call at the top of any Plus-only action:
+       if (requirePlus()) return;
+     Returns true when the caller should stop (and the upgrade dialog is up). */
+  function requirePlus() {
+    if (MiseSub.isPlus()) return false;
+    openSub();
+    return true;
   }
 
-  function showAdThen(actionLabel, fn) {
-    var slot = (typeof NETWORK_AD_HTML !== "undefined" && NETWORK_AD_HTML) ? NETWORK_AD_HTML : houseAdsHTML();
-    adBody.innerHTML =
+  function renderSubBody() {
+    var live = MiseSub.isLive();
+
+    if (MiseSub.isPlus()) {
+      var kind = MiseSub.kind();
+      subBody.innerHTML =
+        '<div class="modal-top">' +
+          '<span class="modal-tape">MISE PLUS</span>' +
+          '<button class="modal-close" id="sub-close" aria-label="Close">&times;</button>' +
+        "</div>" +
+        '<h2 id="sub-title">You&rsquo;re on Plus</h2>' +
+        '<p class="modal-desc">Printing, PDFs, and the weekly plan are unlocked, and the board is ' +
+          "clear of sponsored tickets." +
+          (live ? "" : " This is the demo unlock — nothing was charged.") + "</p>" +
+        '<button class="clear-btn" id="sub-cancel">' +
+          (live
+            ? (kind === "lifetime" ? "Manage purchase" : "Manage subscription")
+            : "Switch back to free") +
+        "</button>";
+      $("#sub-close").addEventListener("click", function () { subModal.close(); });
+      $("#sub-cancel").addEventListener("click", function () {
+        MiseSub.cancel().then(function () { renderSubBody(); render(); updatePlanUI(); });
+      });
+      return;
+    }
+
+    subBody.innerHTML =
       '<div class="modal-top">' +
-        '<span class="modal-tape">SPONSORED</span>' +
-        '<button class="modal-close" id="ad-close" aria-label="Cancel and close">&times;</button>' +
+        '<span class="modal-tape">MISE PLUS</span>' +
+        '<button class="modal-close" id="sub-close" aria-label="Close">&times;</button>' +
       "</div>" +
-      '<h2 id="ad-title" class="ad-title">A word while your pages get ready</h2>' +
-      '<div class="ad-slot">' + slot + "</div>" +
-      '<button class="ad-continue" id="ad-continue" disabled>READY IN 3&hellip;</button>';
+      '<h2 id="sub-title">Take it to the kitchen</h2>' +
+      '<p class="modal-desc">Plus unlocks the parts you use once you&rsquo;ve decided to cook:</p>' +
+      '<ul class="sub-list">' +
+        "<li>Print a recipe, or save it as a PDF</li>" +
+        "<li>The weekly plan and its combined shopping list</li>" +
+        "<li>No sponsored tickets on the board</li>" +
+      "</ul>" +
+      '<p class="sub-free mono">FREE FOREVER: ALL ' + RECIPES.length + " RECIPES, EVERY FILTER, " +
+        "SEARCH, RATINGS, REVIEWS, FAVORITES, AND YOUR ACCOUNT.</p>" +
+      (live
+        ? ""
+        : '<p class="sub-demo mono">DEMO BUILD — THIS CHARGES NOTHING. REAL BILLING NEEDS A STORE ' +
+          "ACCOUNT AND A PUBLISHED PRODUCT; SEE SUBSCRIPTION.JS.</p>") +
+      '<div class="sub-options">' +
+        '<button class="sub-buy" id="sub-buy-month">' +
+          '<span class="sub-buy-price">' + esc(MiseSub.monthlyPrice()) + "</span>" +
+          '<span class="sub-buy-note mono">' + (live ? "SUBSCRIBE" : "DEMO UNLOCK") + " &middot; CANCEL ANYTIME</span>" +
+        "</button>" +
+        '<button class="sub-buy sub-buy--alt" id="sub-buy-life">' +
+          '<span class="sub-buy-price">' + esc(MiseSub.lifetimePrice()) + "</span>" +
+          '<span class="sub-buy-note mono">' + (live ? "PAY ONCE" : "DEMO UNLOCK") + " &middot; KEEP IT FOREVER</span>" +
+        "</button>" +
+      "</div>" +
+      '<button class="review-signin mono" id="sub-restore">RESTORE PURCHASE</button>' +
+      '<p id="sub-error" class="auth-error" hidden></p>';
 
-    var count = 3;
-    var btn = $("#ad-continue");
-    adTimer = setInterval(function () {
-      count--;
-      if (count > 0) { btn.innerHTML = "READY IN " + count + "&hellip;"; return; }
-      clearInterval(adTimer);
-      adTimer = null;
-      btn.disabled = false;
-      btn.textContent = actionLabel;
-      btn.classList.add("go");
-    }, 1000);
+    $("#sub-close").addEventListener("click", function () { subModal.close(); });
 
-    btn.addEventListener("click", function () {
-      if (btn.disabled) return;
-      adModal.close();
-      fn();
+    function buy(kind, btn) {
+      btn.disabled = true;
+      MiseSub.purchase(kind).then(function () {
+        renderSubBody();
+        render();
+        updatePlanUI();
+      }).catch(function (e) {
+        btn.disabled = false;
+        var err = $("#sub-error");
+        err.hidden = false;
+        err.textContent = e.message;
+      });
+    }
+    $("#sub-buy-month").addEventListener("click", function () { buy("monthly", this); });
+    $("#sub-buy-life").addEventListener("click", function () { buy("lifetime", this); });
+
+    $("#sub-restore").addEventListener("click", function () {
+      MiseSub.restore().then(function (res) {
+        if (res.plus) { renderSubBody(); render(); updatePlanUI(); return; }
+        var err = $("#sub-error");
+        err.hidden = false;
+        err.textContent = res.demo
+          ? "Nothing to restore in the demo — there is no store account behind it yet."
+          : "No purchase found on this account.";
+      });
     });
-    $("#ad-close").addEventListener("click", function () { adModal.close(); });
-    adModal.showModal();
   }
 
-  adModal.addEventListener("close", function () {
-    if (adTimer) { clearInterval(adTimer); adTimer = null; }
-    adBody.innerHTML = "";
+  function openSub() {
+    renderSubBody();
+    subModal.showModal();
+  }
+
+  subModal.addEventListener("click", function (e) {
+    if (e.target === subModal) subModal.close();
   });
 
-  adModal.addEventListener("click", function (e) {
-    if (e.target === adModal) adModal.close();
+  // One delegated handler for every "remove ads" affordance on the page.
+  document.addEventListener("click", function (e) {
+    var t = e.target.closest("[data-remove-ads]");
+    if (!t) return;
+    e.preventDefault();
+    openSub();
   });
 
   /* ---------- weekly plan UI ---------- */
@@ -1083,11 +1179,13 @@
   planBody.addEventListener("click", function (e) {
     if (e.target.closest("#plan-close")) { planModal.close(); return; }
     if (e.target.closest("#plan-print")) {
-      var native = !!(window.MiseNative && MiseNative.isNative);
-      showAdThen(native ? "SHARE NOW" : "PRINT NOW", function () {
-        if (native) MiseNative.shareText("Mise — the week's plan", planAsText());
-        else window.print();
-      });
+      // only reachable behind the plan gate, but belt and braces
+      if (requirePlus()) return;
+      if (window.MiseNative && MiseNative.isNative) {
+        MiseNative.shareText("Mise — the week's plan", planAsText());
+      } else {
+        window.print();
+      }
       return;
     }
     if (e.target.closest("#plan-clear")) {
@@ -1121,7 +1219,11 @@
     }
   });
 
+  // Adding to the plan stays free — it costs nothing and lets people build the
+  // basket. The wall is here, on opening it, because the value is the combined
+  // shopping list, not the act of ticking a box.
   $("#open-plan").addEventListener("click", function () {
+    if (requirePlus()) return;
     renderPlanBody();
     planModal.showModal();
     planModal.scrollTop = 0;
@@ -1147,7 +1249,7 @@
 
   document.addEventListener("keydown", function (e) {
     if (e.key !== "Escape") return;
-    if (adModal.open) { adModal.close(); return; }
+    if (subModal.open) { subModal.close(); return; }
     if (authModal.open) { authModal.close(); return; }
     if (modalEl.open) { modalEl.close(); return; }
     if (planModal.open) { planModal.close(); return; }
@@ -1227,7 +1329,43 @@
     render();
   });
 
+  /* ---------- app download links ---------- */
+
+  // apps.js carries the two store URLs. While both are empty this renders
+  // nothing at all, so the site never links to a listing that doesn't exist.
+  // Deliberately no Apple/Google logos here: those are trademarks, and the
+  // licensed way to show them is each store's official badge, which may not be
+  // redrawn. Swap these text buttons for the real badges at launch — see apps.js.
+  function renderAppLinks() {
+    var ios = typeof IOS_APP_URL !== "undefined" ? IOS_APP_URL : "";
+    var android = typeof ANDROID_APP_URL !== "undefined" ? ANDROID_APP_URL : "";
+    var host = $("#app-links");
+    if (!host || (!ios && !android)) return;
+
+    var buttons = "";
+    if (ios) {
+      buttons += '<a class="app-link" href="' + esc(ios) + '" target="_blank" rel="noopener">' +
+        "GET IT FOR IPHONE &rarr;</a>";
+    }
+    if (android) {
+      buttons += '<a class="app-link" href="' + esc(android) + '" target="_blank" rel="noopener">' +
+        "GET IT FOR ANDROID &rarr;</a>";
+    }
+
+    host.innerHTML =
+      '<p class="app-links-title mono" id="app-links-title">MISE ON YOUR PHONE</p>' +
+      '<p class="app-links-line">All ' + RECIPES.length + " recipes live inside the app, so the board, " +
+        "your plan, and the shopping list all work with no signal at the shop.</p>" +
+      '<div class="app-links-row">' + buttons + "</div>" +
+      // Google's current legal-line tool emits exactly this. The widely copied
+      // "…and the Google Play logo are trademarks…" is legacy text from the
+      // retired badge generator.
+      (android ? '<p class="app-links-legal">Google Play is a trademark of Google LLC.</p>' : "");
+    host.hidden = false;
+  }
+
   render();
   updatePlanUI();
   updateAuthUI();
+  renderAppLinks();
 })();

@@ -18,3 +18,13 @@ android/capacitor-cordova-android-plugins/
 *.aab
 *.keystore
 *.jks
+
+# release signing — secrets, never commit
+keystore.properties
+android/keystore.properties
+*.jks
+*.keystore
+
+# Kotlin compiler daemon session state — throwaway build artifact
+.kotlin/
+android/.kotlin/

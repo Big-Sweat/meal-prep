@@ -5,7 +5,10 @@
 Static site, **no build step, no dependencies**: `index.html` + `styles.css` +
 `app.js` + `recipes.js` (the data). Extras: `pdf.js` (recipe PDF download),
 `products.html` / `products.js` (affiliate prep-gear page), `ads.js` (pre-print
-interstitial config), `auth.js` (Supabase auth config — demo profile fallback
+interstitial config), `apps.js` (store download links — both empty because
+nothing is published; the footer block hides itself rather than show a dead
+link, and the buttons carry no Apple/Google logos on purpose),
+`auth.js` (Supabase auth config — demo profile fallback
 while its keys are empty), `native.js` (iOS + Android adaptations, no-op on web),
 `app/` (Capacitor project: `app/android/` builds and runs, `app/ios/` needs a Mac
 with Xcode — see `app/README.md`; add any new top-level web file to

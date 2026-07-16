@@ -119,6 +119,147 @@ ask you to pick a team.
   signed `.aab`.
 - **App Store** — needs the Apple Developer Program ($99/year).
 
+### Turning on the website's download links
+
+The site has a "MISE ON YOUR PHONE" block ready to go, but it **renders nothing
+until a store URL exists** — there is no "coming soon", no dead link. Once a
+listing is live, paste its URL into `apps.js` in the repo root:
+
+```js
+var IOS_APP_URL     = "https://apps.apple.com/app/id<YOUR_NUMERIC_APP_ID>";
+var ANDROID_APP_URL = "https://play.google.com/store/apps/details?id=com.deadliftdigital.mise";
+```
+
+Fill in one and only that button appears. Two caveats, both easy to trip on:
+
+1. **Bump `apps.js?v=1` in index.html** when you edit it, or returning visitors
+   keep the cached empty file and never see the block.
+2. **The store badges are optional — but all-or-nothing.** Checked against both
+   companies' own docs: neither *requires* a badge to link (Google's "Linking to
+   Google Play" page documents plain https URLs; Apple has no rule against a
+   text link). So the plain type buttons are fine as-is. If you do want the real
+   badges, you must use their downloadable artwork unmodified — never redraw or
+   rebuild it in CSS, which is why there are no Apple/Google logos in this repo.
+   Then the strict rules apply: Apple wants its badge **first** in a lineup,
+   Google wants its badge **the same size or larger** than the others (those two
+   rules fight — lay it out carefully). Artwork:
+   <https://developer.apple.com/app-store/marketing/guidelines/> and
+   <https://partnermarketinghub.withgoogle.com/brands/google-play/visual-identity/badge-guidelines/>
+   (the old `play.google.com/intl/en_us/badges` generator is retired and
+   redirects; don't hotlink Google's hosted images — those URLs expire in 24h).
+
+## Mise Plus — the paid tier
+
+The whole flow is built and works on a phone today, but **in demo mode: it
+charges nothing** and says so on the purchase screen. Real money needs a store
+account, which is the one thing that can't be faked.
+
+**Free forever** — browsing all recipes, every filter, search, ratings, reviews,
+favorites, and making an account. Accounts are deliberately *not* paywalled:
+they're the container a purchase restores into on a new phone, and charging for
+signup would kill the ratings/reviews/favorites the site already has.
+
+**Plus unlocks** (one entitlement, bought either way):
+- Printing a recipe or the weekly plan
+- Downloading a recipe PDF
+- The weekly plan + combined shopping list. Note *adding* to the plan stays
+  free — the wall is on opening it, so people build the basket first and meet
+  the paywall where the value actually is.
+- No sponsored tickets on the board
+
+**Two ways to buy:** `$0.99/month` (`mise_plus_monthly`) or `$4.99 once`
+(`mise_plus_lifetime`). Both grant the same entitlement. Prices are display
+labels in `subscription.js`; the store is the source of truth once billing is
+live, so keep them in step.
+
+**Ads:** one placement — a `SPONSORED` ticket every 12 recipes, drawn from
+`products.js` house ads, or an ad-network embed if you set `NETWORK_AD_HTML` in
+`ads.js`. The old before-you-print interstitial is **gone**: print is Plus-only
+and Plus removes ads, so it could never have fired again.
+
+**A "restore purchase" path exists** because both stores require you to offer one.
+
+**What it takes to charge real money**
+1. **Google Play Console account** ($25 one-time) **plus a Google payments /
+   merchant profile** — a separate step, and without it you can't price
+   anything. iOS additionally needs the Apple Developer Program ($99/year).
+2. Add a billing plugin and upload **one** build containing the Play Billing
+   Library to a track (internal testing is enough). Play Console won't let you
+   create a subscription product until such a build exists — this is the gate
+   most people hit.
+3. Create **both** products and mark each **ACTIVE**: `mise_plus_monthly`
+   (subscription, $0.99/month) and `mise_plus_lifetime` (one-time /
+   non-consumable, $4.99). An inactive or unpropagated product makes queries
+   return an empty list *with no error*, which looks exactly like a code bug.
+4. Wire the SDK and set `BILLING_ANDROID_KEY` / `BILLING_IOS_KEY` in
+   `subscription.js`. Non-empty key turns demo mode off. The app only calls
+   `MiseSub.isAdFree() / purchase() / restore()`, so nothing else changes.
+
+**Testing is easier than the folklore says.** It's widely repeated that billing
+only works if you install from Play. Google's own testing doc says otherwise:
+license testers *"can sideload apps for testing, even for apps using debug
+builds with debug signatures"*. So once 1–3 are done, the same `adb install`
+debug APK we put on the phone can complete a real, free test purchase — provided
+the package name matches the Play Console app, your account is added under
+**Play Console → Settings → License testing**, and the device has the Play Store
+and is signed in as that tester. Allow a few hours after the first upload for
+propagation.
+
+**Play Billing vs Stripe:** since the Epic v. Google settlement Google no longer
+*requires* Play Billing, so external checkout is allowed. It's still the wrong
+call at this price — Play takes 15% all-in on $0.99 (~$0.15), while Stripe's
+fixed $0.30 per-transaction fee alone is ~30%, before Google's external-link fee
+on top.
+
+**Why a billing service rather than raw Play Billing:** purchases have to be
+verified server-side or a rooted device can spoof them, and a static site has no
+server. A service like RevenueCat does that validation and covers both stores
+with one entitlement check.
+
+## Release builds (the one to actually keep on a phone)
+
+```bash
+cd app/android
+export JAVA_HOME="/c/Program Files/Android/Android Studio/jbr"
+export ANDROID_HOME="/c/Users/jake/AppData/Local/Android/Sdk"
+./gradlew assembleRelease
+# -> %TEMP%/mise-gradle-build/app/outputs/apk/release/app-release.apk
+```
+
+Signing is wired up already: `app/build.gradle` reads `android/keystore.properties`,
+and if that file is missing (a fresh clone, CI) the release build just comes out
+unsigned instead of failing.
+
+**Two files you must never commit and must back up:**
+
+| File | What it is |
+| --- | --- |
+| `app/android/mise-release.jks` | the signing key |
+| `app/android/keystore.properties` | its passwords |
+
+Both are gitignored. **The keystore is the only way to ship an update Android
+will accept as the same app** — lose it and every user has to uninstall and
+reinstall, losing their data. They currently sit inside OneDrive, which at least
+means they're backed up; if this ever becomes a real product, move them somewhere
+deliberate and rotate the password (it was generated during setup and is in the
+session transcript).
+
+Debug and release are signed with **different keys**, so Android won't upgrade
+one to the other — switching requires an uninstall, which wipes app data
+(favourites, plan, sign-in session). Pick one and stay on it.
+
+If you publish to Play, turn on **Play App Signing**: Google holds the real app
+key and this one becomes just an upload key, which is recoverable if lost.
+
+### Do not publish the debug APK
+
+It is tempting to just put `app-debug.apk` on the site as a direct download.
+Don't: debug builds are signed with a throwaway debug key and are marked
+debuggable, which lets anyone attach a debugger and read app data. They also get
+no auto-updates and force users through "install unknown apps" warnings. If you
+ever do want direct distribution, build a **release-signed** APK and host that —
+but the stores are the right path.
+
 **On the "minimum functionality" policy:** both stores reject apps that are just
 a website in a wrapper (Google's minimum-functionality rule, Apple's guideline
 4.2). This app is not one — the entire recipe library is bundled and works

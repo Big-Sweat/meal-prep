@@ -1335,84 +1335,169 @@ button {
 
 #auth-signedin .clear-btn { margin-top: 0; }
 
-/* ---------- pre-print sponsored interstitial ---------- */
+/* ---------- in-feed sponsored ticket + Mise Plus ---------- */
 
-.ad-modal { width: min(560px, calc(100vw - 32px)); }
-
-.ad-modal h2.ad-title {
-  font-size: 22px;
-  margin: 10px 0 16px;
+/* Reads as a ticket but never impersonates a recipe: paper stock, no photo,
+   and the tape says SPONSORED. */
+.card--ad {
+  background: var(--paper);
+  border-style: dashed;
 }
 
-.ad-slot { margin-bottom: 20px; }
+.tape--ad { background: var(--line); }
 
-.house-ads {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 12px;
-  margin-bottom: 12px;
+.ad-card-link {
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+  text-decoration: none;
+  padding: 9px 11px;
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+  z-index: 1;
 }
 
-.house-ad {
+.ad-card-link:hover { background: var(--kale); border-color: var(--kale); }
+
+.ad-card-remove {
+  position: relative;
+  z-index: 1;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  color: var(--faded);
+  border-bottom: 1px dashed var(--faded);
+  padding: 4px 0;
+  min-height: 32px;
+}
+
+.ad-card-remove:hover { color: var(--kale); border-bottom-color: var(--kale); }
+
+.sub-modal { width: min(460px, calc(100vw - 32px)); }
+
+.sub-demo {
+  border: 1px dashed var(--chile);
+  color: var(--chile);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  line-height: 1.5;
+  padding: 10px 12px;
+  margin: 16px 0;
+}
+
+.sub-list {
+  font-family: var(--font-body);
+  font-size: 15px;
+  margin: 0 0 16px 20px;
+}
+
+.sub-list li { padding: 3px 0; }
+
+.sub-free {
+  font-size: 9.5px;
+  letter-spacing: 0.06em;
+  line-height: 1.6;
+  color: var(--kale-deep);
+  border-top: 1px dashed var(--line);
+  padding-top: 10px;
+  margin-bottom: 4px;
+}
+
+.sub-options {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  border: 1px solid var(--ink);
-  background: var(--paper);
-  padding: 14px 16px;
-  color: var(--ink);
-  text-decoration: none;
+  gap: 10px;
+  margin-top: 16px;
 }
 
-.house-ad:hover { background: var(--tape); }
-
-.house-ad strong {
-  font-size: 15.5px;
-  font-weight: 650;
-  letter-spacing: -0.01em;
-}
-
-.house-ad-price {
-  font-size: 10.5px;
-  letter-spacing: 0.06em;
-  color: var(--kale-deep);
-}
-
-.house-ad-more {
-  display: inline-block;
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  color: var(--faded);
-  text-decoration: none;
-  border-bottom: 1px dashed var(--faded);
-  padding-bottom: 2px;
-}
-
-.house-ad-more:hover { color: var(--kale); border-bottom-color: var(--kale); }
-
-.ad-continue {
+.sub-buy {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
   width: 100%;
+  border: 1px solid var(--kale);
+  background: var(--kale);
+  color: #F4F8F0;
+  padding: 12px 14px;
+  min-height: 56px;
+}
+
+.sub-buy-price { font-weight: 700; font-size: 16px; }
+.sub-buy-note { font-size: 9.5px; letter-spacing: 0.08em; opacity: 0.85; }
+
+/* the pay-once option is the alternative, not the default */
+.sub-buy--alt {
+  background: var(--ticket);
+  border-color: var(--ink);
+  color: var(--ink);
+}
+
+.sub-buy--alt:hover { background: var(--tape); }
+
+.sub-buy:disabled { opacity: 0.6; cursor: wait; }
+
+#sub-restore { display: block; margin: 12px auto 0; }
+
+/* ---------- app download links ----------
+   Rendered by app.js only when apps.js carries a store URL; hidden otherwise. */
+
+.app-links {
   border: 1px solid var(--ink);
   background: var(--ticket);
+  padding: 20px;
+  margin-bottom: 24px;
+  max-width: 560px;
+}
+
+.app-links[hidden] { display: none; }
+
+.app-links-title {
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
   color: var(--faded);
+  margin-bottom: 8px;
+}
+
+.app-links-line {
+  font-family: var(--font-body);
+  font-size: 14.5px;
+  color: var(--ink);
+  margin-bottom: 16px;
+}
+
+.app-links-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.app-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+  text-decoration: none;
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: 11px;
   letter-spacing: 0.08em;
-  padding: 14px;
-  min-height: 50px;
+  padding: 12px 14px;
+  min-height: 44px;
 }
 
-.ad-continue.go {
-  background: var(--kale);
-  border-color: var(--kale);
-  color: #F4F8F0;
-  cursor: pointer;
-}
+.app-link:hover { background: var(--kale); border-color: var(--kale); }
 
-.ad-continue:disabled { cursor: wait; }
-
-@media (min-width: 560px) {
-  .house-ads { grid-template-columns: 1fr 1fr; }
+.app-links-legal {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.04em;
+  color: var(--faded);
+  margin-top: 12px;
 }
 
 /* ---------- footer ---------- */
