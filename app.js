@@ -24,12 +24,19 @@
     { id: "main", label: "Lunch & dinner" }
   ];
 
+  var GOALS = [
+    { id: "bulk", label: "Bulk" },
+    { id: "cut", label: "Cut" },
+    { id: "maintain", label: "Maintain" }
+  ];
+
   var SUGGEST_CANDIDATES = [
     "rice", "broccoli", "sweet potato", "quinoa", "black beans",
     "spinach", "noodles", "potatoes"
   ];
 
   var state = {
+    goals: new Set(),
     meals: new Set(),
     allergies: new Set(),
     proteins: new Set(),
@@ -161,8 +168,17 @@
 
   /* ---------- filtering ---------- */
 
+  function matchesGoal(r, goal) {
+    if (goal === "cut") return r.caloriesPerServing <= 500;
+    if (goal === "maintain") return r.caloriesPerServing > 500 && r.caloriesPerServing <= 650;
+    return r.caloriesPerServing > 650;
+  }
+
   function matches(r) {
     if (state.favOnly && !favs.has(r.id)) return false;
+    if (state.goals.size && !Array.from(state.goals).some(function (goal) {
+      return matchesGoal(r, goal);
+    })) return false;
     if (state.meals.size && !state.meals.has(r.meal)) return false;
     if (state.allergies.size) {
       for (var i = 0; i < r.allergens.length; i++) {
@@ -199,7 +215,7 @@
     state.allergies.forEach(function (id) {
       if (standingAllergies.indexOf(id) === -1) extraAllergies++;
     });
-    return state.meals.size + extraAllergies + state.proteins.size + state.terms.length +
+    return state.goals.size + state.meals.size + extraAllergies + state.proteins.size + state.terms.length +
       (state.maxDifficulty < 3 ? 1 : 0) + (state.favOnly ? 1 : 0);
   }
 
@@ -335,7 +351,7 @@
 
   /* ---------- filter chips ---------- */
 
-  function buildToggleChips(containerId, defs, set, extraClass) {
+  function buildToggleChips(containerId, defs, set, extraClass, exclusive) {
     var host = $(containerId);
     // a stale cached index.html may predate this container; skip rather than crash
     if (!host) return;
@@ -350,7 +366,16 @@
       b.setAttribute("aria-pressed", String(set.has(d.id)));
       b.addEventListener("click", function () {
         if (set.has(d.id)) { set.delete(d.id); b.setAttribute("aria-pressed", "false"); }
-        else { set.add(d.id); b.setAttribute("aria-pressed", "true"); }
+        else {
+          if (exclusive) {
+            set.clear();
+            host.querySelectorAll(".chip").forEach(function (chip) {
+              chip.setAttribute("aria-pressed", "false");
+            });
+          }
+          set.add(d.id);
+          b.setAttribute("aria-pressed", "true");
+        }
         render();
       });
       host.appendChild(b);
@@ -1107,6 +1132,7 @@
 
   /* ---------- wire up ---------- */
 
+  buildToggleChips("#goal-chips", GOALS, state.goals, "", true);
   buildToggleChips("#meal-chips", MEALS, state.meals);
   buildToggleChips("#allergy-chips", ALLERGENS, state.allergies);
   buildToggleChips("#protein-chips", PROTEINS, state.proteins);
@@ -1157,6 +1183,7 @@
   diffSlider.setAttribute("aria-valuetext", DIFF_OUT[state.maxDifficulty]);
 
   clearBtn.addEventListener("click", function () {
+    state.goals.clear();
     state.meals.clear();
     state.allergies.clear();
     state.proteins.clear();
