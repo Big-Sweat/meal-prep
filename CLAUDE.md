@@ -59,6 +59,21 @@ in rough sync when you change the workflow described here.
   `NETWORK_AD_HTML` is empty, the slot shows *house ads* (two random picks from
   `PRODUCTS`). Paste an ad-network embed into `NETWORK_AD_HTML` to run real ads.
 
+**Subscription (Mise Plus)**
+- `subscription.js` — `MiseSub`: the ad-free entitlement. `BILLING_ANDROID_KEY`
+  / `BILLING_IOS_KEY` are empty, so it runs in **demo mode**: the purchase
+  button flips a localStorage flag, charges nothing, and the dialog says so in
+  red. Real billing needs a Play Console account ($25) + merchant profile + one
+  uploaded build containing the Billing Library + an ACTIVE product; that's why
+  demo mode exists. Note (checked against Google's docs, Jul 2026): billing
+  **can** be tested on a sideloaded debug APK once those exist — license testers
+  bypass the install-source check. The rest of the app only touches
+  `isAdFree() / purchase() / restore()`, so swapping in a real SDK shouldn't
+  touch app.js.
+- Ads gated on it: the in-feed `SPONSORED` ticket every `AD_EVERY` (12) recipes
+  in `render()`, and the pre-print interstitial in `showAdThen()`. **Never make
+  the ad-free path merely shorter** — subscribers must skip it entirely.
+
 **App download links**
 - `apps.js` — `IOS_APP_URL` / `ANDROID_APP_URL`. Both empty as of Jul 2026
   because **nothing is published to either store yet**; the footer block

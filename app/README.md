@@ -148,6 +148,57 @@ Fill in one and only that button appears. Two caveats, both easy to trip on:
    (the old `play.google.com/intl/en_us/badges` generator is retired and
    redirects; don't hotlink Google's hosted images — those URLs expire in 24h).
 
+## Mise Plus — the $0.99/month remove-ads subscription
+
+The whole flow is built and works on a phone today, but **in demo mode: it
+charges nothing** and says so on the purchase screen. Real money needs a store
+account, which is the one thing that can't be faked.
+
+**What's live now**
+- Ads a reader actually meets: a `SPONSORED` ticket every 12 recipes on the
+  board (house ads drawn from `products.js`), plus the existing before-you-print
+  interstitial.
+- An upgrade dialog at `$0.99/month`, reachable from every sponsored ticket and
+  from the interstitial itself.
+- Subscribing removes **both** — the sponsored tickets and the print wait.
+- A "restore purchase" path, which both stores require you to offer.
+
+**What it takes to charge real money**
+1. **Google Play Console account** ($25 one-time) **plus a Google payments /
+   merchant profile** — a separate step, and without it you can't price
+   anything. iOS additionally needs the Apple Developer Program ($99/year).
+2. Add a billing plugin and upload **one** build containing the Play Billing
+   Library to a track (internal testing is enough). Play Console won't let you
+   create a subscription product until such a build exists — this is the gate
+   most people hit.
+3. Create the product: id `mise_plus_monthly`, $0.99, monthly, and mark it
+   **ACTIVE**. An inactive or unpropagated product makes queries return an empty
+   list *with no error*, which looks exactly like a code bug.
+4. Wire the SDK and set `BILLING_ANDROID_KEY` / `BILLING_IOS_KEY` in
+   `subscription.js`. Non-empty key turns demo mode off. The app only calls
+   `MiseSub.isAdFree() / purchase() / restore()`, so nothing else changes.
+
+**Testing is easier than the folklore says.** It's widely repeated that billing
+only works if you install from Play. Google's own testing doc says otherwise:
+license testers *"can sideload apps for testing, even for apps using debug
+builds with debug signatures"*. So once 1–3 are done, the same `adb install`
+debug APK we put on the phone can complete a real, free test purchase — provided
+the package name matches the Play Console app, your account is added under
+**Play Console → Settings → License testing**, and the device has the Play Store
+and is signed in as that tester. Allow a few hours after the first upload for
+propagation.
+
+**Play Billing vs Stripe:** since the Epic v. Google settlement Google no longer
+*requires* Play Billing, so external checkout is allowed. It's still the wrong
+call at this price — Play takes 15% all-in on $0.99 (~$0.15), while Stripe's
+fixed $0.30 per-transaction fee alone is ~30%, before Google's external-link fee
+on top.
+
+**Why a billing service rather than raw Play Billing:** purchases have to be
+verified server-side or a rooted device can spoof them, and a static site has no
+server. A service like RevenueCat does that validation and covers both stores
+with one entitlement check.
+
 ### Do not publish the debug APK
 
 It is tempting to just put `app-debug.apk` on the site as a direct download.
