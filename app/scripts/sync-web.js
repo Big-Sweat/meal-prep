@@ -13,14 +13,18 @@ const WWW = path.join(__dirname, "..", "www");
 const FILES = [
   "index.html",
   "products.html",
+  "profile.html",
   "styles.css",
   "app.js",
+  "profile.js",
   "recipes.js",
   "products.js",
   "ads.js",
   "apps.js",
   "subscription.js",
   "nutrition.js",
+  "store.js",
+  "plus-ui.js",
   "auth.js",
   "pdf.js",
   "native.js"

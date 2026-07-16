@@ -25,15 +25,37 @@ in rough sync when you change the workflow described here.
   results grid, search box, and three `<dialog>` modals (recipe, weekly plan,
   pre-print ad).
 - `styles.css` — all styling. Editorial "prep board" look (see the design doc).
-- `app.js` — all recipe-page behavior (~800 lines, one IIFE, `"use strict"`):
+- `app.js` — all **board** behavior (~1200 lines, one IIFE, `"use strict"`):
   filtering, rendering, serving-scale math with proper fractions, the recipe
-  modal, the persisted weekly plan + combined shopping list, live search, and
-  the pre-print/PDF interstitial. Constants at the top (`ALLERGENS`, `PROTEINS`,
-  `MEALS`, `SUGGEST_CANDIDATES`) define the filter chips.
-- `recipes.js` — **the data.** `var RECIPES = [ … ]` (currently 130 recipes:
-  108 mains, 22 breakfasts). Everything on the site — filters, suggestions,
-  counts, macros — derives from this array. Do not hand-edit it to add recipes;
-  use the tool (below).
+  modal, the persisted weekly plan + combined shopping list, and live search.
+  Constants at the top (`PROTEINS`, `MEALS`, `SUGGEST_CANDIDATES`) define the
+  filter chips; `ALLERGENS` comes from `store.js` because the profile page needs
+  the same list. **It grabs `index.html`'s DOM at module scope, so it cannot be
+  loaded on another page** — that's why `profile.js` exists rather than a flag.
+  Inbound `index.html#<recipe-id>` opens that recipe (`openFromHash`), which is
+  what the profile page's lists link to.
+- `store.js` — `MiseStore`: **the shared data layer, and the only place a
+  storage key is written down.** Every per-user key (favorites, ratings,
+  reviews, the nutrition profile, standing allergies) plus the big-9 `ALLERGENS`
+  vocabulary, so the board and the profile page cannot drift. Pure functions
+  over localStorage: pass in `who`, get that person's data — no session state,
+  since each page tracks the signed-in user itself. Still the demo layer (it all
+  lives in this browser); reimplementing these functions against Supabase tables
+  is the known next step, and no caller would change.
+- `plus-ui.js` — `MisePlusUI`: the upgrade dialog, **shared by both pages** so
+  there is only ever one paywall. It builds its own `<dialog>` on first open, so
+  no HTML file carries the markup. `MisePlusUI.require()` is the call-site gate
+  (`if (MisePlusUI.require()) return;`), and pages get `onChange(fn)` to redraw
+  after a purchase. It subscribes to `MiseSub.onChange`, so an entitlement change
+  from *anywhere* redraws — including, once step 4 of `subscription.js` is done,
+  a real billing SDK's callback or a store-side refund.
+- `profile.html` / `profile.js` — **"your kitchen": the per-account page.**
+  Standing allergies, the calorie target, favorites, and your ratings/reviews.
+  The masthead's "HI, NAME →" goes here when signed in. See the profile-page
+  section below.
+- `recipes.js` — **the data.** `var RECIPES = [ … ]` (currently 131 recipes).
+  Everything on the site — filters, suggestions, counts, macros — derives from
+  this array. Do not hand-edit it to add recipes; use the tool (below).
 - `pdf.js` — dependency-free PDF generator for the per-recipe "Download PDF"
   button. Lays a recipe out on US-Letter using the PDF base-14 Courier fonts
   (no embedding, exact wrapping). Brand colors are duplicated here from
@@ -60,14 +82,17 @@ in rough sync when you change the workflow described here.
   `PRODUCTS`). Paste an ad-network embed into `NETWORK_AD_HTML` to run real ads.
 
 **Subscription (Mise Plus) — the paid tier**
-- `subscription.js` — `MiseSub`. **`isPlus()` is the single gate**; call sites
-  use `requirePlus()` in app.js, which opens the upgrade dialog and returns true
-  when the caller should stop. Two products, same entitlement:
-  `mise_plus_monthly` ($0.99/mo) and `mise_plus_lifetime` ($4.99 once).
-- **Paid:** print, PDF download, the weekly plan view, no ads.
-  **Free forever:** browsing, filters, search, ratings, reviews, favorites, and
-  **accounts** — never paywall signup; it's where a purchase restores to.
-  *Adding* to the plan is free on purpose; the wall is on opening it.
+- `subscription.js` — `MiseSub`, the entitlement authority. **`isPlus()` is the
+  single gate**; the dialog that sells it lives in `plus-ui.js` and call sites
+  use `MisePlusUI.require()`, which opens it and returns true when the caller
+  should stop. Two products, same entitlement: `mise_plus_monthly` ($0.99/mo)
+  and `mise_plus_lifetime` ($4.99 once).
+- **Paid:** print, PDF download, the weekly plan view, the calorie target,
+  no ads.
+  **Free forever:** browsing, filters, search, ratings, reviews, favorites,
+  standing allergies, **the whole profile page**, and **accounts** — never
+  paywall signup; it's where a purchase restores to. *Adding* to the plan is
+  free on purpose; the wall is on opening it.
 - `BILLING_ANDROID_KEY` / `BILLING_IOS_KEY` are empty, so it runs in **demo
   mode**: purchase flips a localStorage flag, charges nothing, and the dialog
   says so in red. Real billing needs a Play Console account ($25) + merchant
@@ -105,11 +130,39 @@ in rough sync when you change the workflow described here.
   equation** — there is no sex-neutral Mifflin. It exists so people who won't
   state a sex aren't blocked; the UI admits the error.
 - Stored per user at `mise-nutrition-<id>`. **Plus-gated**, and the gate lives in
-  `calorieTarget()` — one place, so the card "% OF YOUR DAY" and the masthead
-  figure follow the entitlement automatically. `openProfile()` also calls
-  `requirePlus()`. A lapsed subscriber **keeps their saved profile**; the number
-  just stops showing until they resubscribe. Never delete it on lapse — nobody
-  should have to retype their body.
+  **`MiseStore.calorieTarget(who)` in `store.js`** — one place, for both pages,
+  so the card "% OF YOUR DAY" and the profile card follow the entitlement
+  automatically. A lapsed subscriber **keeps their saved profile**; the number
+  just stops showing until they resubscribe, and the profile page says so in as
+  many words. Never delete it on lapse — nobody should have to retype their body.
+
+**The profile page ("your kitchen") — `profile.html` + `profile.js`**
+- Four sections plus an identity card: **standing allergies**, the **calorie
+  target**, **favorites**, and **your ratings & reviews**. Reached from the
+  masthead ("HI, NAME →") when signed in.
+- **The page is free and needs only an account** — only the calorie card is
+  gated. Do not wall the page: favorites, reviews and accounts are free forever,
+  and an account is what a purchase restores into, so a wall here would strand
+  the purchase it exists to recover.
+- **Sign-in deliberately stays on the board.** `auth.js` sends OAuth back to
+  `window.location.pathname`, and Supabase's redirect allowlist is configured
+  for the site root — a sign-in button here would bounce off it. Signed out, the
+  page just points at the board; **sign-out redirects there** rather than
+  leaving a dead page.
+- Supabase resolves **asynchronously**, so the page renders a loading state
+  first and `MiseAuth.onChange` drives the real render. There's an 8s timeout
+  that says "can't reach the sign-in service" rather than spinning forever —
+  the apps bundle the recipes for offline use, but auth needs the network.
+- **Standing allergies** are the one filter saved to an account: the board loads
+  with them on, every visit. Changing a chip on the *board* is session-only and
+  never rewrites the account — a temporary "what's this look like without dairy"
+  must not un-set an allergy someone lives with. They're the baseline, so they
+  don't count toward the filter badge, and **"clear all filters" resets to them
+  rather than wiping them**. A favorite that contradicts one is flagged on the
+  page, since the board hides it and it would otherwise sit there looking safe.
+- Sections render independently (`renderTarget()` etc.) so typing in the calorie
+  form doesn't redraw the page. That form re-renders per keystroke and restores
+  focus by hand — same trick the old modal used; don't "tidy" it away.
 
 **Auth**
 - `auth.js` — Supabase sign-in (email/password + Google + Apple OAuth). While
@@ -149,13 +202,19 @@ in rough sync when you change the workflow described here.
 
 ## Cache-busting — do not skip this
 
-Asset links in `index.html` (and `products.html`) carry `?v=N` query strings,
-e.g. `app.js?v=9`, `styles.css?v=8`, `recipes.js?v=7`. GitHub Pages sets long
+Asset links in `index.html`, `products.html` and `profile.html` carry `?v=N`
+query strings, e.g. `app.js?v=21`, `styles.css?v=18`. GitHub Pages sets long
 cache headers, so **if you change a file, bump its `?v=N` everywhere it's
 referenced**, or returning visitors get a stale cache (this has caused real
 breakage — a stale `recipes.js` against fresh HTML). Note `styles.css` is
-referenced from *both* HTML files — keep the two versions in step. The
+referenced from **all three** HTML files — keep the versions in step. The
 recipe tool bumps `recipes.js?v=` for you; everything else is manual.
+
+This bites *during local testing too*, not just in production: a plain reload
+will happily re-run a cached `.js` while the server has your new one, so a fix
+looks like it didn't work. If local behaviour contradicts the code you just
+wrote, check that first — `fetch('file.js?bust=' + Math.random())` and compare
+against what the page is actually running.
 
 ## Recipe data schema
 
