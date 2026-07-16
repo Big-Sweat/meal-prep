@@ -20,6 +20,8 @@
      open. Close what's on top instead; exit only from the bare board. */
   if (platform === "android" && P.App) {
     P.App.addListener("backButton", function () {
+      // Close whatever is on top. Pages carry different subsets of these — a
+      // missing id just means that dialog isn't on this page.
       var dialogs = ["sub-modal", "auth-modal", "recipe-modal", "plan-modal"];
       for (var i = 0; i < dialogs.length; i++) {
         var d = document.getElementById(dialogs[i]);
@@ -31,6 +33,11 @@
         if (closeBtn) closeBtn.click();
         return;
       }
+      /* Only the board is the app's root. From the gear list or your kitchen,
+         back belongs to the board — dropping out of the app entirely from a
+         sub-page is jarring. The filter rail is the board's tell; testing for it
+         beats parsing the path, which differs between the app and the site. */
+      if (!rail) { window.history.back(); return; }
       P.App.exitApp();
     });
   }

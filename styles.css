@@ -271,6 +271,17 @@ button {
   margin-bottom: 12px;
 }
 
+/* Shown under the allergy chips when the account carries standing allergies,
+   so nobody wonders why two chips were already on. */
+.rail-note {
+  font-family: var(--font-body);
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--faded);
+  margin-top: 10px;
+}
+.rail-note a { color: var(--kale-deep); }
+
 .chip-row { display: flex; flex-wrap: wrap; gap: 8px; }
 
 .chip {
@@ -1328,7 +1339,355 @@ button {
   margin: 14px 0 18px;
 }
 
-#auth-signedin .clear-btn { margin-top: 0; }
+/* ---------- nutrition profile (the calorie form, on profile.html) ---------- */
+
+.nut-group {
+  border-top: 1px solid var(--line);
+  padding: 16px 0;
+}
+
+.nut-label {
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  color: var(--faded);
+  margin-bottom: 10px;
+}
+
+.nut-hint {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 13px;
+  color: var(--faded);
+  margin-top: 8px;
+}
+
+.nut-chip[aria-pressed="true"] { background: var(--kale); border-color: var(--kale); color: #F4F8F0; }
+
+.nut-units { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.nut-unit { padding: 6px 10px; min-height: 34px; font-size: 12px; }
+.nut-unit.on { background: var(--ink); color: var(--paper); }
+
+.nut-fields { display: flex; flex-wrap: wrap; gap: 12px; }
+
+.nut-field { display: flex; flex-direction: column; gap: 5px; }
+.nut-field > span { font-size: 10px; letter-spacing: 0.1em; color: var(--faded); }
+
+.nut-pair { display: inline-flex; align-items: center; gap: 5px; }
+.nut-pair em { font-family: var(--font-mono); font-style: normal; font-size: 11px; color: var(--faded); }
+
+.nut-fields input {
+  width: 72px;
+  font: inherit;
+  font-size: 15px;
+  padding: 9px 10px;
+  border: 1px solid var(--ink);
+  background: var(--ticket);
+  color: var(--ink);
+  border-radius: 0;
+}
+
+.nut-activity { display: flex; flex-direction: column; gap: 6px; }
+
+.nut-act {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  border: 1px solid var(--line);
+  background: var(--ticket);
+  padding: 9px 12px;
+  min-height: 44px;
+  text-align: left;
+}
+
+.nut-act strong { font-size: 14px; font-weight: 600; }
+.nut-act-hint { font-family: var(--font-body); font-size: 12.5px; color: var(--faded); }
+
+.nut-act.on { border-color: var(--kale); background: var(--kale); color: #F4F8F0; }
+.nut-act.on .nut-act-hint { color: #D9E6D4; }
+
+.nut-result {
+  border: 1px solid var(--ink);
+  background: var(--ticket);
+  padding: 16px;
+  margin-top: 16px;
+}
+
+.nut-result-label { font-size: 10px; letter-spacing: 0.14em; color: var(--faded); }
+
+.nut-big {
+  font-size: 40px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  margin: 2px 0 4px;
+}
+
+.nut-big-unit { font-size: 16px; font-weight: 500; color: var(--faded); letter-spacing: 0; }
+
+.nut-math { font-size: 10.5px; letter-spacing: 0.05em; color: var(--faded); }
+
+.nut-warn {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--chile);
+  border-top: 1px dashed var(--line);
+  margin-top: 10px;
+  padding-top: 10px;
+}
+
+.nut-incomplete {
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  color: var(--faded);
+  border: 1px dashed var(--line);
+  padding: 14px;
+  margin-top: 16px;
+}
+
+.nut-actions { margin-top: 16px; }
+#nut-clear { display: block; margin: 12px auto 0; }
+
+.nut-disclaimer {
+  font-family: var(--font-body);
+  font-size: 12.5px;
+  color: var(--faded);
+  border-top: 1px solid var(--line);
+  margin-top: 18px;
+  padding-top: 12px;
+}
+
+/* ---------- your kitchen (profile.html) ----------
+   Deliberately the board's own shape: a narrow identity column with the
+   sections beside it, the way the filter rail sits beside the results. Same
+   kitchen, different station. Stacks below 1024 (see that breakpoint). */
+
+.kitchen {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 28px var(--pad) 64px;
+}
+
+.kit-grid { display: flex; flex-direction: column; gap: 22px; }
+.kit-sections { display: flex; flex-direction: column; gap: 22px; min-width: 0; }
+
+.kit-card {
+  position: relative;
+  background: var(--ticket);
+  border: 1px solid var(--ink);
+  padding: 26px 20px 20px;
+}
+
+/* Paper stock rather than ticket stock: this one isn't yours yet. */
+.kit-card--locked { background: var(--paper); }
+
+.kit-card h2 {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+  margin-bottom: 8px;
+}
+
+.kit-lede {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--faded);
+  margin-bottom: 16px;
+}
+
+.kit-fineprint {
+  font-family: var(--font-body);
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--faded);
+  border-top: 1px solid var(--line);
+  margin-top: 16px;
+  padding-top: 12px;
+}
+
+.kit-none {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 14px;
+  color: var(--faded);
+  padding: 6px 0 4px;
+}
+
+/* ---------- the identity card ---------- */
+
+.kit-name {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+
+.kit-email {
+  font-size: 11px;
+  color: var(--faded);
+  margin-top: 5px;
+  word-break: break-all;
+}
+
+.kit-plus {
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  padding: 12px 0 8px;
+  margin-bottom: 16px;
+}
+
+.kit-plus-on { font-size: 11px; letter-spacing: 0.1em; font-weight: 500; color: var(--kale-deep); }
+.kit-plus-off { font-size: 11px; letter-spacing: 0.1em; color: var(--faded); }
+
+.kit-plus-manage {
+  display: inline-block;
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  padding: 8px 0 4px;
+}
+.kit-plus-manage:hover { color: var(--kale-deep); }
+
+/* ---------- standing allergies ---------- */
+
+.kit-allergy-state {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-style: italic;
+  line-height: 1.55;
+  color: var(--faded);
+  margin-top: 14px;
+}
+
+/* Chile is the allergen colour and nothing else — this is exactly its job. */
+.kit-allergy-state--on {
+  color: var(--chile);
+  font-style: normal;
+  font-weight: 500;
+}
+
+/* ---------- the saved / cooked lists ---------- */
+
+.kit-list { list-style: none; }
+.kit-list li { border-top: 1px solid var(--line); }
+
+.kit-row {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  min-height: 44px;
+  padding: 12px 0;
+  text-decoration: none;
+  color: inherit;
+}
+
+.kit-row:hover .kit-row-name,
+.kit-row:focus-visible .kit-row-name {
+  color: var(--kale-deep);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.kit-row--flush { padding-bottom: 4px; min-height: 0; }
+.kit-row-name { font-weight: 600; font-size: 15px; line-height: 1.3; }
+.kit-row-meta { font-size: 10px; letter-spacing: 0.08em; color: var(--faded); }
+.kit-row-warn { color: var(--chile); }
+
+/* A favorite that contradicts a standing allergy. Chile earning its keep:
+   solid, not a hint, because the board is hiding this one for a reason. */
+.kit-clash {
+  align-self: flex-start;
+  background: var(--chile);
+  color: #FFFEF9;
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  padding: 3px 8px;
+  margin-top: 2px;
+}
+
+.kit-stars { color: var(--kale-deep); letter-spacing: 0.08em; }
+
+.kit-review { padding-bottom: 12px; }
+
+.kit-review-text {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.6;
+  border-left: 2px solid var(--tape);
+  padding-left: 12px;
+  margin: 6px 0 6px;
+}
+
+.kit-review-del {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;          /* it deletes something you wrote — give it room */
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--faded);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.kit-review-del:hover { color: var(--ink); }
+
+/* Second press confirms. Cheaper than a modal for an undoable-by-nobody
+   action, and it can't be triggered by one stray tap. */
+.kit-review-del--arm {
+  color: var(--chile);
+  font-weight: 500;
+  text-decoration-thickness: 2px;
+}
+
+/* ---------- loading / signed out ---------- */
+
+.kit-loading {
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: var(--faded);
+  text-align: center;
+  padding: 70px 0;
+}
+
+.kit-empty-page {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 44px 0 90px;
+  text-align: center;
+}
+
+.kit-empty-page h2 {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 20px 0 10px;
+}
+
+.kit-empty-line {
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--faded);
+  margin-bottom: 26px;
+}
+
+.kit-cta {
+  display: inline-block;
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+  padding: 12px 20px;
+  min-height: 44px;
+  font-weight: 600;
+  font-size: 14.5px;
+  text-decoration: none;
+}
+.kit-cta:hover { background: var(--kale); border-color: var(--kale); }
 
 /* ---------- in-feed sponsored ticket + Mise Plus ---------- */
 
@@ -1569,6 +1928,20 @@ button {
   .rail.open .apply-btn { display: none; }
 
   .results { padding: 26px 28px 60px; }
+
+  /* The kitchen takes the same shape: identity column, then the sections. */
+  .kit-grid {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 34px;
+  }
+
+  .kit-id {
+    width: var(--rail-w);
+    flex-shrink: 0;
+    position: sticky;
+    top: 24px;
+  }
 }
 
 /* ---------- 1440px ---------- */
