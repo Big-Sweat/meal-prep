@@ -64,6 +64,16 @@ button {
   outline-offset: 2px;
 }
 
+/* The browser's own [hidden]{display:none} is a UA-stylesheet rule, which
+   loses to ANY author rule of equal specificity that sets display — including
+   a plain class selector like .mast-link{display:inline-block}. That silently
+   defeated `<a hidden>` on the log link: the attribute was present (JS read it
+   as true) but the element still rendered, because .mast-link's display won
+   the cascade. Found on a real phone, not in review — app.js's own check only
+   read the DOM property, never the computed style. This makes [hidden] mean
+   hidden, full stop, no matter what display a class asks for. */
+[hidden] { display: none !important; }
+
 .visually-hidden {
   position: absolute;
   width: 1px; height: 1px;
