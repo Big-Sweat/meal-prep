@@ -236,6 +236,15 @@ in rough sync when you change the workflow described here.
   header comment; the Supabase JS SDK is injected from jsDelivr only when
   configured. Ratings/reviews/favorites still live in localStorage either way —
   moving them to Supabase tables (shared across visitors) is the known next step.
+  **Password recovery** lives here too: `resetPassword(email)` sends the
+  "set a new password" email (worded so it never confirms whether an address has
+  an account) and `updatePassword(pw)` completes it. A page opened from the email
+  link is a **temporary recovery session** — `onRecovery(fn)`/the `inRecovery`
+  flag hold back the normal signed-in path (via the `PASSWORD_RECOVERY` event and
+  a `type=recovery` URL check) so the board shows the "set a new password" form
+  instead of quietly signing the user in. The three sign-in dialog views
+  (`#auth-real`, `#auth-reset`, `#auth-newpass`) are switched by
+  `updateAuthUI(view)` in `app.js`.
 
 **Mobile apps (Android + iOS)**
 - `app/` — Capacitor project (app id `com.deadliftdigital.mise`, both

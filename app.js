@@ -933,15 +933,27 @@
   /* Signed out, the masthead opens the sign-in dialog; signed in, it's the way
      through to profile.html. The account, the goals and sign-out all live on
      that page now, so this dialog only ever has to do the one job. */
-  function updateAuthUI() {
+  function updateAuthUI(view) {
+    // view: "main" (sign in / sign up), "reset" (request a link) or "newpass"
+    // (set a new password after clicking the link). Only meaningful for realAuth.
+    view = view || "main";
     authBtn.textContent = profile ? "HI, " + profile.name.toUpperCase() + " →" : "SIGN IN";
-    $("#auth-real").hidden = !!profile || !realAuth;
+    $("#auth-real").hidden = !!profile || !realAuth || view !== "main";
     $("#auth-signedout").hidden = !!profile || realAuth;
+    var reset = $("#auth-reset"), newpass = $("#auth-newpass");
+    if (reset) reset.hidden = view !== "reset";
+    if (newpass) newpass.hidden = view !== "newpass";
     var logLink = $("#log-link");
     if (logLink) logLink.hidden = !profile;   // no account, nothing to log against
   }
 
   function openAuth() {
+    // Always open on the main sign-in view with no stale messages, even if the
+    // dialog was last closed on the reset or new-password step.
+    ["#auth-error", "#reset-msg", "#newpass-msg"].forEach(function (id) {
+      var el = $(id);
+      if (el) { el.hidden = true; el.textContent = ""; }
+    });
     updateAuthUI();
     authModal.showModal();
     if (!profile) $(realAuth ? "#real-email" : "#auth-name").focus();
@@ -990,12 +1002,17 @@
   if (realAuth) {
     var authMode = "signin";
 
-    var authMsg = function (text, ok) {
-      var el = $("#auth-error");
-      el.hidden = !text;
-      el.textContent = text || "";
-      el.classList.toggle("ok", !!ok);
+    var msgFor = function (id) {
+      return function (text, ok) {
+        var el = $(id);
+        el.hidden = !text;
+        el.textContent = text || "";
+        el.classList.toggle("ok", !!ok);
+      };
     };
+    var authMsg = msgFor("#auth-error");
+    var resetMsg = msgFor("#reset-msg");
+    var newpassMsg = msgFor("#newpass-msg");
 
     MiseAuth.onChange(function (user) {
       profile = user ? { id: user.id, name: user.name, email: user.email } : null;
@@ -1018,6 +1035,8 @@
       this.innerHTML = authMode === "signin"
         ? "NEW HERE? CREATE AN ACCOUNT &rarr;"
         : "ALREADY HAVE AN ACCOUNT? SIGN IN &rarr;";
+      // "Forgot password" only makes sense when signing in to an existing account.
+      $("#auth-forgot").hidden = authMode !== "signin";
       authMsg("");
     });
 
@@ -1065,6 +1084,79 @@
 
     $("#oauth-google").addEventListener("click", function () { oauth("google"); });
     $("#oauth-apple").addEventListener("click", function () { oauth("apple"); });
+
+    /* ---------- forgot / reset password ---------- */
+
+    $("#auth-forgot").addEventListener("click", function () {
+      resetMsg("");
+      $("#reset-email").value = $("#real-email").value.trim();  // carry it over
+      updateAuthUI("reset");
+      $("#reset-email").focus();
+    });
+
+    $("#reset-back").addEventListener("click", function () {
+      resetMsg("");
+      updateAuthUI("main");
+      $("#real-email").focus();
+    });
+
+    $("#reset-form").addEventListener("submit", function (e) {
+      e.preventDefault();
+      resetMsg("");
+      if (!MiseAuth.isReady()) {
+        resetMsg("Still connecting to the sign-in service — try again in a second.");
+        return;
+      }
+      var email = $("#reset-email").value.trim();
+      var submit = $("#reset-submit");
+      submit.disabled = true;
+      MiseAuth.resetPassword(email).then(function (res) {
+        submit.disabled = false;
+        if (res.error) { resetMsg(res.error.message); return; }
+        // Worded not to confirm whether the address has an account (Supabase
+        // doesn't either), so the form can't be used to probe for members.
+        resetMsg("If that email has an account, a reset link is on its way. Check your inbox.", true);
+      }).catch(function () {
+        submit.disabled = false;
+        resetMsg("Could not reach the sign-in service. Check your connection and try again.");
+      });
+    });
+
+    // Landed here from a "reset your password" email link: show the form that
+    // sets the new one. The temporary recovery session is live but MiseAuth
+    // holds back the normal sign-in until the password is actually saved.
+    MiseAuth.onRecovery(function () {
+      newpassMsg("");
+      $("#newpass-input").value = "";
+      // Drop the recovery token from the address bar so a refresh doesn't re-run it.
+      if (window.history && window.history.replaceState) {
+        window.history.replaceState(null, "", window.location.pathname);
+      }
+      updateAuthUI("newpass");
+      if (!authModal.open) authModal.showModal();
+      $("#newpass-input").focus();
+    });
+
+    $("#newpass-form").addEventListener("submit", function (e) {
+      e.preventDefault();
+      newpassMsg("");
+      if (!MiseAuth.isReady()) {
+        newpassMsg("Still connecting to the sign-in service — try again in a second.");
+        return;
+      }
+      var password = $("#newpass-input").value;
+      var submit = $("#newpass-submit");
+      submit.disabled = true;
+      MiseAuth.updatePassword(password).then(function (res) {
+        submit.disabled = false;
+        if (res.error) { newpassMsg(res.error.message); return; }
+        // Success fires USER_UPDATED -> onChange signs the user in and closes.
+        newpassMsg("Password updated — you're signed in.", true);
+      }).catch(function () {
+        submit.disabled = false;
+        newpassMsg("Could not save the new password. Try the reset link again.");
+      });
+    });
   }
 
   favChip.addEventListener("click", function () {

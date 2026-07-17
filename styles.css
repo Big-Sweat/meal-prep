@@ -1496,6 +1496,12 @@ button {
 
 .auth-modal { width: min(480px, calc(100vw - 32px)); }
 
+/* Stack the auth link-buttons (forgot / switch mode / back) one per line;
+   fit-content keeps the dashed underline under the text, not the whole row. */
+#auth-forgot,
+#auth-mode-toggle,
+#reset-back { display: block; width: fit-content; }
+
 .auth-h2 { margin-bottom: 6px; }
 
 .oauth-row {
@@ -1525,13 +1531,17 @@ button {
   margin: 14px 0;
 }
 
-#real-auth-form {
+#real-auth-form,
+#reset-form,
+#newpass-form {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-#real-auth-form input {
+#real-auth-form input,
+#reset-form input,
+#newpass-form input {
   font: inherit;
   font-size: 15px;
   padding: 11px 12px;
@@ -1541,9 +1551,13 @@ button {
   border-radius: 0;
 }
 
-#real-auth-form input::placeholder { color: var(--faded); font-style: italic; }
+#real-auth-form input::placeholder,
+#reset-form input::placeholder,
+#newpass-form input::placeholder { color: var(--faded); font-style: italic; }
 
-#real-auth-form .review-post { align-self: stretch; text-align: center; }
+#real-auth-form .review-post,
+#reset-form .review-post,
+#newpass-form .review-post { align-self: stretch; text-align: center; }
 
 .auth-error {
   font-family: var(--font-body);
@@ -2563,6 +2577,8 @@ button {
   .ing-form input,
   #auth-form input,
   #real-auth-form input,
+  #reset-form input,
+  #newpass-form input,
   #review-form textarea {
     font-size: 16px;
   }

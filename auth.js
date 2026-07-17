@@ -29,6 +29,16 @@ var MiseAuth = (function () {
   var client = null;
   var currentUser = null;
   var listeners = [];
+  var recoveryListeners = [];
+
+  // True while this page was opened from a "reset your password" email link.
+  // Supabase treats the recovery link as a valid (temporary) session, so
+  // without this flag the normal sign-in path would fire and quietly swallow
+  // the recovery — the user would land signed in but never get to set a new
+  // password. We hold that back until they actually submit a new one. The URL
+  // check covers the implicit/hash link; the PASSWORD_RECOVERY event below
+  // covers the rest (and both just set this same flag).
+  var inRecovery = window.location.href.indexOf("type=recovery") !== -1;
 
   // Android (Capacitor). Google refuses OAuth from an embedded WebView
   // ("disallowed_useragent"), so on native we hand the sign-in URL to the
@@ -47,6 +57,10 @@ var MiseAuth = (function () {
 
   function notify() {
     listeners.forEach(function (fn) { fn(currentUser); });
+  }
+
+  function notifyRecovery() {
+    recoveryListeners.forEach(function (fn) { fn(); });
   }
 
   // Android only: Supabase sends the browser to com.deadliftdigital.mise://auth?code=…
@@ -82,10 +96,21 @@ var MiseAuth = (function () {
         }
       });
       client.auth.getSession().then(function (res) {
+        // If we arrived on a recovery link, the session is only good for
+        // setting a new password — don't sign the user in on the strength of it.
+        if (inRecovery) { notifyRecovery(); return; }
         currentUser = mapUser(res.data.session && res.data.session.user);
         notify();
       });
-      client.auth.onAuthStateChange(function (_event, session) {
+      client.auth.onAuthStateChange(function (event, session) {
+        if (event === "PASSWORD_RECOVERY") {
+          inRecovery = true;
+          notifyRecovery();
+          return;
+        }
+        // updateUser() after a reset fires USER_UPDATED with a full session —
+        // that's the moment recovery is over and the sign-in is real.
+        if (event === "USER_UPDATED") inRecovery = false;
         currentUser = mapUser(session && session.user);
         notify();
       });
@@ -124,6 +149,23 @@ var MiseAuth = (function () {
       });
     },
     signOut: function () { return client.auth.signOut(); },
+    // Send the "set a new password" email. Supabase returns no error even when
+    // the address has no account (so the form can't be used to probe which
+    // emails are registered) — the caller's copy is worded to match.
+    resetPassword: function (email) {
+      return client.auth.resetPasswordForEmail(email, {
+        redirectTo: isNative ? NATIVE_REDIRECT
+          : window.location.origin + window.location.pathname
+      });
+    },
+    // Complete a recovery: set the new password on the temporary session.
+    updatePassword: function (password) {
+      return client.auth.updateUser({ password: password });
+    },
+    // Fires when the page was opened from a recovery link — the caller shows
+    // the "set a new password" form.
+    onRecovery: function (fn) { recoveryListeners.push(fn); },
+    inRecovery: function () { return inRecovery; },
     init: init
   };
 })();

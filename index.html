@@ -187,8 +187,30 @@
           <input id="real-password" type="password" placeholder="Password (6+ characters)" minlength="6" autocomplete="current-password" required>
           <button type="submit" class="review-post" id="real-submit">Sign in</button>
         </form>
+        <button id="auth-forgot" class="review-signin mono" type="button">FORGOT YOUR PASSWORD?</button>
         <button id="auth-mode-toggle" class="review-signin mono" type="button">NEW HERE? CREATE AN ACCOUNT &rarr;</button>
         <p id="auth-error" class="auth-error" hidden></p>
+      </div>
+      <div id="auth-reset" hidden>
+        <h2 class="auth-h2">Reset your password</h2>
+        <p class="modal-desc">Enter your email and we'll send you a link to set a new password.</p>
+        <form id="reset-form">
+          <label class="visually-hidden" for="reset-email">Email</label>
+          <input id="reset-email" type="email" placeholder="Email" autocomplete="email" required>
+          <button type="submit" class="review-post" id="reset-submit">Send reset link</button>
+        </form>
+        <button id="reset-back" class="review-signin mono" type="button">&larr; BACK TO SIGN IN</button>
+        <p id="reset-msg" class="auth-error" hidden></p>
+      </div>
+      <div id="auth-newpass" hidden>
+        <h2 class="auth-h2">Set a new password</h2>
+        <p class="modal-desc">Choose a new password for your account. You'll be signed in once it's saved.</p>
+        <form id="newpass-form">
+          <label class="visually-hidden" for="newpass-input">New password</label>
+          <input id="newpass-input" type="password" placeholder="New password (6+ characters)" minlength="6" autocomplete="new-password" required>
+          <button type="submit" class="review-post" id="newpass-submit">Update password</button>
+        </form>
+        <p id="newpass-msg" class="auth-error" hidden></p>
       </div>
       <div id="auth-signedout">
         <h2 id="auth-title">Set up your prep profile</h2>
@@ -213,7 +235,7 @@
   <script src="nutrition.js?v=3"></script>
   <script src="store.js?v=2"></script>
   <script src="plus-ui.js?v=2"></script>
-  <script src="auth.js?v=2"></script>
+  <script src="auth.js?v=3"></script>
   <script src="pdf.js?v=4"></script>
   <script src="native.js?v=3"></script>
   <!-- Native apps only: quietly picks up recipes added to the site since this
