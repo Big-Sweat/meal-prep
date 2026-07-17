@@ -1068,8 +1068,10 @@
        but don't strip the URL yet — detectSessionInUrl still needs the `code`
        to establish the session. */
     var landing = (function () {
-      var q = new URLSearchParams(window.location.search);
-      var h = new URLSearchParams((window.location.hash || "").replace(/^#/, ""));
+      // Read the URL MiseAuth snapshotted at page load, not the live one — the
+      // Supabase SDK strips these params during init and can beat us to the read.
+      var q = new URLSearchParams(MiseAuth.landingSearch());
+      var h = new URLSearchParams((MiseAuth.landingHash() || "").replace(/^#/, ""));
       var pick = function (k) { return q.get(k) || h.get(k); };
       return {
         confirmed: q.get("mise_confirmed") === "1",

@@ -40,6 +40,14 @@ var MiseAuth = (function () {
   // covers the rest (and both just set this same flag).
   var inRecovery = window.location.href.indexOf("type=recovery") !== -1;
 
+  // Snapshot the URL the page loaded with, BEFORE init() injects the Supabase
+  // SDK below. Its detectSessionInUrl strips the auth params (?code, ?error,
+  // #access_token) during load, and on a warm cache that can beat app.js's own
+  // read of them — which is why the email-confirmation/expired-link toast
+  // sometimes never fired. Callers read these instead of a live window.location.
+  var landingSearch = window.location.search;
+  var landingHash = window.location.hash;
+
   // Android (Capacitor). Google refuses OAuth from an embedded WebView
   // ("disallowed_useragent"), so on native we hand the sign-in URL to the
   // system browser and catch the result on a deep link back into the app.
@@ -111,6 +119,13 @@ var MiseAuth = (function () {
         // updateUser() after a reset fires USER_UPDATED with a full session —
         // that's the moment recovery is over and the sign-in is real.
         if (event === "USER_UPDATED") inRecovery = false;
+        // While a recovery is in flight, hold back the normal signed-in path for
+        // EVERY other event too — INITIAL_SESSION / SIGNED_IN / TOKEN_REFRESHED
+        // all carry the temporary recovery session. Under PKCE the recovery link
+        // is a bare ?code= (indistinguishable from an OAuth code by URL alone), so
+        // we can't flag it up front; PASSWORD_RECOVERY above sets the flag, and
+        // this keeps a later event from signing them in before they set a new one.
+        if (inRecovery) { notifyRecovery(); return; }
         currentUser = mapUser(session && session.user);
         notify();
       });
@@ -121,6 +136,9 @@ var MiseAuth = (function () {
 
   return {
     enabled: enabled,
+    // The URL as the page loaded, captured before the SDK could strip it.
+    landingSearch: function () { return landingSearch; },
+    landingHash: function () { return landingHash; },
     isReady: function () { return !!client; },
     user: function () { return currentUser; },
     onChange: function (fn) { listeners.push(fn); },
