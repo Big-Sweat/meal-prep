@@ -1568,6 +1568,65 @@ button {
 
 .auth-error.ok { color: var(--kale-deep); }
 
+/* ---------- toast (email-confirmation notice) ---------- */
+
+.toast {
+  position: fixed;
+  top: calc(16px + env(safe-area-inset-top, 0px));
+  left: 50%;
+  z-index: 200;
+  width: min(380px, calc(100vw - 32px));
+  padding: 14px 40px 14px 18px;
+  background: var(--ticket);
+  border: 1px solid var(--ink);
+  border-left: 5px solid var(--kale-deep);
+  box-shadow: 0 8px 24px rgba(38, 41, 31, 0.18);
+  /* hidden: nudged up and clear, transitioned in on .show */
+  transform: translate(-50%, -14px);
+  opacity: 0;
+  transition: opacity 0.28s ease, transform 0.28s ease;
+}
+
+.toast.show { transform: translate(-50%, 0); opacity: 1; }
+
+/* Amber accent for the error variant — --chile stays reserved for allergens. */
+.toast--error { border-left-color: var(--tape); }
+
+.toast-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 17px;
+  line-height: 1.25;
+  color: var(--ink);
+}
+
+.toast-body {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--faded);
+  margin-top: 3px;
+}
+
+.toast-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  font-size: 18px;
+  line-height: 1;
+  color: var(--faded);
+  background: transparent;
+  border: 0;
+}
+
+.toast-close:hover { color: var(--ink); }
+
+@media (prefers-reduced-motion: reduce) {
+  .toast { transition: opacity 0.28s ease; transform: translate(-50%, 0); }
+}
+
 #auth-form { display: flex; gap: 8px; margin-top: 18px; }
 
 #auth-form input {

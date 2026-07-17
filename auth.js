@@ -125,7 +125,19 @@ var MiseAuth = (function () {
     user: function () { return currentUser; },
     onChange: function (fn) { listeners.push(fn); },
     signUp: function (email, password) {
-      return client.auth.signUp({ email: email, password: password });
+      // Land the confirmation link back on the board, not Supabase's dashboard
+      // Site URL (which is the github.io org root and 404s). The ?mise_confirmed
+      // marker lets the board tell an email-confirmation redirect apart from an
+      // OAuth one and greet the user; it rides along in the link, so it works
+      // even when the email is opened on a different device. On native the
+      // callback is the deep link the appUrlOpen handler already catches.
+      var redirect = isNative ? NATIVE_REDIRECT
+        : window.location.origin + window.location.pathname + "?mise_confirmed=1";
+      return client.auth.signUp({
+        email: email,
+        password: password,
+        options: { emailRedirectTo: redirect }
+      });
     },
     signIn: function (email, password) {
       return client.auth.signInWithPassword({ email: email, password: password });
