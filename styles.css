@@ -1098,7 +1098,80 @@ button {
   font-family: var(--font-body);
   font-size: 13.5px;
   color: var(--faded);
-  margin: 10px 0 26px;
+  margin: 10px 0 20px;
+}
+
+/* per-item store deep-links (link mode) */
+.shop-link {
+  display: contents;
+  color: var(--kale-deep);
+  text-decoration: none;
+}
+.shop-link .shop-name { grid-column: 3; }
+.shop-link:hover .shop-name,
+.shop-link:focus-visible .shop-name { text-decoration: underline; }
+.shop-go {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  margin-left: 6px;
+  color: var(--kale);
+}
+
+/* "send this list to a store" — the affiliate export */
+.shop-send {
+  border: 1px solid var(--ink);
+  background: var(--ticket);
+  padding: 16px;
+  margin: 0 0 26px;
+}
+.shop-send .modal-section-title { margin-bottom: 12px; }
+
+.store-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.store-btn {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: 1px solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  padding: 10px 14px;
+  min-height: 44px;
+  cursor: pointer;
+}
+.store-btn:hover { background: var(--tape); }
+.store-btn.on {
+  background: var(--ink);
+  color: var(--paper);
+}
+.store-btn.is-instacart {
+  background: var(--kale);
+  border-color: var(--kale);
+  color: var(--paper);
+}
+.store-btn.is-instacart:hover { background: var(--kale-deep); border-color: var(--kale-deep); }
+.store-btn:disabled { opacity: 0.6; cursor: default; }
+
+.store-status {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.03em;
+  color: var(--kale-deep);
+  min-height: 15px;
+  margin: 12px 0 0;
+}
+.store-status:empty { margin: 0; }
+
+.store-note {
+  font-family: var(--font-body);
+  font-size: 12.5px;
+  color: var(--faded);
+  margin: 8px 0 0;
 }
 
 .plan-recipe {

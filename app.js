@@ -976,7 +976,20 @@
       }).join(" + ");
       return { item: item, amount: amount };
     });
-    return { items: items, pantry: Object.keys(pantry).sort() };
+    // Structured line items for the Instacart cart API — same data, but numbers
+    // instead of the pretty-printed "2 cups + 1 tbsp" string. One line per item;
+    // an item measured in two units rides along as line_item_measurements.
+    var lineItems = Object.keys(byItem).sort().map(function (item) {
+      var ms = byItem[item].map(function (m) {
+        var q = Math.round(m.qty * 100) / 100;
+        return { quantity: q > 0 ? q : 1, unit: m.unit || "each" };
+      });
+      var li = { name: item };
+      if (ms.length === 1) { li.quantity = ms[0].quantity; li.unit = ms[0].unit; }
+      else { li.line_item_measurements = ms; }
+      return li;
+    });
+    return { items: items, pantry: Object.keys(pantry).sort(), lineItems: lineItems };
   }
 
   // Android: the plan goes out as text through the share sheet — a shopping
@@ -994,6 +1007,88 @@
         (e.r.prepMinutes + e.r.cookMinutes) + " min)");
     });
     return out.join("\n");
+  }
+
+  // Which store the shopping-list items currently link to (null = plain text).
+  // Instacart isn't a link-mode store — it's a one-shot cart build — so it's
+  // never held here; only the per-item deep-link stores (walmart/amazon) are.
+  var shopStore = null;
+
+  function shopItemHTML(it) {
+    var amt = '<span class="amt">' + esc(it.amount) + "</span>";
+    if (shopStore && window.MiseGrocery) {
+      var url = MiseGrocery.itemUrl(shopStore, it.item);
+      if (url) {
+        // The <a> is display:contents so amt + name still land in the <li>'s
+        // 3-column grid; the arrow rides inside the name span, not a 4th column.
+        return '<li><span class="sq" aria-hidden="true"></span>' +
+          '<a class="shop-link" href="' + esc(url) + '" target="_blank" rel="noopener nofollow">' +
+            amt + '<span class="shop-name">' + esc(it.item) +
+              '<span class="shop-go" aria-hidden="true">&#8599;</span></span>' +
+          "</a></li>";
+      }
+    }
+    return '<li><span class="sq" aria-hidden="true"></span>' + amt + "<span>" + esc(it.item) + "</span></li>";
+  }
+
+  function storeSectionHTML() {
+    if (!window.MiseGrocery) return "";
+    var storeLabel = shopStore === "walmart" ? "Walmart" : shopStore === "amazon" ? "Amazon Fresh" : "";
+    return '<div class="shop-send">' +
+      '<p class="modal-section-title">Send this list to a store</p>' +
+      '<div class="store-btns">' +
+        '<button class="store-btn is-instacart" id="send-instacart" type="button">Build my Instacart cart</button>' +
+        '<button class="store-btn' + (shopStore === "walmart" ? " on" : "") +
+          '" data-store="walmart" type="button" aria-pressed="' + (shopStore === "walmart") + '">Walmart</button>' +
+        '<button class="store-btn' + (shopStore === "amazon" ? " on" : "") +
+          '" data-store="amazon" type="button" aria-pressed="' + (shopStore === "amazon") + '">Amazon Fresh</button>' +
+      "</div>" +
+      '<p class="store-status" id="store-status" role="status">' +
+        (storeLabel ? "Tap any item above to find it at " + storeLabel + "." : "") + "</p>" +
+      '<p class="store-note">Mise may earn a small commission from these links &mdash; it never changes your price.</p>' +
+    "</div>";
+  }
+
+  function setStoreStatus(msg) {
+    var el = $("#store-status");
+    if (el) el.textContent = msg;
+  }
+
+  function copyShoppingList(list) {
+    var lines = list.items.map(function (it) { return it.amount + "  " + it.item; });
+    if (list.pantry.length) lines.push("from the pantry, to taste: " + list.pantry.join(", "));
+    var text = "MISE — SHOPPING LIST\n" + lines.join("\n");
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(text).catch(function () {});
+    }
+    return Promise.resolve();
+  }
+
+  function sendToInstacart(btn) {
+    var list = buildShoppingList(planEntries());
+    if (!list.lineItems.length) return;
+    if (window.MiseGrocery && MiseGrocery.instacartLive()) {
+      var label = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = "Building your cart…";
+      setStoreStatus("Sending your list to Instacart…");
+      MiseGrocery.buildInstacartCart("Mise — your week’s groceries", list.lineItems)
+        .then(function (url) {
+          window.open(url, "_blank", "noopener");
+          setStoreStatus("Your Instacart cart is ready — opened in a new tab.");
+        })
+        .catch(function () {
+          copyShoppingList(list);
+          window.open("https://www.instacart.com/store", "_blank", "noopener");
+          setStoreStatus("Couldn’t reach Instacart just now — list copied so you can paste it in.");
+        })
+        .then(function () { btn.disabled = false; btn.textContent = label; });
+    } else {
+      // Demo mode: proxy not configured yet. Copy the list, open Instacart, say so.
+      copyShoppingList(list);
+      window.open("https://www.instacart.com/store", "_blank", "noopener");
+      setStoreStatus("List copied — paste it into Instacart. One-tap carts turn on once the Instacart key is set up.");
+    }
   }
 
   function renderPlanBody() {
@@ -1040,11 +1135,10 @@
       "</div>" +
       '<p class="modal-section-title">Shopping list</p>' +
       '<ul class="shop-list">' +
-        list.items.map(function (it) {
-          return '<li><span class="sq" aria-hidden="true"></span><span class="amt">' + esc(it.amount) + "</span><span>" + esc(it.item) + "</span></li>";
-        }).join("") +
+        list.items.map(shopItemHTML).join("") +
       "</ul>" +
       (list.pantry.length ? '<p class="shop-pantry">From the pantry, to taste: ' + esc(list.pantry.join(", ")) + ".</p>" : "") +
+      storeSectionHTML() +
       '<p class="modal-section-title">The recipes</p>' +
       entries.map(function (e) {
         var r = e.r;
@@ -1063,6 +1157,15 @@
 
   planBody.addEventListener("click", function (e) {
     if (e.target.closest("#plan-close")) { planModal.close(); return; }
+    var instaBtn = e.target.closest("#send-instacart");
+    if (instaBtn) { sendToInstacart(instaBtn); return; }
+    var storeBtn = e.target.closest(".store-btn[data-store]");
+    if (storeBtn) {
+      var store = storeBtn.getAttribute("data-store");
+      shopStore = shopStore === store ? null : store;  // toggle link mode off/on
+      renderPlanBody();
+      return;
+    }
     if (e.target.closest("#plan-print")) {
       // only reachable behind the plan gate, but belt and braces
       if (requirePlus()) return;

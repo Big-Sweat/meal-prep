@@ -27,6 +27,7 @@ const FILES = [
   "recipe-sync.js",
   "recipes.js",
   "products.js",
+  "grocery.js",
   "ads.js",
   "apps.js",
   "subscription.js",
