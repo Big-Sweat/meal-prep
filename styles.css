@@ -2410,62 +2410,16 @@ button {
   margin-top: 12px;
 }
 
-/* Android browser → app hand-off strip (built by renderAppBanner in app.js;
-   never shown inside the app itself). */
-.app-handoff {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px 16px;
-  padding: 10px var(--pad);
-  background: var(--ticket);
-  border-bottom: 1px solid var(--ink);
-}
+/* Android browser → app hand-off popup (a <dialog> built by renderAppBanner in
+   app.js, same trick as plus-ui.js; never shown inside the app itself). Reuses
+   the modal + sub-buy + review-signin styles — only the sizing and the fact
+   that the big button is an <a> are its own. */
+.handoff-modal { width: min(420px, calc(100vw - 32px)); }
 
-.app-handoff-line {
-  font-family: var(--font-body);
-  font-size: 13.5px;
-  color: var(--ink);
-}
-
-.app-handoff-tag {
-  font-size: 10px;
-  letter-spacing: 0.12em;
-  background: var(--tape);
-  padding: 2px 6px;
-  margin-right: 6px;
-}
-
-.app-handoff-actions {
-  display: flex;
-  gap: 8px;
-}
-
-.app-handoff-open,
-.app-handoff-stay {
-  font-family: var(--font-mono);
-  font-size: 10.5px;
-  letter-spacing: 0.06em;
-  padding: 8px 12px;
-  min-height: 40px;
-  border: 1px solid var(--ink);
+.handoff-open {
   text-decoration: none;
-  display: inline-flex;
-  align-items: center;
+  margin-top: 8px;
 }
-
-.app-handoff-open {
-  background: var(--ink);
-  color: var(--paper);
-}
-
-.app-handoff-stay {
-  background: none;
-  color: var(--ink);
-  cursor: pointer;
-}
-.app-handoff-stay:hover { background: var(--tape); }
 
 /* ---------- footer ---------- */
 
