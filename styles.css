@@ -591,6 +591,71 @@ button {
   flex: 1;
 }
 
+.macro-summary {
+  border-top: 1px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
+  background: #F0F3E9;
+}
+
+.macro-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 24px;
+  padding: 4px 8px;
+  border-bottom: 1px dashed var(--line);
+  color: var(--faded);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+}
+
+.macro-target {
+  color: var(--kale-deep);
+  font-weight: 500;
+  text-align: right;
+}
+
+.macro-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.macro-item {
+  min-width: 0;
+  padding: 8px 7px 9px;
+}
+
+.macro-item + .macro-item { border-left: 1px solid var(--line); }
+
+.macro-item dt {
+  color: var(--faded);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.macro-item dd {
+  display: flex;
+  align-items: baseline;
+  gap: 3px;
+  margin-top: 4px;
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 750;
+  line-height: 1;
+}
+
+.macro-item--calories dd { color: var(--kale-deep); }
+
+.macro-unit {
+  color: var(--faded);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 500;
+}
+
 .card-meta {
   font-family: var(--font-mono);
   font-size: 11.5px;
@@ -765,6 +830,39 @@ button {
   max-width: 46em;
 }
 
+.modal-nutrition { margin-top: 16px; }
+
+.modal-nutrition .macro-heading {
+  min-height: 28px;
+  padding: 5px 12px;
+  font-size: 10px;
+}
+
+.modal-nutrition .macro-item { padding: 11px 12px 13px; }
+.modal-nutrition .macro-item dt { font-size: 10px; }
+.modal-nutrition .macro-item dd { font-size: 26px; }
+.modal-nutrition .macro-unit { font-size: 10px; }
+
+@media (max-width: 479px) {
+  .modal-top { flex-wrap: wrap; gap: 10px; }
+  .modal-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr) repeat(3, 44px);
+    width: 100%;
+    gap: 4px;
+  }
+  .modal-actions .plan-tool {
+    min-width: 0;
+    padding: 6px 4px;
+    font-size: 9px;
+    letter-spacing: 0.03em;
+    line-height: 1.2;
+  }
+  .modal-nutrition .macro-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .modal-nutrition .macro-item:nth-child(3) { border-left: 0; }
+  .modal-nutrition .macro-item:nth-child(n+3) { border-top: 1px solid var(--line); }
+}
+
 .modal-stats {
   display: flex;
   flex-wrap: wrap;
@@ -772,9 +870,8 @@ button {
   font-family: var(--font-mono);
   font-size: 11.5px;
   letter-spacing: 0.04em;
-  margin: 14px 0;
-  padding: 10px 0;
-  border-top: 1px solid var(--ink);
+  margin: 0 0 14px;
+  padding: 9px 0;
   border-bottom: 1px dashed var(--line);
 }
 
@@ -2097,6 +2194,12 @@ button {
   .card-desc { display: none; }
 
   .card h3 { font-size: 15px; line-height: 1.25; }
+
+  .card .macro-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .card .macro-item { padding: 7px 5px 8px; }
+  .card .macro-item:nth-child(3) { border-left: 0; }
+  .card .macro-item:nth-child(n+3) { border-top: 1px solid var(--line); }
+  .card .macro-item dd { font-size: 18px; }
 
   .card-meta { font-size: 10px; gap: 3px 6px; }
 
