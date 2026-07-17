@@ -238,6 +238,24 @@
     return "assets/recipes/" + r.id + ".webp";
   }
 
+  function macroSummaryHTML(r, className) {
+    var target = calorieTarget();
+    var targetNote = target
+      ? '<span class="macro-target">' + Math.round(r.caloriesPerServing / target * 100) + "% OF YOUR DAY</span>"
+      : "";
+    return (
+      '<div class="macro-summary ' + className + '" role="group" aria-label="Nutrition per serving">' +
+        '<div class="macro-heading mono"><span>PER SERVING</span>' + targetNote + "</div>" +
+        '<dl class="macro-grid">' +
+          '<div class="macro-item macro-item--calories"><dt>Calories</dt><dd>' + r.caloriesPerServing + '<span class="macro-unit">kcal</span></dd></div>' +
+          '<div class="macro-item"><dt>Protein</dt><dd>' + r.proteinGrams + '<span class="macro-unit">g</span></dd></div>' +
+          '<div class="macro-item"><dt>Carbs</dt><dd>' + r.carbsGrams + '<span class="macro-unit">g</span></dd></div>' +
+          '<div class="macro-item"><dt>Fat</dt><dd>' + r.fatGrams + '<span class="macro-unit">g</span></dd></div>' +
+        "</dl>" +
+      "</div>"
+    );
+  }
+
   function cardHTML(r) {
     var total = r.prepMinutes + r.cookMinutes;
     var contains = r.allergens.length
@@ -248,11 +266,6 @@
       ? "<span>&#9733; " + rating.avg + "</span><span class=\"sep\">/</span>"
       : "";
     var isFav = favs.has(r.id);
-    // With a calorie target set, the raw number means something: show the share.
-    var target = calorieTarget();
-    var calMeta = target
-      ? r.caloriesPerServing + " CAL &middot; " + Math.round(r.caloriesPerServing / target * 100) + "% OF YOUR DAY"
-      : r.caloriesPerServing + " CAL/SERV";
     return (
       '<li class="card">' +
         '<span class="tape mono" aria-hidden="true">' + esc(proteinLabel(r.protein)).toUpperCase() + "</span>" +
@@ -261,11 +274,11 @@
         "</div>" +
         '<h3><button class="card-btn" data-id="' + esc(r.id) + '">' + esc(r.name) + "</button></h3>" +
         '<p class="card-desc">' + esc(r.description) + "</p>" +
+        macroSummaryHTML(r, "card-nutrition") +
         '<p class="card-meta">' +
           ratingMeta +
           "<span>" + DIFF_WORDS[r.difficulty].toUpperCase() + "</span><span class=\"sep\">/</span>" +
           "<span>" + total + " MIN</span><span class=\"sep\">/</span>" +
-          "<span>" + calMeta + "</span><span class=\"sep\">/</span>" +
           "<span>KEEPS " + r.fridgeDays + " DAYS</span>" +
           (r.freezerFriendly ? '<span class="sep">/</span><span>FREEZES</span>' : "") +
         "</p>" +
@@ -536,16 +549,12 @@
       "</div>" +
       '<h2 id="modal-title">' + esc(r.name) + "</h2>" +
       '<p class="modal-desc">' + esc(r.description) + "</p>" +
+      macroSummaryHTML(r, "modal-nutrition") +
       '<p class="modal-stats">' +
         "<span>" + DIFF_WORDS[r.difficulty].toUpperCase() + "</span>" +
         "<span>PREP " + r.prepMinutes + " MIN</span>" +
         "<span>COOK " + r.cookMinutes + " MIN</span>" +
         "<span>TOTAL " + total + " MIN</span>" +
-        "<span>" + r.caloriesPerServing + " CAL</span>" +
-        "<span>P " + r.proteinGrams + "G</span>" +
-        "<span>C " + r.carbsGrams + "G</span>" +
-        "<span>F " + r.fatGrams + "G</span>" +
-        "<span>PER SERVING</span>" +
       "</p>" +
       '<p class="modal-contains' + (r.allergens.length ? "" : " none") + '">' + esc(contains) + "</p>" +
       '<div class="rate-row">' +
