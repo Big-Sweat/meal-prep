@@ -192,8 +192,15 @@ in rough sync when you change the workflow described here.
   rather than wiping them**. A favorite that contradicts one is flagged on the
   page, since the board hides it and it would otherwise sit there looking safe.
 - Sections render independently (`renderTarget()` etc.) so typing in the calorie
-  form doesn't redraw the page. That form re-renders per keystroke and restores
-  focus by hand — same trick the old modal used; don't "tidy" it away.
+  form doesn't redraw the page. **On a keystroke, only the result updates
+  (`updateTargetResult()` rewrites `#nut-output` + the save button) — the input
+  DOM is left alone.** It used to call the full `renderTarget()` on every
+  keystroke and re-focus by hand, but that rebuilt the `<input>`s mid-typing and
+  ate digits/decimals and jumped the caret (`type=number` has no `selectionStart`
+  to restore) — badly on mobile. Don't route the input handler back through
+  `renderTarget()`. Chip/unit clicks still do a full `renderTarget()` (fine —
+  they're not per-keystroke), which is why the weight field shows a rounded
+  integer after one.
 
 **The log ("the log") — `log.html` + `log.js` + `progress.js`**
 - Weight, lifts and runs. **One typed, append-only log** per person at
