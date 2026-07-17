@@ -36,7 +36,11 @@ function corsHeaders(origin: string | null): Record<string, string> {
   return {
     "Access-Control-Allow-Origin": allow,
     "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Access-Control-Allow-Headers": "authorization, apikey, content-type",
+    // supabase-js attaches x-client-info (and x-supabase-api-version) to every
+    // invoke(); the browser's preflight blocks the whole call if they aren't
+    // listed here. This is the canonical Supabase set — don't trim it.
+    "Access-Control-Allow-Headers":
+      "authorization, x-client-info, apikey, content-type, x-supabase-api-version",
     "Vary": "Origin",
   };
 }
