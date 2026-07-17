@@ -62,6 +62,7 @@
           '<section class="kit-section" id="kit-target"></section>' +
           '<section class="kit-section" id="kit-favorites"></section>' +
           '<section class="kit-section" id="kit-activity"></section>' +
+          '<section class="kit-section" id="kit-danger"></section>' +
         "</div>" +
       "</div>";
 
@@ -70,6 +71,7 @@
     renderTarget();
     renderFavorites();
     renderActivity();
+    renderDanger();
   }
 
   function renderSignedOut() {
@@ -538,6 +540,57 @@
         this.textContent = "DELETE REVIEW";
       });
     });
+  }
+
+  /* ---------- deleting the account ---------- */
+
+  /* A wall away from everything else on the page: light red, its own heading,
+     and a two-step confirm so the last thing on the page can't be triggered by
+     one stray tap. Only shown signed in — render() calls it inside the account
+     branch, so a signed-out visitor never sees it. */
+  function renderDanger() {
+    var el = $("#kit-danger");
+    el.innerHTML =
+      '<div class="kit-card kit-card--danger">' +
+        '<span class="tape mono" aria-hidden="true">DANGER ZONE</span>' +
+        "<h2>Delete your account</h2>" +
+        '<p class="kit-lede kit-danger-lede">This clears everything Mise keeps for you &mdash; your ' +
+          "standing allergies, your calorie target, your favorites, and every rating and review &mdash; " +
+          "and signs you out. There&rsquo;s no undo.</p>" +
+        '<div class="kit-danger-actions" id="kit-danger-actions">' +
+          '<button class="kit-danger-btn" id="kit-delete" type="button">Delete account</button>' +
+        "</div>" +
+      "</div>";
+    $("#kit-delete").addEventListener("click", armDelete);
+  }
+
+  function armDelete() {
+    var box = $("#kit-danger-actions");
+    box.innerHTML =
+      '<p class="kit-danger-warn" role="alert">Are you sure? This permanently removes your account and ' +
+        "everything in it, and it can&rsquo;t be brought back.</p>" +
+      '<div class="kit-danger-confirm">' +
+        '<button class="kit-danger-btn kit-danger-btn--go" id="kit-delete-yes" type="button">Yes, delete everything</button>' +
+        '<button class="kit-danger-cancel" id="kit-delete-no" type="button">Cancel</button>' +
+      "</div>";
+    $("#kit-delete-yes").addEventListener("click", deleteAccount);
+    $("#kit-delete-no").addEventListener("click", renderDanger);   // back to the armed-away state
+  }
+
+  function deleteAccount() {
+    MiseStore.deleteUserData(me());
+    // The board shows a "your account was deleted" banner off this marker.
+    var done = function () { window.location.href = "index.html?mise_deleted=1"; };
+
+    if (realAuth) {
+      // Data's already gone; end the session too (the Supabase auth user itself
+      // can't be removed with the anon key — see store.js). Redirect either way.
+      if (!MiseAuth.isReady()) { done(); return; }
+      MiseAuth.signOut().then(done).catch(done);
+      return;
+    }
+    MiseStore.clearAccount();
+    done();
   }
 
   /* ---------- boot ---------- */

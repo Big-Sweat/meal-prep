@@ -1827,6 +1827,64 @@ button {
   padding: 6px 0 4px;
 }
 
+/* ---------- delete account (danger zone) ----------
+   A red that is deliberately NOT --chile: that stays reserved for allergen
+   semantics, and "you're about to eat what you react to" must never read the
+   same as "you're about to delete your account". */
+.kit-card--danger {
+  background: #F8E6E1;
+  border-color: #B23A28;
+}
+.kit-card--danger h2 { color: #8A2A1A; }
+.kit-danger-lede { color: #8A4034; }
+
+.kit-danger-actions { margin-top: 2px; }
+
+/* Light red with darker red text on its own, escalating to a solid fill only
+   for the final "yes" once the warning is showing. */
+.kit-danger-btn {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  color: #8A2A1A;
+  background: #F1D2CB;
+  border: 1px solid #B23A28;
+  padding: 11px 20px;
+  cursor: pointer;
+}
+.kit-danger-btn:hover { background: #E9BFB6; }
+
+.kit-danger-warn {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.55;
+  font-weight: 600;
+  color: #8A2A1A;
+  margin-bottom: 12px;
+}
+
+.kit-danger-confirm { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+
+.kit-danger-btn--go {
+  color: #FFF;
+  background: #A93122;
+  border-color: #8A2A1A;
+}
+.kit-danger-btn--go:hover { background: #8A2A1A; }
+
+.kit-danger-cancel {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #8A2A1A;
+  background: transparent;
+  border: 1px solid #B23A28;
+  padding: 11px 16px;
+  cursor: pointer;
+}
+.kit-danger-cancel:hover { background: rgba(169, 49, 34, 0.08); }
+
 /* ---------- the identity card ---------- */
 
 .kit-name {
