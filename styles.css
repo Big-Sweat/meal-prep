@@ -2106,11 +2106,19 @@ button {
    lets it stretch to the card; every stroke below is vector-effect'd so the
    stretch doesn't smear the line weights. */
 
-.chart {
-  display: block;
+.chart-box {
+  position: relative;
   width: 100%;
   height: 180px;
   margin-top: 14px;
+  overflow: hidden;   /* belt-and-braces: no label can escape the frame */
+}
+.chart {
+  display: block;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   overflow: visible;
 }
 
@@ -2135,13 +2143,26 @@ button {
   vector-effect: non-scaling-stroke;
 }
 
-.chart-tick {
+/* Tick labels are HTML (see chartSVG), so they stay a readable px size and inside
+   the frame no matter how the SVG stretches. Positions (top/left/right %) are set
+   inline per label. */
+.chart-ytick,
+.chart-xtick {
+  position: absolute;
   font-family: var(--font-mono);
   font-size: 9px;
-  fill: var(--faded);
-  text-anchor: end;
+  color: var(--faded);
+  white-space: nowrap;
+  pointer-events: none;
 }
-.chart-tick--x { text-anchor: start; }
+.chart-ytick {
+  left: 0;
+  text-align: right;
+  padding-right: 5px;
+  transform: translateY(-50%);
+}
+.chart-xtick { bottom: 1px; }
+.chart-xtick--end { text-align: right; }
 
 .chart-key {
   font-size: 9.5px;
