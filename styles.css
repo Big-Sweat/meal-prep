@@ -884,6 +884,59 @@ button {
 
 .modal-contains.none { color: var(--kale); }
 
+.protein-swap {
+  display: grid;
+  grid-template-columns: auto minmax(170px, 230px) 1fr;
+  align-items: center;
+  gap: 8px 12px;
+  margin: -2px 0 18px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  background: var(--ticket);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.02em;
+}
+
+.protein-swap label { font-weight: 500; }
+
+.protein-swap select {
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 34px 8px 10px;
+  border: 1px solid var(--ink);
+  border-radius: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: 500 12px/1.2 var(--font-mono);
+}
+
+.protein-swap-confirm {
+  color: var(--kale-deep);
+  font-weight: 500;
+}
+
+.protein-swap small {
+  grid-column: 2 / -1;
+  color: var(--faded);
+  font: italic 12px/1.35 var(--font-body);
+  letter-spacing: 0;
+}
+
+.swap-method-note {
+  margin: -2px 0 14px;
+  padding: 9px 11px;
+  border-left: 3px solid var(--tape);
+  color: var(--faded);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+@media (max-width: 620px) {
+  .protein-swap { grid-template-columns: 1fr; }
+  .protein-swap small { grid-column: 1; }
+}
+
 .modal-cols { display: grid; grid-template-columns: 1fr; gap: 26px; }
 
 .modal-section-title {
@@ -2476,6 +2529,8 @@ button {
 /* ---------- print ---------- */
 
 @media print {
+  .protein-swap,
+  .swap-method-note { display: none !important; }
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 
   /* Print only the open dialog (recipe or plan), not the page behind it */
