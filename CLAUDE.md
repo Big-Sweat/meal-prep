@@ -262,6 +262,25 @@ in rough sync when you change the workflow described here.
   The toast is built in JS (no HTML markup) and styled `.toast` in `styles.css`;
   the error variant uses an amber accent, **not `--chile`** (reserved for
   allergens).
+  **Account deletion** lives here too: `deleteAccount()` invokes the
+  `delete-account` Edge Function (see below) — the only server-side code in the
+  project, because removing a Supabase auth user needs the admin key, which must
+  never reach the browser. The profile page's danger zone deletes the auth user
+  FIRST (that call is authorized by the live session), then wipes local data via
+  `MiseStore.deleteUserData(who)` and signs out; a failed server call deletes
+  nothing and offers a retry. In demo mode (no Supabase) it's local-only:
+  `deleteUserData` + `clearAccount`. Either way it redirects to the board with a
+  `?mise_deleted=1` marker that `app.js` turns into a goodbye toast (same landing
+  pattern as `mise_confirmed`, but mode-independent so demo deletes greet too).
+- `supabase/functions/delete-account/` — the Edge Function (Deno/TypeScript) plus
+  its `README.md` (deploy + security notes) and `supabase/config.toml`. Deployed
+  separately with the Supabase CLI, **not** part of the static bundle. Security
+  rests on two things: the service_role key stays server-side (auto-injected env
+  var, never committed), and the user id comes from the caller's **verified
+  token**, never the request body — so a caller can only delete themselves.
+  `verify_jwt = false` for this function is deliberate (lets the CORS preflight
+  through; the function verifies the token itself). If the project migrates off
+  legacy keys later, see the README's note about setting the admin key explicitly.
 
 **Mobile apps (Android + iOS)**
 - `app/` — Capacitor project (app id `com.deadliftdigital.mise`, both

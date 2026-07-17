@@ -161,6 +161,16 @@ var MiseAuth = (function () {
       });
     },
     signOut: function () { return client.auth.signOut(); },
+    // Permanently delete the signed-in user's own account. The actual delete
+    // needs the admin key and so runs server-side in the delete-account Edge
+    // Function (see supabase/functions/delete-account); this just invokes it.
+    // functions.invoke attaches the current session token, which is how the
+    // function knows — and can only ever delete — this exact user. Must be
+    // called while still signed in: the live session is the authorization.
+    // Resolves to { data, error }; a non-null error means nothing was deleted.
+    deleteAccount: function () {
+      return client.functions.invoke("delete-account", { method: "POST" });
+    },
     // Send the "set a new password" email. Supabase returns no error even when
     // the address has no account (so the form can't be used to probe which
     // emails are registered) — the caller's copy is worded to match.
