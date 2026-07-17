@@ -2104,6 +2104,50 @@ button {
 
   .tape { font-size: 11px; padding: 3px 9px; left: 10px; }
   .card:nth-child(even) .tape { right: 10px; }
+
+  /* ---------- the modal header ----------
+     The recipe header packs a tape label, SAVE, ADD TO PLAN, a PDF button, a
+     print button and the close × into one flex row that never wraps. At 375px
+     that's 370px of content in a 288px box: the × lands ~40px past the right
+     edge of the screen, and since the dialog is what scrolls, the only way to
+     shut the recipe is to drag it sideways to go and find the ×. The plan modal
+     does the same thing with PRINT / CLEAR PLAN / ×.
+
+     Two things come out of the row, and between them it fits at any width.
+
+     The tape goes first. It's 82px of an 81px overflow, so on its own it very
+     nearly solves this — and it belongs on the sheet's edge anyway: that's
+     exactly what .tape does on a recipe card, and the modal was the odd one out
+     for keeping its label in the flow. Alone it leaves only ~14px of slack at
+     375px though, and .modal is calc(100vw - 32px), so a 360px phone has ~6px
+     and a 320px one overflows again by 34px.
+
+     So the close button comes out too, pinned to the top-right. Then nothing
+     the header carries can push it anywhere, it's in the same place on every
+     modal — recipe, plan, paywall, sign-in — and the row is left holding only
+     the tools, with room to spare on the narrowest phone sold. Nothing on this
+     site should ever need a sideways drag. */
+  .modal-body { position: relative; }
+
+  .modal-tape {
+    position: absolute;
+    top: 12px;
+    left: 20px;
+    z-index: 2;
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 2;
+    background: var(--ticket);
+  }
+
+  /* The row is now just the tools; clear the pinned tape and × above it. */
+  .modal-top { flex-wrap: wrap; padding-top: 34px; }
+  .modal-actions,
+  .plan-head-actions { flex-wrap: wrap; }
 }
 
 /* ---------- 768px ---------- */
