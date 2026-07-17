@@ -1761,38 +1761,43 @@
       (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
     if (!isAndroid && !isIOS) return;
 
-    var inner;
-    if (isAndroid) {
-      var intent = "intent://open#Intent;scheme=com.deadliftdigital.mise;" +
-        "package=com.deadliftdigital.mise;" +
-        "S.browser_fallback_url=" + encodeURIComponent(apk) + ";end";
-      inner =
-        '<div class="modal-top">' +
-          '<span class="modal-tape">MISE FOR ANDROID</span>' +
-          '<button class="modal-close" id="handoff-close" aria-label="Close">&times;</button>' +
-        "</div>" +
-        '<h2 id="handoff-title">This whole board fits in your pocket</h2>' +
-        '<p class="modal-desc">Every recipe, filter, and your shopping list &mdash; working offline, ' +
-          "no signal needed at the shop.</p>" +
-        '<a class="sub-buy handoff-open" href="' + esc(intent) + '">' +
-          '<span class="sub-buy-price">Continue in the app</span>' +
-          '<span class="sub-buy-note mono">OPENS THE APP &middot; OR DOWNLOADS IT FIRST</span>' +
-        "</a>" +
-        '<button class="review-signin mono" id="handoff-stay" type="button">STAY IN THE BROWSER</button>';
-    } else {
-      // iOS: nothing to open or download yet, so this is a tease, not an offer.
-      // No date promised — "in the works" is the honest wording until a build
-      // exists (see app/README.md: iOS needs a Mac + Apple Developer account).
-      inner =
-        '<div class="modal-top">' +
-          '<span class="modal-tape">MISE FOR IPHONE</span>' +
-          '<button class="modal-close" id="handoff-close" aria-label="Close">&times;</button>' +
-        "</div>" +
-        '<h2 id="handoff-title">Coming soon to your pocket</h2>' +
-        '<p class="modal-desc">The iPhone app is in the works &mdash; the whole board, offline, ' +
-          "no signal needed at the shop. Until then everything works right here in the browser.</p>" +
-        '<button class="review-signin mono" id="handoff-stay" type="button">KEEP COOKING IN THE BROWSER</button>';
+    // iOS: nothing to open or download yet, so no popup — an interstitial with
+    // no action is just an interruption. A quiet one-line strip says an app is
+    // on the way ("in the works", no date promised — see app/README.md: iOS
+    // needs a Mac + Apple Developer account) and dismisses with the same
+    // never-ask-again key as the Android popup.
+    if (isIOS) {
+      var strip = document.createElement("aside");
+      strip.className = "ios-tease";
+      strip.setAttribute("aria-label", "Mise iPhone app");
+      strip.innerHTML =
+        '<span class="mono ios-tease-tag">MISE FOR IPHONE</span>' +
+        "<span>An app is on the way.</span>" +
+        '<button class="ios-tease-close" type="button" aria-label="Dismiss">&times;</button>';
+      strip.querySelector(".ios-tease-close").addEventListener("click", function () {
+        try { localStorage.setItem(APP_BANNER_KEY, "1"); } catch (e) { /* ignore */ }
+        strip.remove();
+      });
+      document.body.insertBefore(strip, document.body.firstChild);
+      return;
     }
+
+    var intent = "intent://open#Intent;scheme=com.deadliftdigital.mise;" +
+      "package=com.deadliftdigital.mise;" +
+      "S.browser_fallback_url=" + encodeURIComponent(apk) + ";end";
+    var inner =
+      '<div class="modal-top">' +
+        '<span class="modal-tape">MISE FOR ANDROID</span>' +
+        '<button class="modal-close" id="handoff-close" aria-label="Close">&times;</button>' +
+      "</div>" +
+      '<h2 id="handoff-title">This whole board fits in your pocket</h2>' +
+      '<p class="modal-desc">Every recipe, filter, and your shopping list &mdash; working offline, ' +
+        "no signal needed at the shop.</p>" +
+      '<a class="sub-buy handoff-open" href="' + esc(intent) + '">' +
+        '<span class="sub-buy-price">Continue in the app</span>' +
+        '<span class="sub-buy-note mono">OPENS THE APP &middot; OR DOWNLOADS IT FIRST</span>' +
+      "</a>" +
+      '<button class="review-signin mono" id="handoff-stay" type="button">STAY IN THE BROWSER</button>';
 
     var dlg = document.createElement("dialog");
     dlg.className = "modal handoff-modal";

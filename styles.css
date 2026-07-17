@@ -2425,6 +2425,41 @@ button {
   margin-top: 8px;
 }
 
+/* iOS gets a quiet one-line strip instead of the popup — there is nothing to
+   open or download yet, so it only informs. Hairline + faded, deliberately
+   quieter than the Android hand-off. */
+.ios-tease {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 8px var(--pad);
+  background: var(--ticket);
+  border-bottom: 1px solid var(--line);
+  font-family: var(--font-body);
+  font-size: 12.5px;
+  color: var(--faded);
+}
+
+.ios-tease-tag {
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  color: var(--ink);
+  background: var(--tape);
+  padding: 1px 5px;
+  white-space: nowrap;
+}
+
+.ios-tease-close {
+  margin-left: auto;
+  font-size: 16px;
+  line-height: 1;
+  color: var(--faded);
+  padding: 4px 8px;
+  align-self: center;
+  cursor: pointer;
+}
+.ios-tease-close:hover { color: var(--ink); }
+
 /* ---------- footer ---------- */
 
 .footer {
