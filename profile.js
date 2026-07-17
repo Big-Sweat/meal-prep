@@ -200,6 +200,40 @@
     }).join("");
   }
 
+  // The daily-target result, split out so a keystroke can refresh just this bit
+  // (see the input handler in wireTarget) instead of rebuilding the whole form.
+  function targetCalc(d) {
+    return MiseNutrition.valid(d) ? MiseNutrition.dailyCalories(d) : null;
+  }
+
+  function targetOutputHTML(d) {
+    var calc = targetCalc(d);
+    if (!calc) return '<p class="nut-incomplete">' + esc(MiseNutrition.blocker(d) || "") + "</p>";
+    var warns = MiseNutrition.warnings(d);
+    return '<div class="nut-result">' +
+        '<p class="nut-result-label mono">YOUR DAILY TARGET</p>' +
+        '<p class="nut-big">' + calc.target + ' <span class="nut-big-unit">kcal</span></p>' +
+        '<p class="nut-math mono">BMR ' + calc.bmr + " &middot; TDEE " + calc.tdee +
+          (calc.delta ? " &middot; " + (calc.delta > 0 ? "+" : "") + calc.delta + " TO " + esc(MiseNutrition.GOALS[d.goal].label.toUpperCase()) : " &middot; MAINTAIN") +
+        "</p>" +
+        (calc.floored
+          ? '<p class="nut-warn">That works out below ' + calc.floor + " kcal, so we&rsquo;ve held it there. " +
+            "Eating under that isn&rsquo;t something to do without a doctor.</p>"
+          : "") +
+        warns.map(function (w) { return '<p class="nut-warn">' + esc(w) + "</p>"; }).join("") +
+      "</div>";
+  }
+
+  // Live-update the target + the save button WITHOUT touching the input DOM.
+  // Rebuilding the inputs on every keystroke ate digits and decimals and jumped
+  // the caret (type=number has no selectionStart to restore) — badly on mobile.
+  function updateTargetResult() {
+    var out = $("#nut-output");
+    if (out) out.innerHTML = targetOutputHTML(draft);
+    var save = $("#nut-save");
+    if (save) save.disabled = !targetCalc(draft);
+  }
+
   function renderTarget() {
     var el = $("#kit-target");
 
@@ -232,9 +266,7 @@
 
     var d = draft;
     var imperial = d.units === "imperial";
-    var valid = MiseNutrition.valid(d);
-    var calc = valid ? MiseNutrition.dailyCalories(d) : null;
-    var warns = valid ? MiseNutrition.warnings(d) : [];
+    var calc = targetCalc(d);
 
     var ft = d.heightCm ? Math.floor(MiseNutrition.cmToIn(d.heightCm) / 12) : "";
     var inch = d.heightCm ? Math.round(MiseNutrition.cmToIn(d.heightCm) % 12) : "";
@@ -304,20 +336,7 @@
           "</div>" +
         "</div>" +
 
-        (calc
-          ? '<div class="nut-result">' +
-              '<p class="nut-result-label mono">YOUR DAILY TARGET</p>' +
-              '<p class="nut-big">' + calc.target + ' <span class="nut-big-unit">kcal</span></p>' +
-              '<p class="nut-math mono">BMR ' + calc.bmr + " &middot; TDEE " + calc.tdee +
-                (calc.delta ? " &middot; " + (calc.delta > 0 ? "+" : "") + calc.delta + " TO " + esc(MiseNutrition.GOALS[d.goal].label.toUpperCase()) : " &middot; MAINTAIN") +
-              "</p>" +
-              (calc.floored
-                ? '<p class="nut-warn">That works out below ' + calc.floor + " kcal, so we&rsquo;ve held it there. " +
-                  "Eating under that isn&rsquo;t something to do without a doctor.</p>"
-                : "") +
-              warns.map(function (w) { return '<p class="nut-warn">' + esc(w) + "</p>"; }).join("") +
-            "</div>"
-          : '<p class="nut-incomplete">' + esc(MiseNutrition.blocker(d) || "") + "</p>") +
+        '<div id="nut-output">' + targetOutputHTML(d) + "</div>" +
 
         '<div class="nut-actions">' +
           '<button class="sub-buy" id="nut-save"' + (calc ? "" : " disabled") + ">Save my target</button>" +
@@ -372,11 +391,11 @@
 
     el.querySelectorAll(".nut-fields input").forEach(function (i) {
       i.addEventListener("input", function () {
-        var id = this.id, pos = this.selectionStart;
+        // Update the live target only — do NOT re-render the inputs. Rebuilding
+        // them mid-keystroke dropped digits/decimals and jumped the caret
+        // (type=number has no selectionStart to restore), worst of all on mobile.
         syncDraftFromForm();
-        renderTarget();                    // only this section, so the page doesn't jump
-        var again = $("#" + id);           // the re-render blows away focus; put it back
-        if (again) { again.focus(); try { again.setSelectionRange(pos, pos); } catch (e) {} }
+        updateTargetResult();
       });
     });
 
