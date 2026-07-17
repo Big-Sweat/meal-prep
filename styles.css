@@ -671,11 +671,15 @@ button {
 .card-foot {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 10px;
+  gap: 8px;
   border-top: 1px dashed var(--line);
   padding-top: 9px;
 }
+
+/* Allergens sit left; the auto margin collapses the free space so the fav and
+   plan buttons stay together as a neat pair on the right (space-between used to
+   strand the heart in the middle of the row). */
+.card-foot .fav-btn { margin-left: auto; }
 
 .card-allergens {
   font-family: var(--font-mono);
