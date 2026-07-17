@@ -64,6 +64,27 @@ in rough sync when you change the workflow described here.
 - `recipes.js` — **the data.** `var RECIPES = [ … ]` (currently 131 recipes).
   Everything on the site — filters, suggestions, counts, macros — derives from
   this array. Do not hand-edit it to add recipes; use the tool (below).
+- `recipes.json` — **the exact same array**, written by the same tool call from
+  the same string, so the two files cannot drift. It is not bundled into the
+  apps (see `recipe-sync.js` below) — its only consumer is a live fetch from
+  the deployed site.
+- `recipe-sync.js` — a self-contained IIFE, no exposed API. Closes the gap
+  between "the website is always live" and "the app is a snapshot from
+  whenever it was last built." Native-only; on the website recipes.js is
+  already fresh on every load, so this would just be a second, wasted ~430KB
+  download. Fetches `recipes.json` — **data only, `JSON.parse`, never
+  `recipes.js`, never `eval`** — this is the app's first-ever runtime fetch of
+  remote content, and running fetched code is a materially different risk than
+  parsing fetched data; keep that line. **Updates apply only at the START of
+  the next app open, never mid-session** — a quiet background check caches
+  anything newer, and a synchronous read of that cache (before app.js/
+  profile.js build their search index or render) applies it on the *next*
+  launch, so the board someone is already looking at can never change under
+  them. Diagnostic `console.log` lines are intentional, not debug leftovers —
+  WebView forwards `console.log` to `logcat` even in a release build (only
+  *remote* DevTools is gated by `debuggable`), and that's the only way to
+  verify a deliberately-invisible-to-the-user background process on a real
+  release-signed phone.
 - `pdf.js` — dependency-free PDF generator for the per-recipe "Download PDF"
   button. Lays a recipe out on US-Letter using the PDF base-14 Courier fonts
   (no embedding, exact wrapping). Brand colors are duplicated here from
@@ -316,10 +337,12 @@ it:
    tags), sets `allergens` to the exact union, drops `gluten-free`/`dairy-free`
    tags contradicted by the ingredients, computes `difficulty` with the same
    formula the slider uses, checks macros + id/name collisions + schema basics,
-   re-interleaves the library by protein, rewrites `recipes.js`, and patches the
-   counts + bumps `recipes.js?v=` in `index.html` and the counts in `README.md`.
-   **Fix anything it rejects rather than forcing it** — it writes nothing if any
-   check fails.
+   re-interleaves the library by protein, rewrites `recipes.js` **and
+   `recipes.json`** (same data, so they can't drift — the JSON file is what
+   lets an already-installed app pick up the new recipes; see `recipe-sync.js`),
+   and patches the counts + bumps `recipes.js?v=` in `index.html` and the
+   counts in `README.md`. **Fix anything it rejects rather than forcing it** —
+   it writes nothing if any check fails.
 6. Verify in a browser (count went up, the new recipes open, filters catch their
    allergens), then move the processed links in `links.md` from **To add** to
    **Added** as `- <url> → <recipe-id>`. Leave bad links under To add with a note

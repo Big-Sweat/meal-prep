@@ -20,6 +20,7 @@ const path = require('path');
 
 const ROOT = path.join(__dirname, '..');
 const SITE = path.join(ROOT, 'recipes.js');
+const JSON_SITE = path.join(ROOT, 'recipes.json');
 const INDEX = path.join(ROOT, 'index.html');
 const README = path.join(ROOT, 'README.md');
 
@@ -128,9 +129,18 @@ while (added) {
 if (interleaved.length !== all.length) throw new Error('interleave lost recipes');
 
 const total = interleaved.length;
+const asJSON = JSON.stringify(interleaved, null, 2);
 const body = '/* Mise recipe data - ' + total + ' recipes. Generated + allergen-audited. difficulty: 1 easy, 2 moderate, 3 involved (scored from ingredients, steps, prep time). */\n' +
-  'var RECIPES = ' + JSON.stringify(interleaved, null, 2) + ';\n';
+  'var RECIPES = ' + asJSON + ';\n';
 fs.writeFileSync(SITE, body);
+
+/* recipes.json is the SAME array, written from the SAME asJSON string, so the
+   two files cannot drift — there is no second place that could fall out of
+   step. It exists for the native apps: recipe-sync.js fetches this (data
+   only, never recipes.js — never eval untrusted/remote JS) so an
+   already-installed app can pick up new recipes without a new store release.
+   See recipe-sync.js and CLAUDE.md. */
+fs.writeFileSync(JSON_SITE, asJSON + '\n');
 
 /* ---- patch counts + cache version in index.html and README.md ---- */
 let html = fs.readFileSync(INDEX, 'utf8');

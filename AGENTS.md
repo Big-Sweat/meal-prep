@@ -18,7 +18,10 @@ entitlement; `isPlus()` is THE gate), `nutrition.js` (pure calorie maths),
 `pdf.js` (recipe PDF), `ads.js`, `apps.js` (store links — both empty because
 nothing is published; the footer block hides itself rather than show a dead
 link, and the buttons carry no Apple/Google logos on purpose), `native.js`
-(iOS + Android adaptations, no-op on web).
+(iOS + Android adaptations, no-op on web), `recipe-sync.js` (native-only:
+fetches `recipes.json` — data only, never `recipes.js`, never `eval` — so an
+already-installed app can pick up new recipes without a new release; applies
+only at the START of the next open, never mid-session).
 
 **`app.js` binds `index.html`'s DOM at module scope — never load it on another
 page.** That's why `profile.js` exists.
@@ -54,8 +57,9 @@ already gated, so "your target follows your body" is a Plus benefit for free.
 **Adding recipes:** don't hand-edit `recipes.js`. Build recipe objects in the
 schema (see CLAUDE.md), save as a JSON array, and run
 `node tools/add-recipes.js <file>` — it audits allergens, computes difficulty
-and the allergen union, checks macros/collisions, merges, and patches counts +
-cache version. Fix what it rejects; it writes nothing on failure.
+and the allergen union, checks macros/collisions, merges, writes both
+`recipes.js` and `recipes.json` from the same data, and patches counts + cache
+version. Fix what it rejects; it writes nothing on failure.
 
 **Recipe inbox** (`recipe-inbox/links.md`): when asked to "process the recipe
 inbox", follow the full 7-step workflow in CLAUDE.md — fetch, **rewrite (don't

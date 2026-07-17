@@ -214,6 +214,12 @@
   <script src="auth.js?v=2"></script>
   <script src="pdf.js?v=4"></script>
   <script src="native.js?v=3"></script>
+  <!-- Native apps only: quietly picks up recipes added to the site since this
+       app was last built/reinstalled, applied on the NEXT open — never
+       mid-session. See recipe-sync.js. Must load after native.js (needs
+       MiseNative.isNative) and before app.js (swaps RECIPES before app.js
+       reads it to build its search index). -->
+  <script src="recipe-sync.js?v=1"></script>
   <script src="app.js?v=24"></script>
 </body>
 </html>
