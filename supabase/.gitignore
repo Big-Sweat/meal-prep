@@ -1,0 +1,9 @@
+# Supabase CLI local state — machine-specific, not part of the project.
+.branches
+.temp
+
+# Local env / secrets (never commit these)
+.env
+.env.keys
+.env.local
+.env.*.local
