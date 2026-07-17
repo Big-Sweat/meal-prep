@@ -19,6 +19,58 @@
     { id: "eggs", label: "Eggs" }
   ];
 
+  /* Equal-weight protein swaps for the recipe modal. Nutrition is expressed
+     per 100g so the original protein's contribution can be removed and the
+     substitute's added without disturbing the rest of the recipe. The values
+     are intentionally representative rather than brand-specific. */
+  var PROTEIN_SWAPS = {
+    chicken: {
+      item: "boneless skinless chicken breast", note: "cut as the recipe directs",
+      terms: "boneless skinless chicken breasts?|chicken breasts?|chicken thighs?|ground chicken|cooked chicken breasts?|cooked chicken|rotisserie chicken|chicken sausage links?|chicken",
+      calories: 165, protein: 31, carbs: 0, fat: 3.6, allergens: []
+    },
+    beef: {
+      item: "lean beef", note: "cut or crumbled as the recipe directs",
+      terms: "ground beef(?: \\(\d+% lean\\))?|beef chuck roast|chuck roast|sirloin steak|skirt steak|flank steak|steak|beef",
+      calories: 217, protein: 26, carbs: 0, fat: 12, allergens: []
+    },
+    pork: {
+      item: "pork tenderloin", note: "cut as the recipe directs",
+      terms: "boneless pork shoulder|pork shoulder|pork tenderloin|ground pork|pork breakfast sausage|fresh chorizo|chorizo|pork",
+      calories: 195, protein: 27, carbs: 0, fat: 9, allergens: []
+    },
+    turkey: {
+      item: "lean ground turkey", note: "shape or crumble as the recipe directs",
+      terms: "italian turkey sausage links?|turkey sausage|ground turkey|turkey",
+      calories: 170, protein: 29, carbs: 0, fat: 7, allergens: []
+    },
+    fish: {
+      item: "cod fillets", note: "cut into portions as the recipe directs",
+      terms: "salmon fillets?|canned salmon|smoked salmon|cod fillets?|tilapia fillets?|canned tuna(?: in water)?|tuna|salmon|cod|tilapia|fish",
+      calories: 160, protein: 24, carbs: 0, fat: 7, allergens: ["fish"]
+    },
+    shrimp: {
+      item: "large shrimp", note: "peeled and deveined",
+      terms: "large shrimp|shrimp",
+      calories: 99, protein: 24, carbs: 0.2, fat: 0.3, allergens: ["shellfish"]
+    },
+    tofu: {
+      item: "extra-firm tofu", note: "pressed and cut as the recipe directs",
+      terms: "extra-firm tofu|firm tofu|tofu",
+      calories: 144, protein: 17, carbs: 3, fat: 9, allergens: ["soy"]
+    },
+    beans: {
+      item: "chickpeas", note: "drained and rinsed",
+      terms: "black beans?|pinto beans?|kidney beans?|cannellini beans?|white beans?|chickpeas?|brown lentils?|red lentils?|lentils?|shelled edamame|edamame|tempeh|natural peanut butter|peanut butter|beans?|legumes?",
+      calories: 130, protein: 8.5, carbs: 22, fat: 0.7, allergens: []
+    },
+    eggs: {
+      item: "large eggs", note: "beaten if the recipe directs",
+      terms: "large eggs?|eggs?",
+      calories: 143, protein: 13, carbs: 0.7, fat: 9.5, allergens: ["eggs"]
+    }
+  };
+
   var MEALS = [
     { id: "breakfast", label: "Breakfast" },
     { id: "main", label: "Lunch & dinner" }
@@ -238,14 +290,14 @@
     return "assets/recipes/" + r.id + ".webp";
   }
 
-  function macroSummaryHTML(r, className) {
+  function macroSummaryHTML(r, className, estimated) {
     var target = calorieTarget();
     var targetNote = target
       ? '<span class="macro-target">' + Math.round(r.caloriesPerServing / target * 100) + "% OF YOUR DAY</span>"
       : "";
     return (
       '<div class="macro-summary ' + className + '" role="group" aria-label="Nutrition per serving">' +
-        '<div class="macro-heading mono"><span>PER SERVING</span>' + targetNote + "</div>" +
+        '<div class="macro-heading mono"><span>' + (estimated ? "EST. PER SERVING" : "PER SERVING") + '</span>' + targetNote + "</div>" +
         '<dl class="macro-grid">' +
           '<div class="macro-item macro-item--calories"><dt>Calories</dt><dd>' + r.caloriesPerServing + '<span class="macro-unit">kcal</span></dd></div>' +
           '<div class="macro-item"><dt>Protein</dt><dd>' + r.proteinGrams + '<span class="macro-unit">g</span></dd></div>' +
@@ -458,6 +510,110 @@
 
   /* ---------- modal ---------- */
 
+  function proteinIndex(r) {
+    var swap = PROTEIN_SWAPS[r.protein];
+    if (!swap) return -1;
+    var matcher = new RegExp(swap.terms, "i");
+    for (var i = 0; i < r.ingredients.length; i++) {
+      if (matcher.test(r.ingredients[i].item)) return i;
+    }
+    return -1;
+  }
+
+  function proteinGrams(ing, protein) {
+    var qty = Number(ing.qty) || 0;
+    var unit = (ing.unit || "").toLowerCase();
+    if (unit === "lb") return qty * 453.592;
+    if (unit === "oz") return qty * 28.3495;
+    if (unit.indexOf("can") === 0) return qty * 255;
+    if (unit === "cup") {
+      if (protein === "chicken") return qty * 140;
+      if (protein === "beans") return qty * 190;
+      return qty * 225;
+    }
+    if (protein === "eggs") return qty * 50;
+    // The only unmeasured primary protein currently in the library is one
+    // rotisserie chicken; use its typical yield of pulled meat.
+    if (protein === "chicken" && /rotisserie/i.test(ing.item)) return qty * 900;
+    return qty * 170;
+  }
+
+  function swapQuantity(grams, protein) {
+    if (protein === "eggs") {
+      return { qty: Math.max(1, Math.round(grams / 50)), unit: "" };
+    }
+    if (protein === "beans") {
+      return { qty: Math.max(1, Math.round(grams / 255)), unit: "can (14 oz)" };
+    }
+    if (grams >= 340) {
+      return { qty: Math.max(0.25, Math.round(grams / 453.592 * 4) / 4), unit: "lb" };
+    }
+    return { qty: Math.max(1, Math.round(grams / 28.3495)), unit: "oz" };
+  }
+
+  function swapWords(text, originalProtein, newProtein) {
+    var matcher = new RegExp(PROTEIN_SWAPS[originalProtein].terms, "gi");
+    var lower = proteinLabel(newProtein).toLowerCase();
+    return String(text).replace(matcher, function (match) {
+      return match.charAt(0) === match.charAt(0).toUpperCase()
+        ? lower.charAt(0).toUpperCase() + lower.slice(1)
+        : lower;
+    });
+  }
+
+  function substitutedRecipe(r, newProtein) {
+    var index = proteinIndex(r);
+    if (index < 0 || !PROTEIN_SWAPS[newProtein]) return r;
+
+    var original = PROTEIN_SWAPS[r.protein];
+    var substitute = PROTEIN_SWAPS[newProtein];
+    var grams = proteinGrams(r.ingredients[index], r.protein);
+    var quantity = swapQuantity(grams, newProtein);
+    var perServingFactor = grams / 100 / r.baseServings;
+    var ingredients = r.ingredients.map(function (ing) {
+      return {
+        qty: ing.qty, unit: ing.unit, item: ing.item, note: ing.note,
+        allergens: (ing.allergens || []).slice()
+      };
+    });
+
+    ingredients[index] = {
+      qty: quantity.qty,
+      unit: quantity.unit,
+      item: substitute.item,
+      note: substitute.note,
+      allergens: substitute.allergens.slice()
+    };
+
+    var allergens = [];
+    ingredients.forEach(function (ing) {
+      (ing.allergens || []).forEach(function (allergen) {
+        if (allergens.indexOf(allergen) === -1) allergens.push(allergen);
+      });
+    });
+
+    return Object.assign({}, r, {
+      name: swapWords(r.name, r.protein, newProtein),
+      description: swapWords(r.description, r.protein, newProtein),
+      protein: newProtein,
+      caloriesPerServing: Math.max(0, Math.round(r.caloriesPerServing + (substitute.calories - original.calories) * perServingFactor)),
+      proteinGrams: Math.max(0, Math.round(r.proteinGrams + (substitute.protein - original.protein) * perServingFactor)),
+      carbsGrams: Math.max(0, Math.round(r.carbsGrams + (substitute.carbs - original.carbs) * perServingFactor)),
+      fatGrams: Math.max(0, Math.round(r.fatGrams + (substitute.fat - original.fat) * perServingFactor)),
+      allergens: allergens,
+      ingredients: ingredients,
+      steps: r.steps.map(function (step) { return swapWords(step, r.protein, newProtein); }),
+      storageNote: swapWords(r.storageNote, r.protein, newProtein)
+    });
+  }
+
+  function proteinOptions(r) {
+    return PROTEINS.filter(function (protein) { return protein.id !== r.protein; })
+      .map(function (protein) {
+        return '<option value="' + protein.id + '">' + esc(protein.label) + "</option>";
+      }).join("");
+  }
+
   function ingredientRows(r, servings) {
     var factor = servings / r.baseServings;
     return r.ingredients.map(function (ing) {
@@ -512,6 +668,7 @@
 
   function openModal(r, servingsOverride) {
     var servings = servingsOverride || state.servings;
+    var currentRecipe = r;
     var total = r.prepMinutes + r.cookMinutes;
     var contains = r.allergens.length
       ? "CONTAINS: " + r.allergens.join(" · ").toUpperCase()
@@ -519,7 +676,7 @@
 
     modalBody.innerHTML =
       '<div class="modal-top">' +
-        '<span class="modal-tape">' + esc(proteinLabel(r.protein)).toUpperCase() + "</span>" +
+        '<span class="modal-tape" id="m-protein-tape">' + esc(proteinLabel(r.protein)).toUpperCase() + "</span>" +
         '<div class="modal-actions">' +
           '<button class="plan-tool" id="modal-fav" type="button" aria-pressed="' + favs.has(r.id) + '">' +
             (favs.has(r.id) ? "&#9829; SAVED" : "&#9825; SAVE") +
@@ -548,15 +705,23 @@
         '<img src="' + esc(recipeImageSrc(r)) + '" alt="' + esc(r.name) + '" onerror="this.parentElement.hidden=true">' +
       "</div>" +
       '<h2 id="modal-title">' + esc(r.name) + "</h2>" +
-      '<p class="modal-desc">' + esc(r.description) + "</p>" +
-      macroSummaryHTML(r, "modal-nutrition") +
+      '<p class="modal-desc" id="m-description">' + esc(r.description) + "</p>" +
+      '<div id="m-macros">' + macroSummaryHTML(r, "modal-nutrition") + "</div>" +
       '<p class="modal-stats">' +
         "<span>" + DIFF_WORDS[r.difficulty].toUpperCase() + "</span>" +
         "<span>PREP " + r.prepMinutes + " MIN</span>" +
         "<span>COOK " + r.cookMinutes + " MIN</span>" +
         "<span>TOTAL " + total + " MIN</span>" +
       "</p>" +
-      '<p class="modal-contains' + (r.allergens.length ? "" : " none") + '">' + esc(contains) + "</p>" +
+      '<p id="m-contains" class="modal-contains' + (r.allergens.length ? "" : " none") + '">' + esc(contains) + "</p>" +
+      '<div class="protein-swap">' +
+        '<label for="protein-swap">Substitute protein?</label>' +
+        '<select id="protein-swap">' +
+          '<option value="">Choose a protein</option>' + proteinOptions(r) +
+        "</select>" +
+        '<span id="protein-swap-confirm" class="protein-swap-confirm" role="status" hidden>Protein substituted!</span>' +
+        '<small>Macros are estimated from an equal-weight swap.</small>' +
+      "</div>" +
       '<div class="rate-row">' +
         '<span class="rate-label mono">YOUR RATING</span>' +
         '<div class="stars" id="modal-stars" role="group" aria-label="Rate this recipe"></div>' +
@@ -577,11 +742,12 @@
         "</div>" +
         "<div>" +
           '<p class="modal-section-title">Method</p>' +
-          '<ol class="step-list">' +
+          '<p class="swap-method-note" id="m-swap-note" hidden></p>' +
+          '<ol class="step-list" id="m-step-list">' +
             r.steps.map(function (s) { return "<li>" + esc(s) + "</li>"; }).join("") +
           "</ol>" +
           '<div class="modal-storage">' +
-            '<span class="mono">STORAGE</span>' + esc(r.storageNote) +
+            '<span class="mono">STORAGE</span><span id="m-storage-text">' + esc(r.storageNote) + "</span>" +
           "</div>" +
         "</div>" +
       "</div>" +
@@ -602,9 +768,34 @@
       function () { return mServings; },
       function (v) {
         mServings = v;
-        $("#m-ing-list").innerHTML = ingredientRows(r, mServings);
+        $("#m-ing-list").innerHTML = ingredientRows(currentRecipe, mServings);
       }
     );
+
+    $("#protein-swap").addEventListener("change", function () {
+      var selected = this.value;
+      currentRecipe = selected ? substitutedRecipe(r, selected) : r;
+      var currentContains = currentRecipe.allergens.length
+        ? "CONTAINS: " + currentRecipe.allergens.join(" · ").toUpperCase()
+        : "NO MAJOR ALLERGENS";
+
+      $("#m-protein-tape").textContent = proteinLabel(currentRecipe.protein).toUpperCase();
+      $("#modal-title").textContent = currentRecipe.name;
+      $("#m-description").textContent = currentRecipe.description;
+      $("#m-macros").innerHTML = macroSummaryHTML(currentRecipe, "modal-nutrition", !!selected);
+      $("#m-contains").textContent = currentContains;
+      $("#m-contains").className = "modal-contains" + (currentRecipe.allergens.length ? "" : " none");
+      $("#m-ing-list").innerHTML = ingredientRows(currentRecipe, mServings);
+      $("#m-step-list").innerHTML = currentRecipe.steps.map(function (step) {
+        return "<li>" + esc(step) + "</li>";
+      }).join("");
+      $("#m-storage-text").textContent = currentRecipe.storageNote;
+      $("#protein-swap-confirm").hidden = !selected;
+      $("#m-swap-note").hidden = !selected;
+      $("#m-swap-note").textContent = selected
+        ? "Cooking time may change with " + proteinLabel(selected).toLowerCase() + "; follow its package guidance and check that it is cooked through."
+        : "";
+    });
 
     renderModalRating(r.id);
     renderReviews(r.id);
@@ -648,14 +839,14 @@
       if (requirePlus()) return;
       // Android has no window.print(); the share sheet carries Print instead.
       if (window.MiseNative && MiseNative.isNative) {
-        MiseNative.sharePDF(recipeToPDFModel(r, mServings), r.id + ".pdf", r.name);
+        MiseNative.sharePDF(recipeToPDFModel(currentRecipe, mServings), r.id + ".pdf", currentRecipe.name);
       } else {
         window.print();
       }
     });
     $("#modal-download").addEventListener("click", function () {
       if (requirePlus()) return;
-      MisePDF.download(recipeToPDFModel(r, mServings), r.id + ".pdf");
+      MisePDF.download(recipeToPDFModel(currentRecipe, mServings), r.id + ".pdf");
     });
     modalEl.showModal();
     modalEl.scrollTop = 0;
