@@ -66,6 +66,42 @@ var MiseStore = (function () {
   function setAccount(a) { write(ACCOUNT_KEY, a); }
   function clearAccount() { drop(ACCOUNT_KEY); }
 
+  /* Wipe every trace of one person from this browser: their per-user keys, plus
+     their entries inside the two shared maps (ratings and reviews are keyed by
+     recipe, not by user, so they can't just be dropped). It lives here for the
+     same reason everything else does — this file is the one place that knows the
+     full set of keys, so account deletion can't miss one and leave orphaned data
+     behind. The caller ends the session and, for the demo account, clears it.
+
+     Note: with real auth this removes the account's DATA, not the Supabase auth
+     user itself — deleting that needs a service-role admin call from a backend,
+     which the public anon key can't make. Wire that in here when one exists. */
+  function deleteUserData(w) {
+    if (!w) return;
+    drop(FAVS_PREFIX + w);
+    drop(NUTRITION_PREFIX + w);
+    drop(ALLERGY_PREFIX + w);
+    drop(LOG_PREFIX + w);
+
+    var ratings = read(RATINGS_KEY, {});
+    Object.keys(ratings).forEach(function (id) {
+      if (ratings[id] && ratings[id][w] != null) {
+        delete ratings[id][w];
+        if (!Object.keys(ratings[id]).length) delete ratings[id];
+      }
+    });
+    write(RATINGS_KEY, ratings);
+
+    var reviews = read(REVIEWS_KEY, {});
+    Object.keys(reviews).forEach(function (id) {
+      reviews[id] = (reviews[id] || []).filter(function (rv) {
+        return (rv.by || rv.author) !== w;
+      });
+      if (!reviews[id].length) delete reviews[id];
+    });
+    write(REVIEWS_KEY, reviews);
+  }
+
   /* ---------- favorites ---------- */
 
   function favs(w) { return w ? read(FAVS_PREFIX + w, []) : []; }
@@ -291,6 +327,7 @@ var MiseStore = (function () {
     LOG_TYPES: LOG_TYPES,
     who: who,
     account: account, setAccount: setAccount, clearAccount: clearAccount,
+    deleteUserData: deleteUserData,
     favs: favs, setFavs: setFavs,
     ratingSummary: ratingSummary, myRating: myRating, setMyRating: setMyRating, myRatings: myRatings,
     reviewsFor: reviewsFor, upsertReview: upsertReview, myReviews: myReviews, removeReview: removeReview,

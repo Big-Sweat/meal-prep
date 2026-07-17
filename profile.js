@@ -62,6 +62,7 @@
           '<section class="kit-section" id="kit-target"></section>' +
           '<section class="kit-section" id="kit-favorites"></section>' +
           '<section class="kit-section" id="kit-activity"></section>' +
+          '<section class="kit-section" id="kit-danger"></section>' +
         "</div>" +
       "</div>";
 
@@ -70,6 +71,7 @@
     renderTarget();
     renderFavorites();
     renderActivity();
+    renderDanger();
   }
 
   function renderSignedOut() {
@@ -537,6 +539,92 @@
         this.classList.remove("kit-review-del--arm");
         this.textContent = "DELETE REVIEW";
       });
+    });
+  }
+
+  /* ---------- deleting the account ---------- */
+
+  /* A wall away from everything else on the page: light red, its own heading,
+     and a two-step confirm so the last thing on the page can't be triggered by
+     one stray tap. Only shown signed in — render() calls it inside the account
+     branch, so a signed-out visitor never sees it. */
+  function renderDanger() {
+    var el = $("#kit-danger");
+    el.innerHTML =
+      '<div class="kit-card kit-card--danger">' +
+        '<span class="tape mono" aria-hidden="true">DANGER ZONE</span>' +
+        "<h2>Delete your account</h2>" +
+        '<p class="kit-lede kit-danger-lede">This closes your account for good and clears everything ' +
+          "Mise keeps for you &mdash; your standing allergies, your calorie target, your favorites, and " +
+          "every rating and review. Signing up again later starts you over as a new account, with none " +
+          "of this. There&rsquo;s no undo.</p>" +
+        '<div class="kit-danger-actions" id="kit-danger-actions">' +
+          '<button class="kit-danger-btn" id="kit-delete" type="button">Delete account</button>' +
+        "</div>" +
+      "</div>";
+    $("#kit-delete").addEventListener("click", armDelete);
+  }
+
+  function armDelete() {
+    confirmBox(
+      "Are you sure? This permanently removes your account and everything in it, and it " +
+        "can’t be brought back.",
+      "Yes, delete everything"
+    );
+  }
+
+  // The confirm / retry prompt: a warning line plus go/cancel. Shared so a
+  // failed attempt can re-arm with a different message and a "Try again" button.
+  function confirmBox(message, goLabel) {
+    var box = $("#kit-danger-actions");
+    box.innerHTML =
+      '<p class="kit-danger-warn" role="alert">' + esc(message) + "</p>" +
+      '<div class="kit-danger-confirm">' +
+        '<button class="kit-danger-btn kit-danger-btn--go" id="kit-delete-yes" type="button">' + esc(goLabel) + "</button>" +
+        '<button class="kit-danger-cancel" id="kit-delete-no" type="button">Cancel</button>' +
+      "</div>";
+    $("#kit-delete-yes").addEventListener("click", deleteAccount);
+    $("#kit-delete-no").addEventListener("click", renderDanger);   // back to the armed-away state
+  }
+
+  function deletingState() {
+    var box = $("#kit-danger-actions");
+    if (box) box.innerHTML = '<p class="kit-danger-warn" role="status">Deleting your account…</p>';
+  }
+
+  // The board shows a "your account was deleted" banner off this marker.
+  function toBoardDeleted() { window.location.href = "index.html?mise_deleted=1"; }
+
+  function deleteAccount() {
+    // Demo account: no server, nothing to authorize — just clear this browser.
+    if (!realAuth) {
+      MiseStore.deleteUserData(me());
+      MiseStore.clearAccount();
+      toBoardDeleted();
+      return;
+    }
+
+    if (!MiseAuth.isReady()) {
+      confirmBox("We couldn’t reach the sign-in service. Check your connection and try again.", "Try again");
+      return;
+    }
+
+    /* Order matters. The auth account is deleted first, server-side, because
+       that call is authorized by the LIVE session — sign out or wipe local data
+       first and it would fail. Only once the account is truly gone do we clear
+       this browser and end the (now-orphaned) session. If the server call
+       fails, we delete NOTHING and let them retry, rather than claim success. */
+    deletingState();
+    MiseAuth.deleteAccount().then(function (res) {
+      if (res && res.error) {
+        confirmBox("We couldn’t delete your account: " + (res.error.message || "please try again.") +
+          " Nothing was removed.", "Try again");
+        return;
+      }
+      MiseStore.deleteUserData(me());
+      MiseAuth.signOut().then(toBoardDeleted, toBoardDeleted);
+    }).catch(function () {
+      confirmBox("We couldn’t reach the server, so your account was not deleted. Please try again.", "Try again");
     });
   }
 

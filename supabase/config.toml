@@ -1,0 +1,12 @@
+# Supabase CLI config. This static site has no backend of its own; the only
+# server-side piece is the delete-account Edge Function, so this file only sets
+# what that function needs. Everything else stays on CLI defaults.
+project_id = "bypeqzvxgqjsylerzxlk"
+
+[functions.delete-account]
+# The function verifies the caller's session token itself (see index.ts), so the
+# gateway's automatic JWT check is turned OFF here. This is REQUIRED so the
+# browser's CORS preflight — an OPTIONS request that carries no token — can reach
+# the function. It does NOT weaken security: any request without a valid session
+# is still rejected with 401 before the function does anything.
+verify_jwt = false

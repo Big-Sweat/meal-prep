@@ -1748,4 +1748,16 @@
   updateAuthUI();
   renderAppLinks();
   openFromHash();
+
+  /* Just deleted an account? The profile page sends us back here with a marker,
+     in either auth mode. Say goodbye once, then strip it so a refresh (or a
+     shared link) doesn't replay the banner. */
+  (function () {
+    if (new URLSearchParams(window.location.search).get("mise_deleted") !== "1") return;
+    if (window.history && window.history.replaceState) {
+      window.history.replaceState(null, document.title, window.location.pathname);
+    }
+    showToast("Your account was deleted",
+      "Everything Mise kept for you is gone. You're welcome back any time.");
+  })();
 })();
