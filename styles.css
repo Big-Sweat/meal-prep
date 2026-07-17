@@ -2155,6 +2155,104 @@ button {
   .rail { transition: transform 0.28s ease, visibility 0.28s; }
 }
 
+/* ---------- the board on a phone ----------
+   Measured, not guessed. At 375px the desktop card is 521px tall and you can
+   see 1.5 of them, so the 131-recipe board is ~95 screens of scrolling — the
+   card was simply the desktop layout at full width, which the design doc
+   explicitly says not to do.
+
+   The blurb is the thing to lose. It's 21% of the card height, it's already in
+   the modal, and it is the reason two columns alone BACKFIRES: measured at two
+   columns with the blurb still in, cards grow to 679px, because prose wraps far
+   worse in a narrow column than it does in a wide one. Drop it and go two-up and
+   the card is 374px, 4.1 fit on a screen, and the board is ~33 screens — 2.7x
+   better than before.
+
+   Width-based rather than .is-android on purpose: the Android app is this
+   stylesheet in a WebView at phone width, so a platform class would fix the app
+   and leave the mobile website with the same 95-screen scroll — and then someone
+   would have to write these rules a second time. */
+@media (max-width: 767px) {
+  .cards {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px 12px;
+  }
+
+  .card { padding: 12px; gap: 8px; }
+
+  /* In the modal, where there's room to read it. */
+  .card-desc { display: none; }
+
+  .card h3 { font-size: 15px; line-height: 1.25; }
+
+  .card .macro-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .card .macro-item { padding: 7px 5px 8px; }
+  .card .macro-item:nth-child(3) { border-left: 0; }
+  .card .macro-item:nth-child(n+3) { border-top: 1px solid var(--line); }
+  .card .macro-item dd { font-size: 18px; }
+
+  .card-meta { font-size: 10px; gap: 3px 6px; }
+
+  /* Three things share this row and won't fit across ~165px of card, so let it
+     wrap: the allergen line takes its own line and the buttons sit under it,
+     rather than the +PLAN button hanging 2px outside the ticket. */
+  .card-foot { flex-wrap: wrap; gap: 8px; }
+  .card-allergens { min-width: 0; flex: 1 0 100%; font-size: 10px; }
+
+  /* Both were 36px, under the 44px floor — survivable with a mouse, mean with a
+     thumb, and these are the only two controls on the ticket. Costs ~8px of card
+     height, which is noise against the 153px the blurb just gave back. */
+  .fav-btn, .plan-btn { min-height: 44px; }
+  .fav-btn { min-width: 44px; }
+
+  .tape { font-size: 11px; padding: 3px 9px; left: 10px; }
+  .card:nth-child(even) .tape { right: 10px; }
+
+  /* ---------- the modal header ----------
+     The recipe header packs a tape label, SAVE, ADD TO PLAN, a PDF button, a
+     print button and the close × into one flex row that never wraps. At 375px
+     that's 370px of content in a 288px box: the × lands ~40px past the right
+     edge of the screen, and since the dialog is what scrolls, the only way to
+     shut the recipe is to drag it sideways to go and find the ×. The plan modal
+     does the same thing with PRINT / CLEAR PLAN / ×.
+
+     Two things come out of the row, and between them it fits at any width.
+
+     The tape goes first. It's 82px of an 81px overflow, so on its own it very
+     nearly solves this — and it belongs on the sheet's edge anyway: that's
+     exactly what .tape does on a recipe card, and the modal was the odd one out
+     for keeping its label in the flow. Alone it leaves only ~14px of slack at
+     375px though, and .modal is calc(100vw - 32px), so a 360px phone has ~6px
+     and a 320px one overflows again by 34px.
+
+     So the close button comes out too, pinned to the top-right. Then nothing
+     the header carries can push it anywhere, it's in the same place on every
+     modal — recipe, plan, paywall, sign-in — and the row is left holding only
+     the tools, with room to spare on the narrowest phone sold. Nothing on this
+     site should ever need a sideways drag. */
+  .modal-body { position: relative; }
+
+  .modal-tape {
+    position: absolute;
+    top: 12px;
+    left: 20px;
+    z-index: 2;
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 2;
+    background: var(--ticket);
+  }
+
+  /* The row is now just the tools; clear the pinned tape and × above it. */
+  .modal-top { flex-wrap: wrap; padding-top: 34px; }
+  .modal-actions,
+  .plan-head-actions { flex-wrap: wrap; }
+}
+
 /* ---------- 768px ---------- */
 
 @media (min-width: 768px) {
