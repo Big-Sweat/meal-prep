@@ -109,7 +109,8 @@
     else { minV -= span * 0.12; maxV += span * 0.12; span = maxV - minV; }
 
     var spanX = (maxX - minX) || 1;
-    function x(d) { return padL + ((Date.parse(d + "T00:00:00Z") - minX) / spanX) * (W - padL - padR); }
+    function xAt(ms) { return padL + ((ms - minX) / spanX) * (W - padL - padR); }
+    function x(d) { return xAt(Date.parse(d + "T00:00:00Z")); }
     function y(v) { return padT + (1 - (v - minV) / span) * (H - padT - padB); }
 
     var fmt = opts.format || function (v) { return round1(v); };
@@ -117,31 +118,54 @@
     var gridY = [minV + span * 0.5, maxV - span * 0.06, minV + span * 0.06];
     var grid = gridY.map(function (v) {
       return '<line x1="' + padL + '" y1="' + y(v).toFixed(1) + '" x2="' + (W - padR) +
-        '" y2="' + y(v).toFixed(1) + '" class="chart-grid"/>' +
-        '<text x="' + (padL - 6) + '" y="' + (y(v) + 3.5).toFixed(1) + '" class="chart-tick">' +
-        esc(fmt(v)) + "</text>";
+        '" y2="' + y(v).toFixed(1) + '" class="chart-grid"/>';
     }).join("");
 
     var dots = raw.map(function (p) {
       return '<circle cx="' + x(p.d).toFixed(1) + '" cy="' + y(p.v).toFixed(1) + '" r="2.5" class="chart-dot"/>';
     }).join("");
 
+    // Plot the trend at `at` (the mean date its window actually covers), not at
+    // the reading's own date: a trailing average lags its window by ~half its
+    // width, so plotting it at p.d drags the line late and every dot lands to one
+    // side of it (below on a downtrend, above on an up). See progress.js.
     var line = t.map(function (p, i) {
-      return (i ? "L" : "M") + x(p.d).toFixed(1) + " " + y(p.v).toFixed(1);
+      return (i ? "L" : "M") + xAt(p.at).toFixed(1) + " " + y(p.v).toFixed(1);
     }).join(" ");
+    // The last centroid sits ~half a window short of the newest reading, so hold
+    // the final trend value flat out to the last date — otherwise the line stops
+    // before the dots on the right, exactly where the eye lands. Flat, not
+    // extrapolated: a 7-day average has nothing to say past its last point, and
+    // this is a log, not a forecast. Guard: when the newest window is a single
+    // reading (at == maxX), this adds nothing.
+    if (t[t.length - 1].at < maxX) {
+      line += " L" + xAt(maxX).toFixed(1) + " " + y(t[t.length - 1].v).toFixed(1);
+    }
 
     var first = raw[0].d, last = raw[raw.length - 1].d;
 
-    return '<svg class="chart" viewBox="0 0 ' + W + " " + H + '" role="img" ' +
-        'aria-label="' + esc(opts.label || "Trend chart") + '" preserveAspectRatio="none">' +
-      grid +
-      dots +
-      '<path d="' + line + '" class="chart-line"/>' +
-      '<text x="' + padL + '" y="' + (H - 6) + '" class="chart-tick chart-tick--x">' + esc(prettyDate(first)) + "</text>" +
-      '<text x="' + (W - padR) + '" y="' + (H - 6) + '" class="chart-tick chart-tick--x" text-anchor="end">' + esc(prettyDate(last)) + "</text>" +
-    "</svg>" +
-    '<p class="chart-key mono"><span class="chart-key-dot"></span> EACH READING &nbsp; ' +
-      '<span class="chart-key-line"></span> ' + MiseProgress.TREND_DAYS + "-DAY TREND</p>";
+    // Tick labels are positioned HTML, not SVG <text>: the SVG stretches to fill
+    // (preserveAspectRatio="none"), which distorts and pushes anchored <text>
+    // outside the frame on narrow phone widths. HTML labels keep a readable px
+    // size and stay inside the box — value ticks in the left gutter, dates in the
+    // bottom corners, both placed by % so they track the responsive box.
+    var yLabels = gridY.map(function (v) {
+      return '<span class="chart-ytick" style="top:' + (y(v) / H * 100).toFixed(2) +
+        '%;width:' + (padL / W * 100).toFixed(2) + '%">' + esc(fmt(v)) + "</span>";
+    }).join("");
+    var xLabels =
+      '<span class="chart-xtick" style="left:' + (padL / W * 100).toFixed(2) + '%">' + esc(prettyDate(first)) + "</span>" +
+      '<span class="chart-xtick chart-xtick--end" style="right:' + (padR / W * 100).toFixed(2) + '%">' + esc(prettyDate(last)) + "</span>";
+
+    return '<div class="chart-box">' +
+        '<svg class="chart" viewBox="0 0 ' + W + " " + H + '" role="img" ' +
+          'aria-label="' + esc(opts.label || "Trend chart") + '" preserveAspectRatio="none">' +
+          grid + dots + '<path d="' + line + '" class="chart-line"/>' +
+        "</svg>" +
+        yLabels + xLabels +
+      "</div>" +
+      '<p class="chart-key mono"><span class="chart-key-dot"></span> EACH READING &nbsp; ' +
+        '<span class="chart-key-line"></span> ' + MiseProgress.TREND_DAYS + "-DAY TREND</p>";
   }
 
   /* ---------- shell ---------- */
