@@ -20,6 +20,7 @@ const FILES = [
   "products.html",
   "profile.html",
   "log.html",
+  "legal.html",
   "styles.css",
   "app.js",
   "profile.js",

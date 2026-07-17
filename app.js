@@ -1236,7 +1236,9 @@
       "</div>" +
       '<p class="store-status" id="store-status" role="status">' +
         (storeLabel ? "Tap any item above to find it at " + storeLabel + "." : "") + "</p>" +
-      '<p class="store-note">Mise may earn a small commission from these links &mdash; it never changes your price.</p>' +
+      '<p class="store-note">Mise may earn a small commission from these links &mdash; it never changes your price. ' +
+        'As an Amazon Associate, I earn from qualifying purchases. ' +
+        '<a href="legal.html" target="_blank" rel="noopener">Details</a>.</p>' +
     "</div>";
   }
 
