@@ -1731,18 +1731,21 @@
   }
 
   /* ---------- Android: hand off the browser to the app ----------
-     One-time banner for Android *browsers* (never inside the app itself —
-     MiseNative.isNative guards that). The single intent:// link does the whole
-     branch Android-side: app installed → Chrome launches it; not installed →
-     Chrome navigates to S.browser_fallback_url, the release-APK download.
-     No JS can detect "is the app installed" from a web page — the intent URL
-     is the supported mechanism, and it's atomic. Scheme-only deep link
-     (com.deadliftdigital.mise://open) matches the manifest's BROWSABLE filter;
-     auth.js's appUrlOpen handler ignores it (it only acts on ://auth?code=…),
-     so the app simply opens. "Stay in the browser" dismisses for good — nagging
-     is worse than one missed install. intent:// is Chromium-only (Chrome,
-     Samsung Internet, Edge = effectively all of Android); on Firefox the tap
-     just fails quietly, and the dismiss still works. */
+     One-time popup for Android *browsers* (never inside the app itself —
+     MiseNative.isNative guards that), built as a <dialog> the same way
+     plus-ui.js builds the paywall, so no HTML file carries the markup. The
+     single intent:// link does the whole branch Android-side: app installed →
+     Chrome launches it; not installed → Chrome navigates to
+     S.browser_fallback_url, the release-APK download. No JS can detect "is the
+     app installed" from a web page — the intent URL is the supported mechanism,
+     and it's atomic. Scheme-only deep link (com.deadliftdigital.mise://open)
+     matches the manifest's BROWSABLE filter; auth.js's appUrlOpen handler
+     ignores it (it only acts on ://auth?code=…), so the app simply opens.
+     ANY way of closing it — "stay in the browser", the ×, Esc, a click on the
+     backdrop — counts as the answer and it never comes back: nagging is worse
+     than one missed install. intent:// is Chromium-only (Chrome, Samsung
+     Internet, Edge = effectively all of Android); on Firefox the tap just
+     fails quietly, and closing still works. */
   var APP_BANNER_KEY = "mise-app-banner-dismissed";
 
   function renderAppBanner() {
@@ -1750,27 +1753,50 @@
     if (!apk) return;                                        // nothing to offer
     if (window.MiseNative && MiseNative.isNative) return;    // already in the app
     if (!/Android/i.test(navigator.userAgent)) return;       // Android browsers only
+    if (window.location.hash) return;                        // direct recipe link — don't interrupt it
     try { if (localStorage.getItem(APP_BANNER_KEY)) return; } catch (e) { /* private mode: just show it */ }
 
     var intent = "intent://open#Intent;scheme=com.deadliftdigital.mise;" +
       "package=com.deadliftdigital.mise;" +
       "S.browser_fallback_url=" + encodeURIComponent(apk) + ";end";
 
-    var el = document.createElement("aside");
-    el.className = "app-handoff";
-    el.setAttribute("aria-label", "Mise Android app");
-    el.innerHTML =
-      '<p class="app-handoff-line"><span class="mono app-handoff-tag">MISE FOR ANDROID</span> ' +
-        "The whole board works offline in the app.</p>" +
-      '<div class="app-handoff-actions">' +
-        '<a class="app-handoff-open" href="' + esc(intent) + '">CONTINUE IN THE APP</a>' +
-        '<button class="app-handoff-stay" type="button">STAY IN THE BROWSER</button>' +
+    var dlg = document.createElement("dialog");
+    dlg.className = "modal handoff-modal";
+    dlg.setAttribute("aria-labelledby", "handoff-title");
+    dlg.innerHTML =
+      '<div class="modal-body">' +
+        '<div class="modal-top">' +
+          '<span class="modal-tape">MISE FOR ANDROID</span>' +
+          '<button class="modal-close" id="handoff-close" aria-label="Close">&times;</button>' +
+        "</div>" +
+        '<h2 id="handoff-title">This whole board fits in your pocket</h2>' +
+        '<p class="modal-desc">Every recipe, filter, and your shopping list &mdash; working offline, ' +
+          "no signal needed at the shop.</p>" +
+        '<a class="sub-buy handoff-open" href="' + esc(intent) + '">' +
+          '<span class="sub-buy-price">Continue in the app</span>' +
+          '<span class="sub-buy-note mono">OPENS THE APP &middot; OR DOWNLOADS IT FIRST</span>' +
+        "</a>" +
+        '<button class="review-signin mono" id="handoff-stay" type="button">STAY IN THE BROWSER</button>' +
       "</div>";
-    el.querySelector(".app-handoff-stay").addEventListener("click", function () {
+    document.body.appendChild(dlg);
+
+    // Every exit is the same answer: don't ask again. Persisted explicitly in
+    // each handler rather than only in a `close` listener — the close event is
+    // fired as a queued task and one embedded WebView we tested never delivered
+    // it, so the flag rides on the click itself. The close/cancel listeners
+    // stay as backup for Esc and anything else.
+    function dismiss() {
       try { localStorage.setItem(APP_BANNER_KEY, "1"); } catch (e) { /* ignore */ }
-      el.remove();
-    });
-    document.body.insertBefore(el, document.body.firstChild);
+      if (dlg.open) dlg.close();
+      dlg.remove();
+    }
+    dlg.querySelector("#handoff-close").addEventListener("click", dismiss);
+    dlg.querySelector("#handoff-stay").addEventListener("click", dismiss);
+    dlg.addEventListener("click", function (e) { if (e.target === dlg) dismiss(); });
+    dlg.addEventListener("cancel", dismiss);   // Esc
+    dlg.addEventListener("close", dismiss);    // any other path
+
+    dlg.showModal();
   }
 
   /* A link from the profile page carries the recipe in the hash
