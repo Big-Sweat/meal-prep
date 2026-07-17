@@ -7,7 +7,9 @@ the filters, or the scaling math to maintain.
 
 All 131 recipes ship **inside the app** (~7MB with photos), so browsing,
 filtering, scaling, and the weekly plan work with no network at all — verified
-on Android with airplane mode on.
+on Android with airplane mode on. With a connection, `recipe-sync.js` quietly
+checks for recipes added to the site since this build and applies them the
+*next* time the app opens (never mid-session) — see CLAUDE.md.
 
 - App ID: `com.deadliftdigital.mise` (both platforms)
 - App name: Mise

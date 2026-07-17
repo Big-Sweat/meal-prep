@@ -2,7 +2,12 @@
    The repo root stays the single source of truth: edit the site as usual, then
    `npm run sync` here to pull those exact files into the Android app.
 
-   Explicit allowlist - never copy .git, node_modules, tools, or the inbox. */
+   Explicit allowlist - never copy .git, node_modules, tools, or the inbox.
+
+   recipes.json is DELIBERATELY not in this list. It's the live-fetch target
+   recipe-sync.js reaches over the network for fresher-than-bundled data — the
+   app is fetching it specifically to get something newer than what's here, so
+   bundling a local copy would be pointless. See recipe-sync.js. */
 
 const fs = require("fs");
 const path = require("path");
@@ -19,6 +24,7 @@ const FILES = [
   "app.js",
   "profile.js",
   "log.js",
+  "recipe-sync.js",
   "recipes.js",
   "products.js",
   "ads.js",
