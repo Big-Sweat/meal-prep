@@ -245,6 +245,16 @@ in rough sync when you change the workflow described here.
   instead of quietly signing the user in. The three sign-in dialog views
   (`#auth-real`, `#auth-reset`, `#auth-newpass`) are switched by
   `updateAuthUI(view)` in `app.js`.
+  **Email-confirmation landing:** `signUp()` sets `emailRedirectTo` to the board
+  URL plus a `?mise_confirmed=1` marker — without an explicit redirect Supabase
+  falls back to its dashboard Site URL (the github.io org **root**, which 404s).
+  On load `app.js` reads the marker (and any `error`/`error_code` params from an
+  expired link) *before* Supabase's async init clears them, then shows a small
+  self-dismissing `showToast()` notice: "Email confirmed!" once the code exchange
+  signs them in, or a generic "that link didn't work" for an expired/used link.
+  The toast is built in JS (no HTML markup) and styled `.toast` in `styles.css`;
+  the error variant uses an amber accent, **not `--chile`** (reserved for
+  allergens).
 
 **Mobile apps (Android + iOS)**
 - `app/` — Capacitor project (app id `com.deadliftdigital.mise`, both

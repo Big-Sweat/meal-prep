@@ -959,6 +959,54 @@
     if (!profile) $(realAuth ? "#real-email" : "#auth-name").focus();
   }
 
+  /* A small self-dismissing notice, top-centre. Built in JS so no HTML file has
+     to carry the markup. Success fades after a few seconds; the actionable
+     error variant lingers a little longer and stays put while hovered. */
+  function showToast(title, body, kind) {
+    var t = document.createElement("div");
+    t.className = "toast toast--" + (kind || "ok");
+    t.setAttribute("role", "status");
+    t.setAttribute("aria-live", "polite");
+
+    var h = document.createElement("p");
+    h.className = "toast-title";
+    h.textContent = title;
+    t.appendChild(h);
+
+    if (body) {
+      var p = document.createElement("p");
+      p.className = "toast-body";
+      p.textContent = body;
+      t.appendChild(p);
+    }
+
+    var close = document.createElement("button");
+    close.type = "button";
+    close.className = "toast-close";
+    close.setAttribute("aria-label", "Dismiss");
+    close.innerHTML = "&times;";
+    t.appendChild(close);
+
+    document.body.appendChild(t);
+
+    var timer;
+    var dismiss = function () {
+      clearTimeout(timer);
+      t.classList.remove("show");
+      setTimeout(function () { if (t.parentNode) t.remove(); }, 320);
+    };
+    var arm = function (ms) { clearTimeout(timer); timer = setTimeout(dismiss, ms); };
+
+    close.addEventListener("click", dismiss);
+    t.addEventListener("mouseenter", function () { clearTimeout(timer); });
+    t.addEventListener("mouseleave", function () { arm(1800); });
+
+    // next frame so the entrance transition runs
+    requestAnimationFrame(function () { t.classList.add("show"); });
+    arm(kind === "error" ? 7000 : 4200);
+    return t;
+  }
+
   function toggleFav(id) {
     if (!profile) { openAuth(); return; }
     if (favs.has(id)) favs.delete(id);
@@ -1014,6 +1062,39 @@
     var resetMsg = msgFor("#reset-msg");
     var newpassMsg = msgFor("#newpass-msg");
 
+    /* ---------- email-confirmation landing ----------
+       A confirmation (or expired-link) email drops the browser back here with
+       params in the URL. Read them BEFORE Supabase's async init clears them,
+       but don't strip the URL yet — detectSessionInUrl still needs the `code`
+       to establish the session. */
+    var landing = (function () {
+      var q = new URLSearchParams(window.location.search);
+      var h = new URLSearchParams((window.location.hash || "").replace(/^#/, ""));
+      var pick = function (k) { return q.get(k) || h.get(k); };
+      return {
+        confirmed: q.get("mise_confirmed") === "1",
+        error: pick("error") || pick("error_code"),
+        errorDesc: pick("error_description")
+      };
+    })();
+    var confirmPending = landing.confirmed && !landing.error;
+
+    function cleanUrl() {
+      if (window.history && window.history.replaceState) {
+        window.history.replaceState(null, document.title, window.location.pathname);
+      }
+    }
+
+    // Expired / already-used link: no session comes, so handle it now. (Also
+    // catches an expired reset link, which lands the same way — the wording is
+    // deliberately generic.)
+    if (landing.error) {
+      cleanUrl();
+      showToast("That link didn't work",
+        "It may have expired or already been used. Sign in again to get a fresh one.",
+        "error");
+    }
+
     MiseAuth.onChange(function (user) {
       profile = user ? { id: user.id, name: user.name, email: user.email } : null;
       if (!profile) {
@@ -1025,6 +1106,12 @@
       updateAuthUI();
       render();
       if (profile && authModal.open) authModal.close();
+      // The code exchange that signs them in is the confirmation completing.
+      if (confirmPending && profile) {
+        confirmPending = false;
+        cleanUrl();
+        showToast("Email confirmed!", "You're signed in as " + profile.name + ".");
+      }
     });
 
     $("#auth-mode-toggle").addEventListener("click", function () {
