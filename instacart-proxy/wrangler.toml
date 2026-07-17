@@ -1,0 +1,11 @@
+# Cloudflare Worker config for the Mise → Instacart proxy.
+# Deploy: `wrangler deploy` from this directory (or point a Cloudflare
+# Workers "connect to Git" build at the instacart-proxy/ root).
+# The API key is NOT here — it's a secret, set separately:
+#   wrangler secret put INSTACART_API_KEY
+# or in the dashboard: Workers & Pages → your worker → Settings →
+#   Variables and Secrets → Add → type "Secret".
+
+name = "mise-instacart"
+main = "worker.js"
+compatibility_date = "2026-01-01"
