@@ -1730,6 +1730,49 @@
     host.hidden = false;
   }
 
+  /* ---------- Android: hand off the browser to the app ----------
+     One-time banner for Android *browsers* (never inside the app itself —
+     MiseNative.isNative guards that). The single intent:// link does the whole
+     branch Android-side: app installed → Chrome launches it; not installed →
+     Chrome navigates to S.browser_fallback_url, the release-APK download.
+     No JS can detect "is the app installed" from a web page — the intent URL
+     is the supported mechanism, and it's atomic. Scheme-only deep link
+     (com.deadliftdigital.mise://open) matches the manifest's BROWSABLE filter;
+     auth.js's appUrlOpen handler ignores it (it only acts on ://auth?code=…),
+     so the app simply opens. "Stay in the browser" dismisses for good — nagging
+     is worse than one missed install. intent:// is Chromium-only (Chrome,
+     Samsung Internet, Edge = effectively all of Android); on Firefox the tap
+     just fails quietly, and the dismiss still works. */
+  var APP_BANNER_KEY = "mise-app-banner-dismissed";
+
+  function renderAppBanner() {
+    var apk = typeof ANDROID_APK_URL !== "undefined" ? ANDROID_APK_URL : "";
+    if (!apk) return;                                        // nothing to offer
+    if (window.MiseNative && MiseNative.isNative) return;    // already in the app
+    if (!/Android/i.test(navigator.userAgent)) return;       // Android browsers only
+    try { if (localStorage.getItem(APP_BANNER_KEY)) return; } catch (e) { /* private mode: just show it */ }
+
+    var intent = "intent://open#Intent;scheme=com.deadliftdigital.mise;" +
+      "package=com.deadliftdigital.mise;" +
+      "S.browser_fallback_url=" + encodeURIComponent(apk) + ";end";
+
+    var el = document.createElement("aside");
+    el.className = "app-handoff";
+    el.setAttribute("aria-label", "Mise Android app");
+    el.innerHTML =
+      '<p class="app-handoff-line"><span class="mono app-handoff-tag">MISE FOR ANDROID</span> ' +
+        "The whole board works offline in the app.</p>" +
+      '<div class="app-handoff-actions">' +
+        '<a class="app-handoff-open" href="' + esc(intent) + '">CONTINUE IN THE APP</a>' +
+        '<button class="app-handoff-stay" type="button">STAY IN THE BROWSER</button>' +
+      "</div>";
+    el.querySelector(".app-handoff-stay").addEventListener("click", function () {
+      try { localStorage.setItem(APP_BANNER_KEY, "1"); } catch (e) { /* ignore */ }
+      el.remove();
+    });
+    document.body.insertBefore(el, document.body.firstChild);
+  }
+
   /* A link from the profile page carries the recipe in the hash
      (index.html#chicken-tikka), so favorites and reviews over there can open
      the real ticket here. Inbound only — no pushState on every modal open,
@@ -1747,6 +1790,7 @@
   updatePlanUI();
   updateAuthUI();
   renderAppLinks();
+  renderAppBanner();
   openFromHash();
 
   /* Just deleted an account? The profile page sends us back here with a marker,

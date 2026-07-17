@@ -57,3 +57,14 @@
 
 var IOS_APP_URL = "";
 var ANDROID_APP_URL = "";
+
+/* ANDROID_APK_URL — direct download of the RELEASE-SIGNED APK, for the
+   "continue in the app" hand-off on Android browsers (see the banner in
+   app.js). This is NOT a store listing, so it does not light up the footer
+   block above — sideloading is a stopgap until the Play listing exists, at
+   which point ANDROID_APP_URL replaces it and this can go away.
+   The URL is GitHub's "latest release" redirect, so publishing a newer release
+   with an asset named mise.apk updates every install link at once.
+   NEVER point this at a debug APK — debug builds are debuggable and signed with
+   a throwaway key (see app/README.md, "Do not publish the debug APK"). */
+var ANDROID_APK_URL = "https://github.com/Big-Sweat/meal-prep/releases/latest/download/mise.apk";
