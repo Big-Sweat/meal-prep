@@ -1749,22 +1749,24 @@
   var APP_BANNER_KEY = "mise-app-banner-dismissed";
 
   function renderAppBanner() {
-    var apk = typeof ANDROID_APK_URL !== "undefined" ? ANDROID_APK_URL : "";
-    if (!apk) return;                                        // nothing to offer
     if (window.MiseNative && MiseNative.isNative) return;    // already in the app
-    if (!/Android/i.test(navigator.userAgent)) return;       // Android browsers only
     if (window.location.hash) return;                        // direct recipe link — don't interrupt it
     try { if (localStorage.getItem(APP_BANNER_KEY)) return; } catch (e) { /* private mode: just show it */ }
 
-    var intent = "intent://open#Intent;scheme=com.deadliftdigital.mise;" +
-      "package=com.deadliftdigital.mise;" +
-      "S.browser_fallback_url=" + encodeURIComponent(apk) + ";end";
+    var ua = navigator.userAgent;
+    var apk = typeof ANDROID_APK_URL !== "undefined" ? ANDROID_APK_URL : "";
+    var isAndroid = /Android/i.test(ua) && !!apk;
+    // iPadOS 13+ reports itself as a Mac; the touch-point count tells them apart.
+    var isIOS = /iPhone|iPad|iPod/.test(ua) ||
+      (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+    if (!isAndroid && !isIOS) return;
 
-    var dlg = document.createElement("dialog");
-    dlg.className = "modal handoff-modal";
-    dlg.setAttribute("aria-labelledby", "handoff-title");
-    dlg.innerHTML =
-      '<div class="modal-body">' +
+    var inner;
+    if (isAndroid) {
+      var intent = "intent://open#Intent;scheme=com.deadliftdigital.mise;" +
+        "package=com.deadliftdigital.mise;" +
+        "S.browser_fallback_url=" + encodeURIComponent(apk) + ";end";
+      inner =
         '<div class="modal-top">' +
           '<span class="modal-tape">MISE FOR ANDROID</span>' +
           '<button class="modal-close" id="handoff-close" aria-label="Close">&times;</button>' +
@@ -1776,8 +1778,26 @@
           '<span class="sub-buy-price">Continue in the app</span>' +
           '<span class="sub-buy-note mono">OPENS THE APP &middot; OR DOWNLOADS IT FIRST</span>' +
         "</a>" +
-        '<button class="review-signin mono" id="handoff-stay" type="button">STAY IN THE BROWSER</button>' +
-      "</div>";
+        '<button class="review-signin mono" id="handoff-stay" type="button">STAY IN THE BROWSER</button>';
+    } else {
+      // iOS: nothing to open or download yet, so this is a tease, not an offer.
+      // No date promised — "in the works" is the honest wording until a build
+      // exists (see app/README.md: iOS needs a Mac + Apple Developer account).
+      inner =
+        '<div class="modal-top">' +
+          '<span class="modal-tape">MISE FOR IPHONE</span>' +
+          '<button class="modal-close" id="handoff-close" aria-label="Close">&times;</button>' +
+        "</div>" +
+        '<h2 id="handoff-title">Coming soon to your pocket</h2>' +
+        '<p class="modal-desc">The iPhone app is in the works &mdash; the whole board, offline, ' +
+          "no signal needed at the shop. Until then everything works right here in the browser.</p>" +
+        '<button class="review-signin mono" id="handoff-stay" type="button">KEEP COOKING IN THE BROWSER</button>';
+    }
+
+    var dlg = document.createElement("dialog");
+    dlg.className = "modal handoff-modal";
+    dlg.setAttribute("aria-labelledby", "handoff-title");
+    dlg.innerHTML = '<div class="modal-body">' + inner + "</div>";
     document.body.appendChild(dlg);
 
     // Every exit is the same answer: don't ask again. Persisted explicitly in
