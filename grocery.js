@@ -35,7 +35,7 @@ var MiseGrocery = (function () {
 
   /* ---- credentials (all blank/placeholder = demo mode) ---- */
 
-  // Public URL of your Instacart proxy, e.g. "https://mise-instacart.<you>.workers.dev".
+  // Public URL of your Instacart proxy, e.g. "https://myse-instacart.<you>.workers.dev".
   // Blank => Instacart falls back to copy-list. See instacart-proxy/README.md.
   var INSTACART_ENDPOINT = "";
 

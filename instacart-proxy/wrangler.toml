@@ -6,6 +6,6 @@
 # or in the dashboard: Workers & Pages → your worker → Settings →
 #   Variables and Secrets → Add → type "Secret".
 
-name = "mise-instacart"
+name = "myse-instacart"
 main = "worker.js"
 compatibility_date = "2026-01-01"

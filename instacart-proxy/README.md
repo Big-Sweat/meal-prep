@@ -45,19 +45,19 @@ wrangler secret put INSTACART_AFFILIATE
 Minimal `wrangler.toml`:
 
 ```toml
-name = "mise-instacart"
+name = "myse-instacart"
 main = "worker.js"
 compatibility_date = "2026-01-01"
 ```
 
-`wrangler deploy` prints a URL like `https://mise-instacart.<you>.workers.dev`.
+`wrangler deploy` prints a URL like `https://myse-instacart.<you>.workers.dev`.
 
 ## Wire it up
 
 Paste that URL into `grocery.js` at the repo root:
 
 ```js
-var INSTACART_ENDPOINT = "https://mise-instacart.<you>.workers.dev";
+var INSTACART_ENDPOINT = "https://myse-instacart.<you>.workers.dev";
 ```
 
 Bump `grocery.js?v=N` in `index.html` (cache-busting — see the repo `CLAUDE.md`),
