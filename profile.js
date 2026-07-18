@@ -651,6 +651,9 @@
       draft = null;        // a different person gets a different form
       render();
     });
+    // Sign-in renders from cache first; hydrate() then loads this account's rows
+    // from Supabase and fires onSync, so redraw the whole page with real data.
+    MiseStore.onSync(function () { draft = null; render(); });
     /* auth.js pulls the Supabase SDK off jsDelivr, so with no connection
        onChange never fires and this page would spin forever. Give up after a
        few seconds and say which of the two things went wrong. */

@@ -617,6 +617,8 @@
       ready = true;
       render();
     });
+    // hydrate() pulls the log from Supabase after sign-in and fires onSync — redraw.
+    MiseStore.onSync(function () { render(); });
     setTimeout(function () {
       if (ready) return;
       ready = true;

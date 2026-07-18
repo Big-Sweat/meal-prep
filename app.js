@@ -996,6 +996,15 @@
     renderModalRating(r.id);
     renderReviews(r.id);
 
+    /* Reviews and the public rating average are shared across everyone, so they
+       live server-side rather than in the per-user cache — fetch them for this
+       recipe and redraw the modal when they land. Works signed out too (the
+       ratings/reviews tables are world-readable). */
+    MiseStore.fetchRecipeSocial(r.id, function () {
+      renderModalRating(r.id);
+      renderReviews(r.id);
+    });
+
     $("#modal-stars").addEventListener("click", function (e) {
       var star = e.target.closest(".star");
       if (!star) return;
@@ -1310,6 +1319,15 @@
         cleanUrl();
         showToast("Email confirmed!", "You're signed in as " + profile.name + ".");
       }
+    });
+
+    /* Sign-in renders immediately from whatever's cached; hydrate() then pulls
+       this account's rows from Supabase and fires onSync, so re-load favorites
+       and standing allergies and redraw with the real data. */
+    MiseStore.onSync(function () {
+      loadFavs();
+      applyStandingAllergies();
+      render();
     });
 
     $("#auth-mode-toggle").addEventListener("click", function () {

@@ -136,6 +136,10 @@ var MiseAuth = (function () {
 
   return {
     enabled: enabled,
+    // The Supabase client, for the data layer (store.js) to query the profile
+    // tables under the signed-in user's RLS. null until init() finishes loading
+    // the SDK — callers gate on isReady()/onChange like they already do.
+    client: function () { return client; },
     // The URL as the page loaded, captured before the SDK could strip it.
     landingSearch: function () { return landingSearch; },
     landingHash: function () { return landingHash; },
