@@ -83,6 +83,21 @@
     return parseInt(parts[2], 10) + " " + MON[parseInt(parts[1], 10) - 1];
   }
 
+  /* Whole-hour clock, 12-hour with AM/PM. Minutes are deliberately not tracked:
+     a weigh-in doesn't need that precision and the log stays terse. Stored as a
+     plain 0-23 integer (`h`) on the weight entry — metadata only, the trend is
+     day-resolution and never reads it. These two are the only place it shows. */
+  function fmtHour(h) {
+    var ap = h < 12 ? "AM" : "PM";
+    var h12 = h % 12 || 12;
+    return h12 + " " + ap;
+  }
+  function hourOptionsHTML() {
+    var out = "";
+    for (var h = 0; h < 24; h++) out += '<option value="' + h + '">' + fmtHour(h) + "</option>";
+    return out;
+  }
+
   /* ---------- the chart ----------
      Hand-rolled inline SVG: this project has no build step and no
      dependencies, and a charting library would be several times the weight of
@@ -332,6 +347,10 @@
         '<form class="log-form" id="weight-form">' +
           '<label class="nut-field"><span class="mono">DATE</span>' +
             '<input type="date" id="w-date" max="' + todayLocal() + '" value="' + todayLocal() + '" required></label>' +
+          '<label class="nut-field"><span class="mono">TIME</span>' +
+            '<select id="w-hour" aria-label="Time of day (optional)"><option value="">&mdash;</option>' +
+              hourOptionsHTML() +
+            "</select></label>" +
           '<label class="nut-field"><span class="mono">WEIGHT</span>' +
             '<span class="nut-pair"><input type="number" id="w-kg" step="0.1" min="1" inputmode="decimal" placeholder="' +
               (imperial() ? "175" : "80") + '" required><em>' + wUnit() + "</em></span></label>" +
@@ -341,6 +360,8 @@
 
         (entries.length ? historyHTML(entries.slice().reverse(), function (e) {
           return round1(showKg(e.kg)) + " " + wUnit();
+        }, function (e) {
+          return typeof e.h === "number" ? fmtHour(e.h) : "";
         }) : "") +
       "</div>";
 
@@ -358,7 +379,14 @@
         showErr(err, "That weight looks off — check the units and try again.");
         return;
       }
-      MiseStore.addLogEntry(me(), { d: date, t: "weight", kg: kg });
+      // Time of day is optional; when given it's a plain 0-23 hour on the entry.
+      var entry = { d: date, t: "weight", kg: kg };
+      var hourStr = $("#w-hour").value;
+      if (hourStr !== "") {
+        var h = parseInt(hourStr, 10);
+        if (h >= 0 && h <= 23) entry.h = h;
+      }
+      MiseStore.addLogEntry(me(), entry);
       renderWeight();   // re-syncs the profile weight on the way through
       renderSide();
     });
@@ -537,12 +565,17 @@
 
   /* ---------- shared history list ---------- */
 
-  function historyHTML(entries, describe) {
+  /* `timeOf` is optional and only the weight list passes it: a time-of-day
+     column sits between the date and the value. Lifts and runs omit it, so their
+     rows keep the plain date/value shape. A weigh-in logged without a time
+     leaves the cell empty but still holds the column, so the list stays aligned. */
+  function historyHTML(entries, describe, timeOf) {
     return '<p class="modal-section-title">History</p>' +
       '<ul class="kit-list log-hist">' +
         entries.map(function (e) {
           return "<li><div class=\"log-hist-row\">" +
             '<span class="log-hist-date mono">' + esc(prettyDate(e.d)) + "</span>" +
+            (timeOf ? '<span class="log-hist-time mono">' + esc(timeOf(e)) + "</span>" : "") +
             '<span class="log-hist-what">' + describe(e) + "</span>" +
             '<button class="kit-review-del log-hist-del mono" data-del="' + esc(e.id) +
               '" type="button">DELETE</button>' +
