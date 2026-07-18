@@ -1945,35 +1945,60 @@
   var APP_BANNER_KEY = "mise-app-banner-dismissed";
 
   function renderAppBanner() {
-    var apk = typeof ANDROID_APK_URL !== "undefined" ? ANDROID_APK_URL : "";
-    if (!apk) return;                                        // nothing to offer
     if (window.MiseNative && MiseNative.isNative) return;    // already in the app
-    if (!/Android/i.test(navigator.userAgent)) return;       // Android browsers only
     if (window.location.hash) return;                        // direct recipe link — don't interrupt it
     try { if (localStorage.getItem(APP_BANNER_KEY)) return; } catch (e) { /* private mode: just show it */ }
+
+    var ua = navigator.userAgent;
+    var apk = typeof ANDROID_APK_URL !== "undefined" ? ANDROID_APK_URL : "";
+    var isAndroid = /Android/i.test(ua) && !!apk;
+    // iPadOS 13+ reports itself as a Mac; the touch-point count tells them apart.
+    var isIOS = /iPhone|iPad|iPod/.test(ua) ||
+      (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+    if (!isAndroid && !isIOS) return;
+
+    // iOS: nothing to open or download yet, so no popup — an interstitial with
+    // no action is just an interruption. A quiet one-line strip says an app is
+    // on the way ("in the works", no date promised — see app/README.md: iOS
+    // needs a Mac + Apple Developer account) and dismisses with the same
+    // never-ask-again key as the Android popup.
+    if (isIOS) {
+      var strip = document.createElement("aside");
+      strip.className = "ios-tease";
+      strip.setAttribute("aria-label", "Mise iPhone app");
+      strip.innerHTML =
+        '<span class="mono ios-tease-tag">MISE FOR IPHONE</span>' +
+        "<span>An app is on the way.</span>" +
+        '<button class="ios-tease-close" type="button" aria-label="Dismiss">&times;</button>';
+      strip.querySelector(".ios-tease-close").addEventListener("click", function () {
+        try { localStorage.setItem(APP_BANNER_KEY, "1"); } catch (e) { /* ignore */ }
+        strip.remove();
+      });
+      document.body.insertBefore(strip, document.body.firstChild);
+      return;
+    }
 
     var intent = "intent://open#Intent;scheme=com.deadliftdigital.mise;" +
       "package=com.deadliftdigital.mise;" +
       "S.browser_fallback_url=" + encodeURIComponent(apk) + ";end";
+    var inner =
+      '<div class="modal-top">' +
+        '<span class="modal-tape">MISE FOR ANDROID</span>' +
+        '<button class="modal-close" id="handoff-close" aria-label="Close">&times;</button>' +
+      "</div>" +
+      '<h2 id="handoff-title">This whole board fits in your pocket</h2>' +
+      '<p class="modal-desc">Every recipe, filter, and your shopping list &mdash; working offline, ' +
+        "no signal needed at the shop.</p>" +
+      '<a class="sub-buy handoff-open" href="' + esc(intent) + '">' +
+        '<span class="sub-buy-price">Continue in the app</span>' +
+        '<span class="sub-buy-note mono">OPENS THE APP &middot; OR DOWNLOADS IT FIRST</span>' +
+      "</a>" +
+      '<button class="review-signin mono" id="handoff-stay" type="button">STAY IN THE BROWSER</button>';
 
     var dlg = document.createElement("dialog");
     dlg.className = "modal handoff-modal";
     dlg.setAttribute("aria-labelledby", "handoff-title");
-    dlg.innerHTML =
-      '<div class="modal-body">' +
-        '<div class="modal-top">' +
-          '<span class="modal-tape">MISE FOR ANDROID</span>' +
-          '<button class="modal-close" id="handoff-close" aria-label="Close">&times;</button>' +
-        "</div>" +
-        '<h2 id="handoff-title">This whole board fits in your pocket</h2>' +
-        '<p class="modal-desc">Every recipe, filter, and your shopping list &mdash; working offline, ' +
-          "no signal needed at the shop.</p>" +
-        '<a class="sub-buy handoff-open" href="' + esc(intent) + '">' +
-          '<span class="sub-buy-price">Continue in the app</span>' +
-          '<span class="sub-buy-note mono">OPENS THE APP &middot; OR DOWNLOADS IT FIRST</span>' +
-        "</a>" +
-        '<button class="review-signin mono" id="handoff-stay" type="button">STAY IN THE BROWSER</button>' +
-      "</div>";
+    dlg.innerHTML = '<div class="modal-body">' + inner + "</div>";
     document.body.appendChild(dlg);
 
     // Every exit is the same answer: don't ask again. Persisted explicitly in
