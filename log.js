@@ -324,7 +324,7 @@
           ? '<p class="log-link mono">' +
               (target
                 ? "YOUR CALORIE TARGET FOLLOWS THIS &middot; NOW " + target + " KCAL/DAY"
-                : "YOUR CALORIE TARGET FOLLOWS THIS &middot; <span class=\"log-link-locked\">MISE PLUS TO SEE IT</span>") +
+                : "YOUR CALORIE TARGET FOLLOWS THIS &middot; <span class=\"log-link-locked\">MYSE PLUS TO SEE IT</span>") +
             "</p>"
           : '<p class="log-link mono log-link--muted">SET UP A CALORIE TARGET IN ' +
             '<a href="profile.html">YOUR KITCHEN</a> AND IT WILL FOLLOW THESE WEIGH-INS</p>') +
