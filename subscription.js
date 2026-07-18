@@ -101,6 +101,18 @@
 var BILLING_ANDROID_KEY = "";   // RevenueCat PUBLIC SDK key for Android (goog_…)
 var BILLING_IOS_KEY = "";       // RevenueCat PUBLIC SDK key for iOS   (appl_…)
 
+/* RevenueCat TEST STORE key — DEV/TEST ONLY, and only on a NATIVE build.
+   When set, it replaces the platform keys above so the SDK runs against
+   RevenueCat's Test Store: simulated purchases that grant the real `plus`
+   entitlement with no Google/Apple account and no charge. It needs test
+   products in an Offering (RevenueCat dashboard → Product catalog) attached to
+   the `plus` entitlement, exactly like the live setup.
+   ⚠️ NEVER commit a value here and NEVER ship it — a release built with a test
+   key cannot take real money. Set it locally for a test build, then clear it.
+   It is deliberately ignored on the web (no native SDK there), so the site and
+   the browser preview always stay in demo mode regardless. */
+var BILLING_TEST_KEY = "";
+
 /* Two ways to buy the same entitlement. Create BOTH in each store: a
    subscription and a one-time (non-consumable) product, both attached to the
    ONE entitlement below. Same unlock either way. Prices here are display labels
@@ -152,9 +164,9 @@ var MiseSub = (function () {
 
   function activeKey() {
     var p = platform();
-    if (p === "android") return BILLING_ANDROID_KEY;
-    if (p === "ios") return BILLING_IOS_KEY;
-    return "";                             // the web has no app store to bill through
+    if (p !== "android" && p !== "ios") return "";   // web has no native SDK — always demo
+    if (BILLING_TEST_KEY) return BILLING_TEST_KEY;    // dev override: RevenueCat Test Store (see top of file)
+    return p === "android" ? BILLING_ANDROID_KEY : BILLING_IOS_KEY;
   }
 
   function billingConfigured() { return !!activeKey(); }
@@ -281,6 +293,13 @@ var MiseSub = (function () {
   var api = {
     // True when this device has a real key set. Everything else is demo.
     isLive: billingConfigured,
+
+    // True when the key in use is a RevenueCat Test Store key (a dev build) —
+    // so the UI can say the purchase is simulated. Never true on the web.
+    isTest: function () {
+      var p = platform();
+      return !!BILLING_TEST_KEY && (p === "android" || p === "ios");
+    },
 
     monthlyPrice: function () { return SUB_MONTHLY_PRICE; },
     lifetimePrice: function () { return SUB_LIFETIME_PRICE; },

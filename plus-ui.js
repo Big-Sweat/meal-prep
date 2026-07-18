@@ -113,10 +113,12 @@ var MisePlusUI = (function () {
       "</ul>" +
       '<p class="sub-free mono">FREE FOREVER: ' + count + ", EVERY FILTER, " +
         "SEARCH, RATINGS, REVIEWS, FAVORITES, AND YOUR ACCOUNT.</p>" +
-      (live
-        ? ""
-        : '<p class="sub-demo mono">DEMO BUILD — THIS CHARGES NOTHING. REAL BILLING NEEDS A STORE ' +
-          "ACCOUNT AND A PUBLISHED PRODUCT; SEE SUBSCRIPTION.JS.</p>") +
+      (MiseSub.isTest && MiseSub.isTest()
+        ? '<p class="sub-demo mono">TEST STORE — SIMULATED PURCHASE, NO REAL CHARGE. DEV BUILD ONLY.</p>'
+        : (live
+          ? ""
+          : '<p class="sub-demo mono">DEMO BUILD — THIS CHARGES NOTHING. REAL BILLING NEEDS A STORE ' +
+            "ACCOUNT AND A PUBLISHED PRODUCT; SEE SUBSCRIPTION.JS.</p>")) +
       (trial
         ? '<p class="sub-trial mono">START WITH ' + days + " DAYS FREE &middot; CANCEL ANYTIME &middot; NO CHARGE TODAY</p>"
         : "") +
