@@ -218,6 +218,134 @@ button {
   .search-box { flex: 0 1 320px; order: 0; margin-left: auto; }
 }
 
+/* ---------- view toggle (paged vs. one long scroll) ---------- */
+
+.view-toggle {
+  display: inline-flex;
+  flex: 0 0 auto;
+  border: 1px solid var(--ink);
+}
+
+.view-btn {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  padding: 8px 13px;
+  min-height: 40px;
+  background: var(--ticket);
+  color: var(--ink);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.view-btn + .view-btn { border-left: 1px solid var(--ink); }
+
+.view-btn[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+
+.view-btn:hover:not([aria-pressed="true"]) { background: var(--tape); }
+
+/* On mobile the search box takes the full first row (order: -1); let the count
+   and the toggle share the row under it. */
+.results-head .view-toggle { order: 0; }
+
+@media (min-width: 768px) {
+  .results-head .view-toggle { margin-left: auto; }
+  /* the search box already claims margin-left:auto, so only the first
+     auto-margined item after the count needs it — keep them adjacent */
+  .results-head .view-toggle + .search-box { margin-left: 12px; flex: 0 1 300px; }
+}
+
+/* ---------- pager ---------- */
+
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 30px;
+  padding-top: 22px;
+  border-top: 1px dashed var(--line);
+}
+
+.pager[hidden] { display: none; }
+
+.pager-btn {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  border: 1px solid var(--ink);
+  background: var(--ticket);
+  color: var(--ink);
+  padding: 11px 18px;
+  min-height: 44px;
+  transition: background 0.15s ease;
+}
+
+.pager-btn:hover:not([disabled]) { background: var(--tape); }
+
+.pager-btn[disabled] { opacity: 0.38; cursor: default; }
+
+.pager-status {
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  color: var(--faded);
+  min-width: 9ch;
+  text-align: center;
+}
+
+/* ---------- sponsored page-turn interstitial ---------- */
+
+.ad-interstitial { width: min(440px, calc(100vw - 32px)); }
+
+.ad-interstitial-slot { padding: 6px 0 2px; }
+
+.ad-interstitial-kicker {
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--faded);
+  margin-bottom: 10px;
+}
+
+.ad-interstitial-name {
+  font-family: var(--font-display);
+  font-size: 23px;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  margin-bottom: 9px;
+}
+
+.ad-interstitial-blurb {
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--ink);
+  margin-bottom: 12px;
+}
+
+.ad-interstitial-price {
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--faded);
+  margin-bottom: 16px;
+}
+
+.ad-interstitial-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--line);
+}
+
+.ad-skip {
+  background: var(--ink);
+  color: var(--paper);
+  flex: 0 0 auto;
+}
+
+.ad-skip:hover { background: var(--kale); }
+
 /* ---------- filter rail ---------- */
 
 .rail {

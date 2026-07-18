@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&family=Permanent+Marker&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=31">
+  <link rel="stylesheet" href="styles.css?v=32">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='2' y='11' width='28' height='10' rx='1' fill='%23EAD9A8' transform='rotate(-6 16 16)'/%3E%3C/svg%3E">
 </head>
 <body>
@@ -123,6 +123,10 @@
     <section class="results" aria-label="Recipes">
       <div class="results-head">
         <p id="count" class="mono" aria-live="polite">Showing 131 of 131 recipes</p>
+        <div class="view-toggle mono" role="group" aria-label="How to page through recipes">
+          <button id="view-paged" class="view-btn" type="button" aria-pressed="true">Pages</button>
+          <button id="view-all" class="view-btn" type="button" aria-pressed="false">Show all</button>
+        </div>
         <div class="search-box">
           <label class="visually-hidden" for="search-input">Search recipes</label>
           <input id="search-input" type="search" placeholder="Search recipes&hellip;" autocomplete="off">
@@ -130,6 +134,7 @@
         </div>
       </div>
       <ul id="cards" class="cards"></ul>
+      <nav id="pager" class="pager" aria-label="Recipe pages" hidden></nav>
       <div id="empty" class="empty" hidden>
         <span class="tape tape-empty mono">NOTHING ON THE BOARD</span>
         <p>No recipe fits this combination. Your allergy filters stay put —
@@ -165,6 +170,23 @@
 
   <!-- The Mise Plus dialog isn't here: plus-ui.js builds it on first open, so
        the board and profile.html can't drift into two different paywalls. -->
+
+  <!-- Shown by app.js on a "Next" page turn (never for ad-free subscribers).
+       "Skip ahead" advances; the ✕ / Esc cancel and leave you on this page. -->
+  <dialog id="ad-interstitial" class="modal ad-interstitial" aria-labelledby="ad-interstitial-title">
+    <div class="modal-body">
+      <div class="modal-top">
+        <span class="modal-tape">SPONSORED</span>
+        <button class="modal-close" id="ad-skip-x" aria-label="Close ad, stay on this page">&times;</button>
+      </div>
+      <h2 id="ad-interstitial-title" class="visually-hidden">Advertisement</h2>
+      <div id="ad-interstitial-slot" class="ad-interstitial-slot"></div>
+      <div class="ad-interstitial-foot">
+        <button class="ad-card-remove mono" data-remove-ads>REMOVE ADS</button>
+        <button class="pager-btn ad-skip mono" id="ad-skip" type="button">Skip ahead &rarr;</button>
+      </div>
+    </div>
+  </dialog>
 
   <dialog id="auth-modal" class="modal auth-modal" aria-labelledby="auth-title">
     <div class="modal-body">
@@ -244,6 +266,6 @@
        MiseNative.isNative) and before app.js (swaps RECIPES before app.js
        reads it to build its search index). -->
   <script src="recipe-sync.js?v=1"></script>
-  <script src="app.js?v=32"></script>
+  <script src="app.js?v=33"></script>
 </body>
 </html>
