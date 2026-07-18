@@ -96,8 +96,40 @@
     servings: 4,
     maxDifficulty: 3,
     query: "",
-    favOnly: false
+    favOnly: false,
+    // The board paginates by default; `paged: false` is the "show everything on
+    // one long scroll" view. `page` is 1-based and only meaningful when paged.
+    paged: true,
+    page: 1
   };
+
+  /* Recipes per page, and the device-wide preference for paged vs. show-all.
+     The view choice isn't per-user (it's how you like to read the board, not
+     account data), so it lives in its own localStorage key rather than in
+     store.js — the same call as PLAN_KEY below. */
+  var PAGE_SIZE = 25;
+  var VIEW_KEY = "mise-view";
+  try { state.paged = localStorage.getItem(VIEW_KEY) !== "all"; } catch (e) { /* default paged */ }
+  function saveView() {
+    try { localStorage.setItem(VIEW_KEY, state.paged ? "paged" : "all"); } catch (e) { /* ignore */ }
+  }
+
+  /* A fingerprint of just the filters (not the page). render() compares it to
+     the last one so that changing a filter drops you back to page 1, while
+     paging through — which only moves state.page — leaves you where you are. */
+  var lastFilterSig = null;
+  function filterSignature() {
+    return JSON.stringify({
+      g: Array.from(state.goals).sort(),
+      m: Array.from(state.meals).sort(),
+      a: Array.from(state.allergies).sort(),
+      p: Array.from(state.proteins).sort(),
+      t: state.terms.slice().sort(),
+      d: state.maxDifficulty,
+      q: state.query,
+      f: state.favOnly
+    });
+  }
 
   /* The allergies saved to this account (see the standing-allergies section).
      Cached rather than re-read: activeFilterCount() runs on every render, and
@@ -175,6 +207,7 @@
   var countEl = $("#count");
   var mobileCountEl = $("#mobile-count");
   var emptyEl = $("#empty");
+  var pagerEl = $("#pager");
   var railEl = $("#filter-rail");
   var modalEl = $("#recipe-modal");
   var modalBody = $("#modal-body");
@@ -390,20 +423,47 @@
   function render() {
     var visible = RECIPES.filter(matches);
     var adFree = typeof MiseSub !== "undefined" && MiseSub.isAdFree();
+
+    // Any change to the filters themselves sends you back to page 1; paging
+    // (which only moves state.page) leaves the signature unchanged.
+    var sig = filterSignature();
+    if (sig !== lastFilterSig) { state.page = 1; lastFilterSig = sig; }
+
+    var totalPages = state.paged ? Math.max(1, Math.ceil(visible.length / PAGE_SIZE)) : 1;
+    if (state.page > totalPages) state.page = totalPages;
+    if (state.page < 1) state.page = 1;
+
+    // The slice actually drawn: one page when paged, everything otherwise.
+    var startIdx = state.paged ? (state.page - 1) * PAGE_SIZE : 0;
+    var pageItems = state.paged ? visible.slice(startIdx, startIdx + PAGE_SIZE) : visible;
+
     var html = "";
-    visible.forEach(function (r, i) {
+    pageItems.forEach(function (r, i) {
       html += cardHTML(r);
-      // never trail an ad off the end of the list
-      if (!adFree && (i + 1) % AD_EVERY === 0 && i + 1 < visible.length) html += adCardHTML();
+      // In-feed sponsored ticket every AD_EVERY recipes, counted within the
+      // page that's actually on screen, and never trailing off its end.
+      if (!adFree && (i + 1) % AD_EVERY === 0 && i + 1 < pageItems.length) html += adCardHTML();
     });
     cardsEl.innerHTML = html;
     if (firstRender) { cardsEl.classList.add("reveal"); firstRender = false; }
     else { cardsEl.classList.remove("reveal"); }
 
-    var text = "Showing " + visible.length + " of " + RECIPES.length + " recipes";
+    // Paged view names the window you're looking at ("Showing 26–50 of 131");
+    // show-all keeps the original matched-of-library line, including when empty.
+    var text;
+    if (state.paged && visible.length) {
+      text = "Showing " + (startIdx + 1) + "–" + (startIdx + pageItems.length) +
+        " of " + visible.length + (visible.length === 1 ? " recipe" : " recipes");
+    } else {
+      text = "Showing " + visible.length + " of " + RECIPES.length + " recipes";
+    }
     countEl.textContent = text;
-    mobileCountEl.textContent = visible.length + " of " + RECIPES.length;
+    mobileCountEl.textContent = (state.paged && visible.length)
+      ? (startIdx + 1) + "–" + (startIdx + pageItems.length) + " of " + visible.length
+      : visible.length + " of " + RECIPES.length;
     emptyEl.hidden = visible.length !== 0;
+
+    renderPager(totalPages, visible.length);
 
     var n = activeFilterCount();
     badgeEl.hidden = n === 0;
@@ -412,6 +472,142 @@
 
     var apply = $("#apply-filters");
     apply.textContent = visible.length === 0 ? "Nothing matches" : "Show " + visible.length + (visible.length === 1 ? " recipe" : " recipes");
+  }
+
+  /* ---------- paging: pager UI, page turns, the sponsored interstitial ---------- */
+
+  function renderPager(totalPages, matchedCount) {
+    if (!pagerEl) return;
+    var show = state.paged && matchedCount > 0 && totalPages > 1;
+    pagerEl.hidden = !show;
+    if (!show) { pagerEl.innerHTML = ""; return; }
+    var p = state.page;
+    pagerEl.innerHTML =
+      '<button class="pager-btn pager-prev mono" type="button"' + (p <= 1 ? " disabled" : "") +
+        ' data-page-prev>&larr; Prev</button>' +
+      '<span class="pager-status mono">Page ' + p + ' of ' + totalPages + '</span>' +
+      '<button class="pager-btn pager-next mono" type="button"' + (p >= totalPages ? " disabled" : "") +
+        ' data-page-next>Next &rarr;</button>';
+  }
+
+  function scrollToResults() {
+    var el = document.querySelector(".results");
+    if (!el) return;
+    var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    el.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+  }
+
+  function commitPage(n) {
+    state.page = n;
+    render();
+    scrollToResults();
+  }
+
+  // Going forward meets a sponsored interstitial first — unless the reader is
+  // ad-free (a Plus subscriber), for whom the turn is silent. Prev is always free.
+  function goToPage(n, viaNext) {
+    var adFree = typeof MiseSub !== "undefined" && MiseSub.isAdFree();
+    if (viaNext && !adFree) { openInterstitial(n); return; }
+    commitPage(n);
+  }
+
+  // The body of the page-turn ad: a real ad-network embed if one is configured
+  // (ads.js), otherwise a house ad drawn from PRODUCTS — the same fallback the
+  // in-feed ticket uses, so "remove ads" always has something to remove.
+  function adInterstitialHTML() {
+    if (typeof NETWORK_AD_HTML !== "undefined" && NETWORK_AD_HTML) {
+      return '<div class="ad-network-slot">' + NETWORK_AD_HTML + "</div>";
+    }
+    var flat = [];
+    if (typeof PRODUCTS !== "undefined") {
+      PRODUCTS.forEach(function (g) { g.items.forEach(function (p) { flat.push(p); }); });
+    }
+    if (!flat.length) return '<p class="ad-interstitial-blurb">Advertisement.</p>';
+    var p = flat[Math.floor(Math.random() * flat.length)];
+    return (
+      '<p class="ad-interstitial-kicker mono">PREP GEAR WE LIKE</p>' +
+      '<h3 class="ad-interstitial-name">' + esc(p.name) + "</h3>" +
+      '<p class="ad-interstitial-blurb">' + esc(p.blurb) + "</p>" +
+      '<p class="ad-interstitial-price mono">' + esc(p.priceBand) + "</p>" +
+      '<a class="ad-card-link mono" href="' + esc(productUrl(p)) +
+        '" target="_blank" rel="sponsored noopener">VIEW ON AMAZON &rarr;</a>'
+    );
+  }
+
+  var adInterstitialEl = $("#ad-interstitial");
+  var pendingPage = null; // the page "Skip ahead" will land on
+
+  function openInterstitial(nextPage) {
+    pendingPage = nextPage;
+    var slot = $("#ad-interstitial-slot");
+    if (slot) slot.innerHTML = adInterstitialHTML();
+    // No <dialog> support (very old browser): just turn the page.
+    if (adInterstitialEl && typeof adInterstitialEl.showModal === "function") {
+      adInterstitialEl.showModal();
+    } else {
+      commitPage(nextPage);
+      pendingPage = null;
+    }
+  }
+
+  function closeInterstitial() {
+    if (adInterstitialEl && adInterstitialEl.open) adInterstitialEl.close();
+  }
+
+  if (adInterstitialEl) {
+    // Skip ahead: the interstitial's whole job is to gate the turn, so this is
+    // the button that actually advances.
+    $("#ad-skip").addEventListener("click", function () {
+      var n = pendingPage;
+      pendingPage = null;
+      closeInterstitial();
+      if (n != null) commitPage(n);
+    });
+    // The ✕ (and Esc) cancel without turning the page — you stay where you are.
+    $("#ad-skip-x").addEventListener("click", function () {
+      pendingPage = null;
+      closeInterstitial();
+    });
+    // "Remove ads" opens the Plus paywall (plus-ui.js handles [data-remove-ads]
+    // globally); close the interstitial first so the two dialogs don't stack.
+    var adRemove = adInterstitialEl.querySelector("[data-remove-ads]");
+    if (adRemove) adRemove.addEventListener("click", function () {
+      pendingPage = null;
+      closeInterstitial();
+    });
+  }
+
+  if (pagerEl) {
+    pagerEl.addEventListener("click", function (e) {
+      if (e.target.closest("[data-page-prev]")) goToPage(state.page - 1, false);
+      else if (e.target.closest("[data-page-next]")) goToPage(state.page + 1, true);
+    });
+  }
+
+  /* ---------- view toggle (paged vs. one long scroll) ---------- */
+
+  var viewPagedBtn = $("#view-paged");
+  var viewAllBtn = $("#view-all");
+
+  function syncViewToggle() {
+    if (!viewPagedBtn) return;
+    viewPagedBtn.setAttribute("aria-pressed", String(state.paged));
+    viewAllBtn.setAttribute("aria-pressed", String(!state.paged));
+  }
+
+  function setView(paged) {
+    if (state.paged === paged) return;
+    state.paged = paged;
+    state.page = 1;
+    saveView();
+    syncViewToggle();
+    render();
+  }
+
+  if (viewPagedBtn && viewAllBtn) {
+    viewPagedBtn.addEventListener("click", function () { setView(true); });
+    viewAllBtn.addEventListener("click", function () { setView(false); });
+    syncViewToggle();
   }
 
   /* ---------- filter chips ---------- */
