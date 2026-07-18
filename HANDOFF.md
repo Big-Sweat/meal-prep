@@ -129,7 +129,7 @@ macOS with Xcode. It's a hard constraint, not a gap.
 
 ## 5. Mise Plus (the paid tier)
 
-`$0.99/month` or `$4.99 once` — same entitlement either way.
+`$2.99/month` or `$29.99 once` — same entitlement either way.
 
 - **Paid:** print, PDF download, the weekly plan view, the calorie target, no
   ads. (The calorie target is **live now** — it merged; the previous handoff
@@ -179,8 +179,10 @@ these from memory:
   bypass the install-source check, once the package + an ACTIVE product exist in
   Play Console. Google's words: *"you can sideload apps for testing, even for
   apps using debug builds with debug signatures."*
-- **Play Billing is no longer mandatory** post-Epic settlement — but at $0.99 it
-  still wins: Play takes 15% all-in; Stripe's flat $0.30 alone is ~30%.
+- **Play Billing is no longer mandatory** post-Epic settlement. At $0.99 it won
+  on fees (15% all-in beat Stripe's flat $0.30); at $2.99/$29.99 that flips and
+  Stripe is cheaper. We keep Play/RevenueCat for friction, not fees — native
+  in-app path + server-side receipt validation a static site can't do.
 - **Store badges are not required** to link to either store (checked against both
   companies' docs). If you *do* use them you must use their artwork unmodified —
   which is why there are no Apple/Google logos in this repo.
