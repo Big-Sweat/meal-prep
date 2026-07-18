@@ -68,7 +68,7 @@ var MisePlusUI = (function () {
       }
       body.innerHTML =
         '<div class="modal-top">' +
-          '<span class="modal-tape">MISE PLUS</span>' +
+          '<span class="modal-tape">MYSE PLUS</span>' +
           '<button class="modal-close" id="sub-close" aria-label="Close">&times;</button>' +
         "</div>" +
         '<h2 id="sub-title">' + pTitle + "</h2>" +
@@ -99,7 +99,7 @@ var MisePlusUI = (function () {
 
     body.innerHTML =
       '<div class="modal-top">' +
-        '<span class="modal-tape">MISE PLUS</span>' +
+        '<span class="modal-tape">MYSE PLUS</span>' +
         '<button class="modal-close" id="sub-close" aria-label="Close">&times;</button>' +
       "</div>" +
       '<h2 id="sub-title">Take it to the kitchen</h2>' +

@@ -51,7 +51,7 @@ export default {
     if (!lineItems.length) return json({ error: "no line_items" }, 400, cors);
 
     const payload = {
-      title: typeof body.title === "string" && body.title ? body.title : "Mise shopping list",
+      title: typeof body.title === "string" && body.title ? body.title : "Myse shopping list",
       link_type: "shopping_list",
       line_items: lineItems,
       landing_page_configuration: {

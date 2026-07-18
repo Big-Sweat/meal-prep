@@ -111,10 +111,10 @@
         "</p>" +
         '<div class="kit-plus">' +
           (plus
-            ? '<p class="kit-plus-on mono">MISE PLUS · ' + planLabel + "</p>" +
+            ? '<p class="kit-plus-on mono">MYSE PLUS · ' + planLabel + "</p>" +
               '<button class="kit-plus-manage mono" id="kit-manage" type="button">MANAGE &rarr;</button>'
             : '<p class="kit-plus-off mono">FREE PLAN</p>' +
-              '<button class="kit-plus-manage mono" id="kit-manage" type="button">SEE MISE PLUS &rarr;</button>') +
+              '<button class="kit-plus-manage mono" id="kit-manage" type="button">SEE MYSE PLUS &rarr;</button>') +
         "</div>" +
         '<button class="clear-btn" id="kit-signout" type="button">Sign out</button>' +
       "</div>";
@@ -167,7 +167,7 @@
             ? "The board will hide every recipe containing " + esc(list) + "."
             : "Nothing set &mdash; the board shows every recipe.") +
         "</p>" +
-        '<p class="kit-fineprint">Mise tags allergens per ingredient and errs towards over-tagging, ' +
+        '<p class="kit-fineprint">Myse tags allergens per ingredient and errs towards over-tagging, ' +
           "including the hidden ones (soy sauce is soy and wheat). It&rsquo;s still illustrative data: " +
           "if a reaction is severe, read the label on the actual jar.</p>" +
       "</div>";
@@ -250,7 +250,7 @@
       var saved = MiseStore.nutrition(me());
       el.innerHTML =
         '<div class="kit-card kit-card--locked">' +
-          '<span class="tape mono" aria-hidden="true">MISE PLUS</span>' +
+          '<span class="tape mono" aria-hidden="true">MYSE PLUS</span>' +
           "<h2>Your calorie target</h2>" +
           (saved
             ? '<p class="kit-lede">Your goals are still saved &mdash; we haven&rsquo;t touched them. ' +
@@ -258,7 +258,7 @@
             : '<p class="kit-lede">A daily number worked out from your goal, your body and how much you ' +
               "move &mdash; and then every recipe on the board shows what share of your day it is.</p>") +
           '<button class="sub-buy" id="kit-unlock">' +
-            '<span class="sub-buy-price">' + (saved ? "Bring it back" : "Unlock with Mise Plus") + "</span>" +
+            '<span class="sub-buy-price">' + (saved ? "Bring it back" : "Unlock with Myse Plus") + "</span>" +
             '<span class="sub-buy-note mono">' +
               (MiseSub.trialAvailable()
                 ? MiseSub.trialDays() + " days free, then " + esc(MiseSub.monthlyPrice())
@@ -351,7 +351,7 @@
           '<button class="sub-buy" id="nut-save"' + (calc ? "" : " disabled") + ">Save my target</button>" +
           (MiseStore.nutrition(me()) ? '<button class="review-signin mono" id="nut-clear">CLEAR MY PROFILE</button>' : "") +
         "</div>" +
-        '<p class="nut-disclaimer">Mise isn&rsquo;t a doctor or a dietitian. This is a population-average ' +
+        '<p class="nut-disclaimer">Myse isn&rsquo;t a doctor or a dietitian. This is a population-average ' +
           "estimate; if you have a health condition, are pregnant, or are treating an eating disorder, " +
           "get a number from a professional instead.</p>" +
       "</div>";
@@ -562,7 +562,7 @@
         '<span class="tape mono" aria-hidden="true">DANGER ZONE</span>' +
         "<h2>Delete your account</h2>" +
         '<p class="kit-lede kit-danger-lede">This closes your account for good and clears everything ' +
-          "Mise keeps for you &mdash; your standing allergies, your calorie target, your favorites, and " +
+          "Myse keeps for you &mdash; your standing allergies, your calorie target, your favorites, and " +
           "every rating and review. Signing up again later starts you over as a new account, with none " +
           "of this. There&rsquo;s no undo.</p>" +
         '<div class="kit-danger-actions" id="kit-danger-actions">' +
