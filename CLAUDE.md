@@ -38,11 +38,19 @@ in rough sync when you change the workflow described here.
 - `store.js` — `MiseStore`: **the shared data layer, and the only place a
   storage key is written down.** Every per-user key (favorites, ratings,
   reviews, the nutrition profile, standing allergies) plus the big-9 `ALLERGENS`
-  vocabulary, so the board and the profile page cannot drift. Pure functions
-  over localStorage: pass in `who`, get that person's data — no session state,
-  since each page tracks the signed-in user itself. Still the demo layer (it all
-  lives in this browser); reimplementing these functions against Supabase tables
-  is the known next step, and no caller would change.
+  vocabulary, so the board and the profile page cannot drift. Keeps a
+  **synchronous** API (pass in `who`, get that person's data — no caller ever
+  awaits), but localStorage is now a **cache**, not the source of truth. When a
+  real account signs in, `hydrate()` pulls that person's rows from Supabase into
+  the cache (merging up any local data on a first sync so nothing's lost) and
+  fires `onSync` so the pages redraw; every write updates the cache **and**
+  pushes to Supabase in the background. So profile data follows a person across
+  devices and survives a cache wipe — same shape as `isPlus()`, a sync cache
+  reconciled against an async authority. Public rating aggregates load for
+  signed-out visitors too (`loadSummaries`); reviews are fetched per recipe on
+  modal open (`fetchRecipeSocial`). Tables + RLS live in `supabase/migrations/`
+  (see **Profile backend** below). With `SUPABASE_URL` empty it falls back to
+  the old browser-only demo layer, unchanged.
 - `plus-ui.js` — `MisePlusUI`: the upgrade dialog, **shared by every page** so
   there is only ever one paywall. It builds its own `<dialog>` on first open, so
   no HTML file carries the markup. `MisePlusUI.require()` is the call-site gate
@@ -126,11 +134,19 @@ in rough sync when you change the workflow described here.
   already gated, so "your target follows your body" is a Plus benefit for free.
 - `BILLING_ANDROID_KEY` / `BILLING_IOS_KEY` are empty, so it runs in **demo
   mode**: purchase flips a localStorage flag, charges nothing, and the dialog
-  says so in red. Real billing needs a Play Console account ($25) + merchant
-  profile + one uploaded build with the Billing Library + ACTIVE products. Note
-  (checked against Google's docs, Jul 2026): billing **can** be tested on a
-  sideloaded debug APK once those exist — license testers bypass the
-  install-source check.
+  says so in red. **The RevenueCat Capacitor SDK is wired** behind
+  `isPlus`/`purchase`/`restore`/`manage` (reached via
+  `Capacitor.Plugins.Purchases`, so the web stays a plain `<script>` and no-ops
+  there); a non-empty key flips it live. The **monthly plan opens a 14-day free
+  trial** (`SUB_TRIAL_DAYS`; a store free-trial offer live, mirrored locally in
+  demo). `BILLING_TEST_KEY` runs the RevenueCat **Test Store** on a NATIVE build
+  for dev testing — **never ship it** (a release with a test key can't take real
+  money, and RevenueCat refuses a test key in a *release* build anyway, so test
+  with a **debug** build). Going live still needs a Play Console account ($25) +
+  merchant profile + an uploaded build with the Billing Library + ACTIVE
+  products + a RevenueCat project whose entitlement id is `plus`; the
+  `subscription.js` header is the runbook. Billing can be tested on a sideloaded
+  debug APK once those exist — license testers bypass the install-source check.
 - **One ad slot only:** the in-feed `SPONSORED` ticket every `AD_EVERY` (12)
   recipes in `render()`, honouring `NETWORK_AD_HTML`. The old pre-print
   interstitial was deleted — print is Plus-only and Plus removes ads, so it was
@@ -241,8 +257,11 @@ in rough sync when you change the workflow described here.
   `SUPABASE_URL`/`SUPABASE_ANON_KEY` are empty it loads nothing external and the
   site falls back to the demo name-only profile. Setup steps are in the file's
   header comment; the Supabase JS SDK is injected from jsDelivr only when
-  configured. Ratings/reviews/favorites still live in localStorage either way —
-  moving them to Supabase tables (shared across visitors) is the known next step.
+  configured. **`MiseAuth.client()` exposes the Supabase client so `store.js`
+  can read/write the profile tables under the signed-in user's RLS** (see
+  **Profile backend** below): favorites, allergies, the nutrition profile, the
+  log, and ratings/reviews are now Supabase-backed and shared across visitors,
+  no longer browser-only.
   **Password recovery** lives here too: `resetPassword(email)` sends the
   "set a new password" email (worded so it never confirms whether an address has
   an account) and `updatePassword(pw)` completes it. A page opened from the email
@@ -281,6 +300,30 @@ in rough sync when you change the workflow described here.
   `verify_jwt = false` for this function is deliberate (lets the CORS preflight
   through; the function verifies the token itself). If the project migrates off
   legacy keys later, see the README's note about setting the admin key explicitly.
+
+**Profile backend (Supabase Postgres) — `supabase/migrations/`**
+- `20260718000000_profile_backend.sql` — 6 tables + a public aggregate view that
+  hold everything `store.js` used to keep only in localStorage: **private**
+  (`favorites`, `allergies`, `nutrition_profiles`, `log_entries`) and **shared**
+  (`ratings`, `reviews`) plus `recipe_rating_summary` (a `security_invoker` view
+  for cheap board aggregates). Applied to the live project via the SQL editor;
+  the file is the checked-in record. **Idempotent** (drops each policy before
+  recreating) — safe to re-run.
+- **Security is RLS-only** — the anon key is public, so the policies are the
+  whole fence. Private tables: owner-only (`auth.uid() = user_id`), and the anon
+  role's default grants are **revoked** so a signed-out request hard-denies
+  (42501) rather than relying on RLS to filter to zero. ratings/reviews:
+  world-readable, author-writable. Don't loosen these without re-verifying.
+- The client talks straight to Postgres (no server) via `MiseAuth.client()`;
+  `store.js` does all reads/writes. Account deletion needs no per-table cleanup:
+  every table is `on delete cascade` from `auth.users`, so deleting the auth
+  user (the Edge Function above) removes all their rows.
+- Known v1 gaps: write-through is best-effort (no retry queue — a push that
+  fails on a blip isn't retried, though localStorage holds the value until the
+  next sync); the first-sign-in local→server merge is coded but lightly tested.
+- **Email confirmation is ON**, so you can't create a usable test session by
+  `signUp()` alone (no session until confirmed) — test the signed-in path by
+  actually signing in.
 
 **Mobile apps (Android + iOS)**
 - `app/` — Capacitor project (app id `com.deadliftdigital.mise`, both
