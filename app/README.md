@@ -172,7 +172,7 @@ signup would kill the ratings/reviews/favorites the site already has.
   it simply stops displaying until they come back.
 - No sponsored tickets on the board
 
-**Two ways to buy:** `$0.99/month` (`mise_plus_monthly`) or `$4.99 once`
+**Two ways to buy:** `$2.99/month` (`mise_plus_monthly`) or `$29.99 once`
 (`mise_plus_lifetime`). Both grant the same entitlement. Prices are display
 labels in `subscription.js`; the store is the source of truth once billing is
 live, so keep them in step.
@@ -211,10 +211,12 @@ and is signed in as that tester. Allow a few hours after the first upload for
 propagation.
 
 **Play Billing vs Stripe:** since the Epic v. Google settlement Google no longer
-*requires* Play Billing, so external checkout is allowed. It's still the wrong
-call at this price — Play takes 15% all-in on $0.99 (~$0.15), while Stripe's
-fixed $0.30 per-transaction fee alone is ~30%, before Google's external-link fee
-on top.
+*requires* Play Billing, so external checkout is allowed. At $0.99 Play was the
+clear call — its 15% all-in (~$0.15) beat Stripe's flat $0.30. At $2.99/$29.99
+the fee math flips: Stripe (~$0.30 + ~2.9%, so ~$0.39 monthly / ~$1.16 lifetime)
+undercuts Play's 15% (~$0.45 / ~$4.50). We still use Play Billing via RevenueCat,
+but for friction not fees — it's the native in-app path, sidesteps external-link
+compliance, and RevenueCat validates receipts, which a static site can't.
 
 **Why a billing service rather than raw Play Billing:** purchases have to be
 verified server-side or a rooted device can spoof them, and a static site has no

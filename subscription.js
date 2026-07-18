@@ -1,4 +1,4 @@
-/* Mise — "Mise Plus": the $0.99/month remove-ads subscription.
+/* Mise — "Mise Plus": the $2.99/month remove-ads subscription.
 
    ─────────────────────────────────────────────────────────────────────────
    READ THIS BEFORE ASSUMING THIS TAKES MONEY. IT DOES NOT, YET.
@@ -56,8 +56,8 @@
       with billing exists.
    3. Create BOTH products, set each ACTIVE, and in RevenueCat attach both to a
       single entitlement whose identifier is `PLUS_ENTITLEMENT_ID` below:
-        `mise_plus_monthly`  — subscription, $0.99/month
-        `mise_plus_lifetime` — one-time / non-consumable, $4.99
+        `mise_plus_monthly`  — subscription, $2.99/month
+        `mise_plus_lifetime` — one-time / non-consumable, $29.99
       An inactive product makes queries return an EMPTY LIST with no error —
       the classic time-waster. Wrap both in a RevenueCat Offering so
       getOfferings() returns them.
@@ -95,8 +95,8 @@ var BILLING_IOS_KEY = "";       // RevenueCat PUBLIC SDK key for iOS   (appl_…
    in step with the console. */
 var SUB_MONTHLY_ID = "mise_plus_monthly";
 var SUB_LIFETIME_ID = "mise_plus_lifetime";
-var SUB_MONTHLY_PRICE = "$0.99/month";
-var SUB_LIFETIME_PRICE = "$4.99 once";
+var SUB_MONTHLY_PRICE = "$2.99/month";
+var SUB_LIFETIME_PRICE = "$29.99 once";
 
 /* The RevenueCat entitlement identifier both products grant. This string must
    match the entitlement you create in the RevenueCat dashboard exactly. */

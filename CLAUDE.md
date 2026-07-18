@@ -114,8 +114,8 @@ in rough sync when you change the workflow described here.
 - `subscription.js` — `MiseSub`, the entitlement authority. **`isPlus()` is the
   single gate**; the dialog that sells it lives in `plus-ui.js` and call sites
   use `MisePlusUI.require()`, which opens it and returns true when the caller
-  should stop. Two products, same entitlement: `mise_plus_monthly` ($0.99/mo)
-  and `mise_plus_lifetime` ($4.99 once).
+  should stop. Two products, same entitlement: `mise_plus_monthly` ($2.99/mo)
+  and `mise_plus_lifetime` ($29.99 once).
 - **Paid:** print, PDF download, the weekly plan view, the calorie target,
   no ads.
   **Free forever:** browsing, filters, search, ratings, reviews, favorites,
