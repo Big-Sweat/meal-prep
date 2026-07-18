@@ -4,6 +4,7 @@
   "private": true,
   "description": "Mise — iOS + Android app. Capacitor shell around the Mise web app; the web files in the repo root are the single source of truth.",
   "scripts": {
+    "bump": "node scripts/bump-version.js",
     "sync": "node scripts/sync-web.js && cap sync",
     "sync:android": "node scripts/sync-web.js && cap sync android",
     "sync:ios": "node scripts/sync-web.js && cap sync ios",

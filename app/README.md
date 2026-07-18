@@ -233,6 +233,20 @@ export ANDROID_HOME="/c/Users/jake/AppData/Local/Android/Sdk"
 # -> %TEMP%/mise-gradle-build/app/outputs/apk/release/app-release.apk
 ```
 
+**For a Play Store upload, build an App Bundle, not an APK**, and bump the
+version first — Play rejects an AAB whose `versionCode` isn't higher than the
+last one uploaded:
+
+```bash
+cd app && npm run bump        # versionCode n -> n+1 in android/app/build.gradle
+npm run sync                  # copy the latest web files into the build
+cd android && ./gradlew bundleRelease
+# -> %TEMP%/mise-gradle-build/app/outputs/bundle/release/app-release.aab
+```
+
+Run `npm run bump` once per upload, not per local rebuild — rebuilding a
+version you haven't uploaded yet needs no bump.
+
 Signing is wired up already: `app/build.gradle` reads `android/keystore.properties`,
 and if that file is missing (a fresh clone, CI) the release build just comes out
 unsigned instead of failing.
