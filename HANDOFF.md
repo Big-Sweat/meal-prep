@@ -82,7 +82,10 @@ strictly for allergen semantics.
   font embedding.
 - **Accounts** — real Supabase auth (email/password + Google tested end-to-end;
   Apple built, waits on the developer account).
-- **Ratings, reviews, favorites** — per user, in localStorage.
+- **Ratings, reviews, favorites** — per user, **persisted in Supabase** (RLS
+  tables) with localStorage as a write-through cache; they follow a person
+  across devices and survive a cache wipe. Ratings/reviews are shared across
+  visitors. See `supabase/migrations/` and `store.js`.
 - **"Your kitchen" (`profile.html`)** — standing allergies (the one filter saved
   to an account, on by default every visit), the calorie target, your
   favorites, and your ratings & reviews. Free; only the calorie card is gated.
@@ -266,10 +269,13 @@ When importing from a URL: use the *facts* (ingredients, quantities, times) but
 - **The $25 Play Console account** is still the highest-leverage move: it turns
   on Plus billing, unblocks the app download links, and lets the phone already
   in Jake's hand make real test purchases as a license tester.
-- **Ratings/reviews/favorites still live in `localStorage`**, so they aren't
-  shared between visitors. Moving them to Supabase tables (via `store.js`,
-  which is already the single data layer) is the known next step; the auth to
-  do it works.
+- **Profile data is now Supabase-backed** (done, shipped): favorites, allergies,
+  the nutrition profile, the log, and ratings/reviews persist in RLS tables with
+  localStorage as a write-through cache — cross-device, cache-wipe-proof, and
+  ratings/reviews shared across visitors. `store.js` stayed synchronous; tables
+  in `supabase/migrations/`. Remaining hardening: a write-through **retry queue**
+  (best-effort pushes aren't retried today), and the first-sign-in local→server
+  merge is coded but lightly tested.
 - **Known small polish, not started:** `.card:hover` lifts a card, and `:hover`
   sticks on touch — so a tapped card stays raised after the modal closes on
   Android. A couple of lines in the phone media query; Jake's aware, deferred.

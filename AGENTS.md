@@ -9,12 +9,16 @@ board — `app.js`), `profile.html` (**"your kitchen"**, the per-account page �
 `recipes.js` (the data).
 
 Shared modules: `store.js` (`MiseStore` — **the only place a per-user storage
-key is written down**, plus the big-9 `ALLERGENS` list; both pages read it),
+key is written down**, plus the big-9 `ALLERGENS` list; both pages read it.
+Synchronous API, but localStorage is now a **cache** hydrated from Supabase on
+sign-in and written through, so profile data — favorites, allergies, nutrition,
+log, ratings, reviews — persists across devices and survives a cache wipe; RLS
+tables in `supabase/migrations/`),
 `plus-ui.js` (`MisePlusUI` — the one upgrade dialog, shared; `require()` is the
 gate, and it builds its own markup), `subscription.js` (`MiseSub` — the
 entitlement; `isPlus()` is THE gate), `nutrition.js` (pure calorie maths),
 `progress.js` (pure trend/1RM/pace maths — **`node tools/test-progress.js`**),
-`auth.js` (Supabase — demo name-only profile fallback while its keys are empty),
+`auth.js` (Supabase sign-in — configured and live; `MiseAuth.client()` backs store.js),
 `pdf.js` (recipe PDF), `ads.js`, `apps.js` (store links — both empty because
 nothing is published; the footer block hides itself rather than show a dead
 link, and the buttons carry no Apple/Google logos on purpose), `native.js`
