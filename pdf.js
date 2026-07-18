@@ -169,7 +169,7 @@
     // Footers
     var total = L.pages.length;
     L.pages.forEach(function (pg, i) {
-      pg.lines.push({ x: ML, y: 40, size: 8, font: "F1", color: FADED, text: "MISE" });
+      pg.lines.push({ x: ML, y: 40, size: 8, font: "F1", color: FADED, text: "MYSE" });
       var stamp = (i + 1) + " / " + total;
       pg.lines.push({
         x: PAGE_W - MR - stamp.length * charW(8), y: 40, size: 8, font: "F1", color: FADED, text: stamp

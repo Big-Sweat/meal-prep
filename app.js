@@ -1565,7 +1565,7 @@
   function planAsText() {
     var entries = planEntries();
     var list = buildShoppingList(entries);
-    var out = ["MISE — THE WEEK'S PLAN", ""];
+    var out = ["MYSE — THE WEEK'S PLAN", ""];
     out.push("SHOPPING LIST");
     list.items.forEach(function (it) { out.push("- " + it.amount + "  " + it.item); });
     if (list.pantry.length) out.push("- from the pantry, to taste: " + list.pantry.join(", "));
@@ -1613,7 +1613,7 @@
       "</div>" +
       '<p class="store-status" id="store-status" role="status">' +
         (storeLabel ? "Tap any item above to find it at " + storeLabel + "." : "") + "</p>" +
-      '<p class="store-note">Mise may earn a small commission from these links &mdash; it never changes your price. ' +
+      '<p class="store-note">Myse may earn a small commission from these links &mdash; it never changes your price. ' +
         'As an Amazon Associate, I earn from qualifying purchases. ' +
         '<a href="legal.html" target="_blank" rel="noopener">Details</a>.</p>' +
     "</div>";
@@ -1627,7 +1627,7 @@
   function copyShoppingList(list) {
     var lines = list.items.map(function (it) { return it.amount + "  " + it.item; });
     if (list.pantry.length) lines.push("from the pantry, to taste: " + list.pantry.join(", "));
-    var text = "MISE — SHOPPING LIST\n" + lines.join("\n");
+    var text = "MYSE — SHOPPING LIST\n" + lines.join("\n");
     if (navigator.clipboard && navigator.clipboard.writeText) {
       return navigator.clipboard.writeText(text).catch(function () {});
     }
@@ -1915,7 +1915,7 @@
     }
 
     host.innerHTML =
-      '<p class="app-links-title mono" id="app-links-title">MISE ON YOUR PHONE</p>' +
+      '<p class="app-links-title mono" id="app-links-title">MYSE ON YOUR PHONE</p>' +
       '<p class="app-links-line">All ' + RECIPES.length + " recipes live inside the app, so the board, " +
         "your plan, and the shopping list all work with no signal at the shop.</p>" +
       '<div class="app-links-row">' + buttons + "</div>" +
@@ -1965,9 +1965,9 @@
     if (isIOS) {
       var strip = document.createElement("aside");
       strip.className = "ios-tease";
-      strip.setAttribute("aria-label", "Mise iPhone app");
+      strip.setAttribute("aria-label", "Myse iPhone app");
       strip.innerHTML =
-        '<span class="mono ios-tease-tag">MISE FOR IPHONE</span>' +
+        '<span class="mono ios-tease-tag">MYSE FOR IPHONE</span>' +
         "<span>An app is on the way.</span>" +
         '<button class="ios-tease-close" type="button" aria-label="Dismiss">&times;</button>';
       strip.querySelector(".ios-tease-close").addEventListener("click", function () {
@@ -1983,7 +1983,7 @@
       "S.browser_fallback_url=" + encodeURIComponent(apk) + ";end";
     var inner =
       '<div class="modal-top">' +
-        '<span class="modal-tape">MISE FOR ANDROID</span>' +
+        '<span class="modal-tape">MYSE FOR ANDROID</span>' +
         '<button class="modal-close" id="handoff-close" aria-label="Close">&times;</button>' +
       "</div>" +
       '<h2 id="handoff-title">This whole board fits in your pocket</h2>' +
@@ -2049,6 +2049,6 @@
       window.history.replaceState(null, document.title, window.location.pathname);
     }
     showToast("Your account was deleted",
-      "Everything Mise kept for you is gone. You're welcome back any time.");
+      "Everything Myse kept for you is gone. You're welcome back any time.");
   })();
 })();
