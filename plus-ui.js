@@ -64,7 +64,11 @@ var MisePlusUI = (function () {
             : "Switch back to free") +
         "</button>";
       $("#sub-close").addEventListener("click", function () { modal.close(); });
-      $("#sub-cancel").addEventListener("click", function () { MiseSub.cancel(); });
+      // Live: real subscriptions are managed in the store, not revoked locally.
+      // Demo: there is no store, so "switch back to free" just drops the flag.
+      $("#sub-cancel").addEventListener("click", function () {
+        if (live) MiseSub.manage(); else MiseSub.cancel();
+      });
       return;
     }
 
@@ -114,6 +118,8 @@ var MisePlusUI = (function () {
       btn.disabled = true;
       MiseSub.purchase(kind).catch(function (e) {
         btn.disabled = false;
+        // A user backing out of the store sheet isn't an error — bow out quietly.
+        if (e && e.userCancelled) return;
         var err = $("#sub-error");
         err.hidden = false;
         err.textContent = e.message;
@@ -130,6 +136,10 @@ var MisePlusUI = (function () {
         err.textContent = res.demo
           ? "Nothing to restore in the demo — there is no store account behind it yet."
           : "No purchase found on this account.";
+      }).catch(function (e) {
+        var err = $("#sub-error");
+        err.hidden = false;
+        err.textContent = (e && e.message) || "Couldn't reach the store. Try again.";
       });
     });
   }
