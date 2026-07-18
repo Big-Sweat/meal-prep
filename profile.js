@@ -96,6 +96,10 @@
     var s = MiseStore.stats(me());
     var plus = MiseSub.isPlus();
     var kind = MiseSub.kind();
+    var onTrial = plus && MiseSub.onTrial();
+    var planLabel = onTrial
+      ? "FREE TRIAL · " + MiseSub.trialDaysLeft() + "D LEFT"
+      : (kind === "lifetime" ? "LIFETIME" : "MONTHLY");
 
     $("#kit-id").innerHTML =
       '<div class="kit-card kit-card--id">' +
@@ -107,7 +111,7 @@
         "</p>" +
         '<div class="kit-plus">' +
           (plus
-            ? '<p class="kit-plus-on mono">MISE PLUS · ' + (kind === "lifetime" ? "LIFETIME" : "MONTHLY") + "</p>" +
+            ? '<p class="kit-plus-on mono">MISE PLUS · ' + planLabel + "</p>" +
               '<button class="kit-plus-manage mono" id="kit-manage" type="button">MANAGE &rarr;</button>'
             : '<p class="kit-plus-off mono">FREE PLAN</p>' +
               '<button class="kit-plus-manage mono" id="kit-manage" type="button">SEE MISE PLUS &rarr;</button>') +
@@ -255,8 +259,11 @@
               "move &mdash; and then every recipe on the board shows what share of your day it is.</p>") +
           '<button class="sub-buy" id="kit-unlock">' +
             '<span class="sub-buy-price">' + (saved ? "Bring it back" : "Unlock with Mise Plus") + "</span>" +
-            '<span class="sub-buy-note mono">' + esc(MiseSub.monthlyPrice()) + " &middot; OR " +
-              esc(MiseSub.lifetimePrice()).toUpperCase() + "</span>" +
+            '<span class="sub-buy-note mono">' +
+              (MiseSub.trialAvailable()
+                ? MiseSub.trialDays() + " days free, then " + esc(MiseSub.monthlyPrice())
+                : esc(MiseSub.monthlyPrice())) +
+              " &middot; OR " + esc(MiseSub.lifetimePrice()).toUpperCase() + "</span>" +
           "</button>" +
         "</div>";
       $("#kit-unlock").addEventListener("click", function () { MisePlusUI.open(); });

@@ -21,6 +21,15 @@
    and making an account. Accounts are how a purchase finds its way back to a
    person on a new phone — never put them behind the paywall.
 
+   FREE TRIAL: the monthly plan opens with a SUB_TRIAL_DAYS-day free trial (the
+   lifetime product can't have one — a trial is a subscription concept). Live,
+   it's a free-trial offer on mise_plus_monthly that RevenueCat reads and the
+   store grants/ends; demo mode runs a local copy of the same trial so it's
+   visible before billing exists, and a real key makes the store trial
+   authoritative (the local one is then ignored). Either way the trial is Plus
+   in full and isPlus() is true throughout — the app doesn't special-case it,
+   it just says "you're on the trial, N days left" in the paywall and profile.
+
    ─── HOW THE REAL PATH IS WIRED ───────────────────────────────────────────
    Billing is RevenueCat's Capacitor plugin (`@revenuecat/purchases-capacitor`,
    a dependency in app/package.json). We call it through the Capacitor bridge —
@@ -60,7 +69,11 @@
         `mise_plus_lifetime` — one-time / non-consumable, $29.99
       An inactive product makes queries return an EMPTY LIST with no error —
       the classic time-waster. Wrap both in a RevenueCat Offering so
-      getOfferings() returns them.
+      getOfferings() returns them. On mise_plus_monthly add a free-trial offer
+      of SUB_TRIAL_DAYS days (Play: a free-trial phase on the base plan; App
+      Store Connect: an introductory free-trial offer) and keep SUB_TRIAL_DAYS
+      below in step with it — RevenueCat surfaces the trial automatically, no
+      client change needed.
    4. DONE — the SDK is wired behind isPlus/purchase/restore/manage below.
    5. Set the key(s) below to your RevenueCat PUBLIC SDK keys (NOT the Play
       license key). Non-empty key => real billing, demo mode off.
@@ -98,6 +111,14 @@ var SUB_LIFETIME_ID = "mise_plus_lifetime";
 var SUB_MONTHLY_PRICE = "$2.99/month";
 var SUB_LIFETIME_PRICE = "$29.99 once";
 
+/* Free trial on the MONTHLY subscription only (never the one-time lifetime).
+   Like the prices, this is a DISPLAY figure kept in step with the store: the
+   real trial is a free-trial offer configured on mise_plus_monthly, which
+   RevenueCat grants and ends. Demo mode runs a local trial of the same length
+   so it's demonstrable now; a billing key makes the store trial authoritative
+   and the local one is ignored. */
+var SUB_TRIAL_DAYS = 14;
+
 /* The RevenueCat entitlement identifier both products grant. This string must
    match the entitlement you create in the RevenueCat dashboard exactly. */
 var PLUS_ENTITLEMENT_ID = "plus";
@@ -111,6 +132,7 @@ var MiseSub = (function () {
 
   var ENTITLEMENT_KEY = "mise-plus";     // synchronous entitlement cache
   var KIND_KEY = "mise-plus-kind";       // 'monthly' | 'lifetime', cached
+  var TRIAL_UNTIL_KEY = "mise-plus-trial-until";  // ms epoch of the trial's end, or null
   var listeners = [];
 
   function log() {
@@ -164,6 +186,11 @@ var MiseSub = (function () {
     notify();
   }
 
+  function trialUntil() { var t = lsGet(TRIAL_UNTIL_KEY, null); return typeof t === "number" ? t : null; }
+  // Demo only: a started, unexpired local trial. Reads the clock, so it lapses
+  // on its own without any event to fire.
+  function demoTrialActive() { var t = trialUntil(); return t != null && Date.now() < t; }
+
   // ── RevenueCat helpers ──────────────────────────────────────────────────
   function activeEntitlement(info) {
     return (info && info.entitlements && info.entitlements.active &&
@@ -176,6 +203,15 @@ var MiseSub = (function () {
   }
   function syncFrom(info) {
     var ent = activeEntitlement(info);
+    // Mirror a store-side free trial so the UI can show "N days left".
+    // RevenueCat marks the trial phase periodType "trial"; expirationDate is
+    // when it ends (and the first charge lands).
+    var until = null;
+    if (ent && ent.periodType && String(ent.periodType).toLowerCase() === "trial" && ent.expirationDate) {
+      var t = Date.parse(ent.expirationDate);
+      if (!isNaN(t)) until = t;
+    }
+    lsSet(TRIAL_UNTIL_KEY, until);
     applyEntitlement(!!ent, kindFrom(info));
     return !!ent;
   }
@@ -253,7 +289,11 @@ var MiseSub = (function () {
        print, PDF download, the weekly plan, the calorie target, and no ads.
        Synchronous by contract — reads the cache that RevenueCat reconciles. */
     isPlus: function () {
-      return lsGet(ENTITLEMENT_KEY, false) === true;
+      if (lsGet(ENTITLEMENT_KEY, false) === true) return true;
+      // Demo only: an unexpired local trial is Plus. It's never written into the
+      // entitlement cache, so it lapses on its own the moment it runs out.
+      if (!billingConfigured() && demoTrialActive()) return true;
+      return false;
     },
 
     // Ads are removed by the same entitlement; kept as its own name because
@@ -263,13 +303,52 @@ var MiseSub = (function () {
     // 'monthly' | 'lifetime' | null
     kind: function () { return api.isPlus() ? lsGet(KIND_KEY, null) : null; },
 
+    // Display length of the trial (see SUB_TRIAL_DAYS — kept in step with the store).
+    trialDays: function () { return SUB_TRIAL_DAYS; },
+
+    /* Should the paywall offer a trial? Demo: only if this browser hasn't used
+       one. Live: yes — the store decides eligibility at purchase and simply
+       charges normally if the account isn't eligible. */
+    trialAvailable: function () {
+      if (billingConfigured()) return true;
+      return trialUntil() == null;
+    },
+
+    // On an active free trial right now (store or demo)?
+    onTrial: function () {
+      if (billingConfigured()) {
+        var t = trialUntil();
+        return api.isPlus() && t != null && Date.now() < t;
+      }
+      // Demo: the trial, but not once a permanent demo unlock has been bought.
+      return demoTrialActive() && lsGet(ENTITLEMENT_KEY, false) !== true;
+    },
+
+    // Whole days left in the trial (0 if none or expired).
+    trialDaysLeft: function () {
+      var t = trialUntil();
+      if (t == null) return 0;
+      var ms = t - Date.now();
+      return ms <= 0 ? 0 : Math.ceil(ms / 86400000);
+    },
+
     /* Buy. DEMO (no key): flips the entitlement locally, charges nothing.
        LIVE: find the package for the chosen product, hand it to RevenueCat, and
        let the returned customerInfo drive the cache. A user cancel rejects with
        err.userCancelled = true so the dialog can bow out quietly. */
     purchase: function (kind) {
       if (!billingConfigured()) {
-        applyEntitlement(true, kind);
+        // Demo: the monthly plan starts the local trial (not a permanent unlock)
+        // so the demo walks the real "trial, then it ends" path. Written as a
+        // clock deadline, never into the entitlement cache. Lifetime, and a
+        // monthly bought after the trial's been used, are permanent demo unlocks.
+        if (kind !== "lifetime" && api.trialAvailable()) {
+          lsSet(TRIAL_UNTIL_KEY, Date.now() + SUB_TRIAL_DAYS * 86400000);
+          lsSet(KIND_KEY, "monthly");
+          notify();
+          return Promise.resolve({ demo: true, kind: "monthly", trial: true });
+        }
+        applyEntitlement(true, kind === "lifetime" ? "lifetime" : "monthly");
         return Promise.resolve({ demo: true, kind: kind });
       }
       var Purchases = rc();
@@ -278,6 +357,8 @@ var MiseSub = (function () {
           "Billing key is set but the store plugin isn't installed — run npm i in app/ and cap sync. See subscription.js."
         ));
       }
+      // The free trial rides along automatically: if mise_plus_monthly has a
+      // trial offer, the store enrols it here — no separate trial call.
       var productId = kind === "lifetime" ? SUB_LIFETIME_ID : SUB_MONTHLY_ID;
       return Purchases.getOfferings()
         .then(function (offerings) {
@@ -331,7 +412,13 @@ var MiseSub = (function () {
        on the next sync), so live callers must use manage() instead. */
     cancel: function () {
       if (billingConfigured()) return api.manage();
-      applyEntitlement(false, null);
+      // Demo: drop the unlock AND the local trial. Clearing the trial lets you
+      // demo it again — a real store trial is once per account and can't be
+      // reset from the app, which is exactly why this only runs with no key.
+      lsSet(ENTITLEMENT_KEY, false);
+      lsSet(KIND_KEY, null);
+      lsSet(TRIAL_UNTIL_KEY, null);
+      notify();
       return Promise.resolve();
     },
 

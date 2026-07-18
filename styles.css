@@ -2302,6 +2302,19 @@ button {
   margin: 16px 0;
 }
 
+/* The free-trial callout — a positive note, so brand green (never --chile,
+   which is reserved for allergens/demo warnings). */
+.sub-trial {
+  background: var(--kale);
+  color: #F4F8F0;
+  font-size: 10px;
+  letter-spacing: 0.07em;
+  line-height: 1.5;
+  text-align: center;
+  padding: 8px 12px;
+  margin: 16px 0 4px;
+}
+
 .sub-list {
   font-family: var(--font-body);
   font-size: 15px;
