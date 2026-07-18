@@ -228,8 +228,14 @@ var MiseSub = (function () {
     return !!ent;
   }
 
-  // Find the RevenueCat Package for a product id across every offering.
-  function findPackage(offerings, productId) {
+  /* Find the RevenueCat Package for a plan across every offering. Matches by
+     package IDENTITY — the standard $rc_monthly / $rc_lifetime identifier, or
+     the MONTHLY / LIFETIME package type — rather than the store product id, so
+     the same lookup works against a live Google Play offering (where the
+     package resolves to mise_plus_monthly) and the Test Store (where it
+     resolves to a differently-named product). Falls back to our own product
+     ids last, for a hand-built offering that skips the standard identifiers. */
+  function findPackage(offerings, kind) {
     if (!offerings) return null;
     var pools = [];
     if (offerings.current && offerings.current.availablePackages) pools.push(offerings.current.availablePackages);
@@ -239,15 +245,23 @@ var MiseSub = (function () {
         if (o && o.availablePackages) pools.push(o.availablePackages);
       });
     }
+    var lifetime = kind === "lifetime";
+    var wantType = lifetime ? "LIFETIME" : "MONTHLY";
+    var wantId = lifetime ? "$rc_lifetime" : "$rc_monthly";
+    var wantProduct = lifetime ? SUB_LIFETIME_ID : SUB_MONTHLY_ID;
+    var byType = null, byId = null, byProduct = null;
     for (var i = 0; i < pools.length; i++) {
       var pkgs = pools[i];
       for (var j = 0; j < pkgs.length; j++) {
         var p = pkgs[j];
-        var prod = p && (p.product || p.storeProduct);
-        if (prod && prod.identifier === productId) return p;
+        if (!p) continue;
+        if (!byType && p.packageType === wantType) byType = p;
+        if (!byId && p.identifier === wantId) byId = p;
+        var prod = p.product || p.storeProduct;
+        if (!byProduct && prod && prod.identifier === wantProduct) byProduct = p;
       }
     }
-    return null;
+    return byType || byId || byProduct || null;
   }
 
   /* One-time setup on the real path: configure, subscribe to entitlement
@@ -376,12 +390,11 @@ var MiseSub = (function () {
           "Billing key is set but the store plugin isn't installed — run npm i in app/ and cap sync. See subscription.js."
         ));
       }
-      // The free trial rides along automatically: if mise_plus_monthly has a
+      // The free trial rides along automatically: if the monthly product has a
       // trial offer, the store enrols it here — no separate trial call.
-      var productId = kind === "lifetime" ? SUB_LIFETIME_ID : SUB_MONTHLY_ID;
       return Purchases.getOfferings()
         .then(function (offerings) {
-          var pkg = findPackage(offerings, productId);
+          var pkg = findPackage(offerings, kind);
           if (!pkg) throw new Error("That plan isn't available from the store yet — check back shortly.");
           return Purchases.purchasePackage({ aPackage: pkg });
         })
