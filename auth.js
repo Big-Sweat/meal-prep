@@ -1,4 +1,4 @@
-/* Mise auth - Supabase integration.
+/* Myse auth - Supabase integration.
 
    SETUP (one time, ~10 minutes):
    1. Create a free project at https://supabase.com

@@ -1,4 +1,6 @@
-/* Mise — "Mise Plus": the $2.99/month remove-ads subscription.
+/* Myse — "Myse Plus": the paid tier. Unlocks print, PDF, the weekly-plan view,
+   and the calorie target, and removes ads. $2.99/month (14-day free trial) or
+   $29.99 once — same entitlement either way.
 
    ─────────────────────────────────────────────────────────────────────────
    READ THIS BEFORE ASSUMING THIS TAKES MONEY. IT DOES NOT, YET.
@@ -90,8 +92,8 @@
 
    ACCOUNTS AND CROSS-DEVICE RESTORE: we configure() anonymously, so restore
    works by store account (Play/Apple) on the same device out of the box. To
-   make a purchase follow a Mise *account* to a new phone, call
-   Purchases.logIn({ appUserID: <mise user id> }) on sign-in and logOut() on
+   make a purchase follow a Myse *account* to a new phone, call
+   Purchases.logIn({ appUserID: <myse user id> }) on sign-in and logOut() on
    sign-out — verify that exact shape against the RevenueCat Capacitor docs at
    go-live before wiring it to MiseAuth.onChange. Left out here on purpose: it
    is untested against a live project and store-account restore already covers

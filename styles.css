@@ -6,8 +6,14 @@
    --ink     #26291F  olive-black ink
    --faded   #6E6F63  ink at half strength
    --kale    #3A6B35  the one accent
+   --on-kale #F4F8F0  near-white text/icons on a kale (or ink) fill
    --tape    #EAD9A8  manila masking tape
-   --chile   #A93B22  reserved for allergen semantics only
+   --chile   #A93B22  the alarm red — allergen semantics first, and by
+                      extension error/destructive states (auth errors, the
+                      delete/remove affordances, the demo notice). NOT for
+                      decoration: a hover tint with no danger meaning uses kale.
+   --amber   #A66A00  warning accent (the error toast) — distinct from chile so
+                      "something went wrong" never borrows the allergen colour
    --line    #D9D3C2  hairlines
 ------------------------------------------------------------------- */
 
@@ -18,8 +24,10 @@
   --faded: #6E6F63;
   --kale: #3A6B35;
   --kale-deep: #2E5629;
+  --on-kale: #F4F8F0;
   --tape: #EAD9A8;
   --chile: #A93B22;
+  --amber: #A66A00;
   --line: #D9D3C2;
 
   --font-display: "Bricolage Grotesque", "Arial Narrow", sans-serif;
@@ -60,8 +68,13 @@ button {
 }
 
 :focus-visible {
+  /* Two-tone ring: the kale outline reads on the paper page, and the paper
+     box-shadow hugging the element reads on ink-filled controls (kale alone is
+     only 2.35:1 on --ink; paper is 13:1). Together the focus is visible on any
+     surface. */
   outline: 2px solid var(--kale);
   outline-offset: 2px;
+  box-shadow: 0 0 0 2px var(--paper);
 }
 
 /* The browser's own [hidden]{display:none} is a UA-stylesheet rule, which
@@ -136,7 +149,9 @@ button {
   gap: 12px;
   background: var(--ink);
   color: var(--paper);
-  padding: 0 var(--pad);
+  /* env() is 0 where there's no inset, so this only bites under an iOS status
+     bar / notch; sticky at top:0 would otherwise pin the bar under it. */
+  padding: env(safe-area-inset-top) var(--pad) 0;
 }
 
 .mobile-filter-btn {
@@ -212,7 +227,7 @@ button {
   color: var(--faded);
 }
 
-.search-clear:hover { color: var(--chile); }
+.search-clear:hover { color: var(--kale); }
 
 @media (min-width: 768px) {
   .search-box { flex: 0 1 320px; order: 0; margin-left: auto; }
@@ -432,13 +447,17 @@ button {
   min-height: 44px;
   font-size: 14px;
   font-weight: 500;
+  /* On the base rule, not just >=1024: a long unbroken typed-ingredient chip
+     would otherwise side-scroll the mobile filter rail. */
+  max-width: 100%;
+  overflow-wrap: anywhere;
   transition: background 0.15s ease, color 0.15s ease;
 }
 
 .chip[aria-pressed="true"] {
   background: var(--kale);
   border-color: var(--kale);
-  color: #F4F8F0;
+  color: var(--on-kale);
 }
 
 /* active allergy chips read as struck-off, in the danger color */
@@ -482,7 +501,7 @@ button {
 .chip--term {
   background: var(--kale);
   border-color: var(--kale);
-  color: #F4F8F0;
+  color: var(--on-kale);
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -612,7 +631,7 @@ button {
   right: var(--pad);
   bottom: 16px;
   background: var(--kale);
-  color: #F4F8F0;
+  color: var(--on-kale);
   font-weight: 700;
   font-size: 16px;
   padding: 15px;
@@ -836,7 +855,7 @@ button {
 .plan-btn.on {
   background: var(--kale);
   border-color: var(--kale);
-  color: #F4F8F0;
+  color: var(--on-kale);
 }
 
 /* ---------- empty state ---------- */
@@ -1394,7 +1413,7 @@ button {
 /* ---------- prep gear page ---------- */
 
 .wordmark-link { color: inherit; text-decoration: none; }
-.wordmark-link:hover .wordmark-dot { color: var(--chile); }
+.wordmark-link:hover .wordmark-dot { color: var(--kale); }
 
 .mast-link {
   display: inline-block;
@@ -1522,7 +1541,7 @@ button {
 .fav-btn.on {
   background: var(--kale);
   border-color: var(--kale);
-  color: #F4F8F0;
+  color: var(--on-kale);
 }
 
 .rate-row {
@@ -1546,7 +1565,9 @@ button {
   line-height: 1;
   min-width: 34px;
   min-height: 34px;
-  color: var(--line);
+  /* --line (1.48:1 on ticket) left the empty stars nearly invisible, so "3 of
+     5" read as "3 stars, then nothing". --faded is 5.05:1. */
+  color: var(--faded);
 }
 
 .star:hover { color: var(--kale-deep); }
@@ -1722,7 +1743,7 @@ button {
 .toast.show { transform: translate(-50%, 0); opacity: 1; }
 
 /* Amber accent for the error variant — --chile stays reserved for allergens. */
-.toast--error { border-left-color: var(--tape); }
+.toast--error { border-left-color: var(--amber); }
 
 .toast-title {
   font-family: var(--font-display);
@@ -1804,7 +1825,7 @@ button {
   margin-top: 8px;
 }
 
-.nut-chip[aria-pressed="true"] { background: var(--kale); border-color: var(--kale); color: #F4F8F0; }
+.nut-chip[aria-pressed="true"] { background: var(--kale); border-color: var(--kale); color: var(--on-kale); }
 
 .nut-units { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
 .nut-unit { padding: 6px 10px; min-height: 34px; font-size: 12px; }
@@ -1846,7 +1867,7 @@ button {
 .nut-act strong { font-size: 14px; font-weight: 600; }
 .nut-act-hint { font-family: var(--font-body); font-size: 12.5px; color: var(--faded); }
 
-.nut-act.on { border-color: var(--kale); background: var(--kale); color: #F4F8F0; }
+.nut-act.on { border-color: var(--kale); background: var(--kale); color: var(--on-kale); }
 .nut-act.on .nut-act-hint { color: #D9E6D4; }
 
 .nut-result {
@@ -1960,9 +1981,10 @@ button {
 }
 
 /* ---------- delete account (danger zone) ----------
-   A red that is deliberately NOT --chile: that stays reserved for allergen
-   semantics, and "you're about to eat what you react to" must never read the
-   same as "you're about to delete your account". */
+   A deep oxblood, deliberately NOT --chile (#A93B22): allergen red and
+   "delete your account" must never read the same. The solid confirm fill used
+   to be #A93122 — one channel off chile, i.e. identical — so it's now #7A2317,
+   a visibly darker, browner red (1.6:1 from chile, vs the old 1.06:1). */
 .kit-card--danger {
   background: #F8E6E1;
   border-color: #B23A28;
@@ -1999,10 +2021,10 @@ button {
 
 .kit-danger-btn--go {
   color: #FFF;
-  background: #A93122;
-  border-color: #8A2A1A;
+  background: #7A2317;
+  border-color: #5E1810;
 }
-.kit-danger-btn--go:hover { background: #8A2A1A; }
+.kit-danger-btn--go:hover { background: #5E1810; }
 
 .kit-danger-cancel {
   font-family: var(--font-mono);
@@ -2437,7 +2459,7 @@ button {
    which is reserved for allergens/demo warnings). */
 .sub-trial {
   background: var(--kale);
-  color: #F4F8F0;
+  color: var(--on-kale);
   font-size: 10px;
   letter-spacing: 0.07em;
   line-height: 1.5;
@@ -2479,7 +2501,7 @@ button {
   width: 100%;
   border: 1px solid var(--kale);
   background: var(--kale);
-  color: #F4F8F0;
+  color: var(--on-kale);
   padding: 12px 14px;
   min-height: 56px;
 }
@@ -2889,6 +2911,8 @@ button {
   .mast-inner,
   .results,
   .gear-main,
+  .kitchen,
+  .legal-main,
   .mobile-bar,
   .plan-bar-btn,
   .footer {
@@ -2952,13 +2976,20 @@ button {
   .modal::backdrop { display: none; }
   .modal-body { padding: 0; }
 
-  /* Hide interactive chrome that has no meaning on paper */
+  /* Hide interactive chrome that has no meaning on paper — including the
+     Instacart/Walmart/Amazon hand-off buttons and their status/commission note,
+     which otherwise print as dead ink on the (paid) plan printout. */
   .modal-actions,
   .plan-head-actions,
   .plan-remove,
   #review-form,
   .review-signin,
   .rate-row,
+  .shop-send,
+  .store-btns,
+  .store-status,
+  .store-note,
+  .shop-go,
   .stepper button { display: none; }
 
   .stepper { border: none; }
@@ -2967,4 +2998,33 @@ button {
   /* Shopping list on page one, then each recipe on its own page */
   .plan-recipe { break-before: page; }
   .shop-list li, .plan-row { break-inside: avoid; }
+}
+
+/* ---------- touch targets ----------
+   On a touch-primary device (`pointer: coarse`) every interactive control
+   meets the design doc's 44px floor, whatever the viewport width. The compact
+   sizes elsewhere are tuned for a mouse; the width-based rules missed
+   768-1366px touch tablets, which got 36-38px fav/plan/chips. Gating on the
+   pointer type instead of width fixes that without touching the mouse case.
+   Placed last so it wins ordering ties with the >=1024 chip shrink. */
+@media (pointer: coarse) {
+  .fav-btn,
+  .plan-btn,
+  .toast-close {
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .toast-close { width: 44px; height: 44px; }
+  .chip { min-height: 44px; }
+  .star { min-width: 44px; min-height: 44px; }
+  .suggest,
+  .nut-unit,
+  .view-btn,
+  .search-clear,
+  .plan-remove,
+  .ios-tease-close { min-width: 44px; min-height: 44px; }
+  .mast-link { display: inline-flex; align-items: center; min-height: 44px; }
 }

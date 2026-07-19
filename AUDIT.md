@@ -263,20 +263,20 @@ by a second pass or a runtime repro before landing here.
   advice section, the account-deletion right. Same false claim on
   log.html:38 ("YOUR LOG LIVES IN THIS BROWSER"). Rewrite + bump the date;
   reword the log footer.
-- [ ] **6.2 P1 — CLAUDE.md's ad policy is backwards** ("One ad slot only…
+- [x] **6.2 P1 — CLAUDE.md's ad policy is backwards** *(done: CLAUDE.md, AGENTS.md, HANDOFF.md, ads.js, app.js comment all describe the two placements; interstitial kept at every-turn per product decision)* ("One ad slot only…
   don't reintroduce the interstitial" — it shipped; an obedient agent would
   delete live behavior). Also stale in HANDOFF.md:159, ads.js:1-5, and
   app.js:388-390 (which contradicts :507 twenty lines later).
-- [ ] **6.3 P1 — CLAUDE.md missing four repo artifacts entirely:**
+- [x] **6.3 P1 — CLAUDE.md missing four repo artifacts entirely:** *(done: grocery.js, legal.html, instacart-proxy, HANDOFF.md + AUDIT.md added to CLAUDE.md and AGENTS.md; "only server-side code"→"two", four→five HTML files, tool-bumps-both-pages all corrected)*
   grocery.js, legal.html, instacart-proxy/ (":285 the only server-side code"
   is now false), HANDOFF.md; cache-busting section says four HTML files (five);
   "the tool bumps recipes.js?v= for you" is index-only (§5.7). AGENTS.md
   mirrors all the same gaps.
-- [ ] **6.4 P1 — README.md describes the pre-Supabase site** (name-only
+- [x] **6.4 P1 — README.md describes the pre-Supabase site** *(done: rewritten for Myse + real accounts/backend + full feature set; count-patch phrases preserved for the tool)* (name-only
   sign-in, "storage layer in app.js", hand-append recipes — contradicting
   CLAUDE.md's own "use the tool"); feature list omits plan/PDF/profile/log/
   Plus/gear/grocery. Title still "Mise". Rewrite.
-- [ ] **6.5 P2 — Design-token discipline:** `--chile` used for 8
+- [x] **6.5 P2 — Design-token discipline:** *(done: --on-kale + --amber tokens; chile contract reconciled (decorative hovers→kale, error/destructive documented); danger red #A93122→#7A2317 (1.06→1.60 vs chile); error toast --tape→--amber (4.44:1); stars --line→--faded (5.05:1); two-tone focus ring for ink surfaces — all ratios computed)* `--chile` used for 8
   non-allergen things (contract at styles.css:10 says allergens only — either
   fix the decorative uses or amend the contract); the danger-zone red
   `#A93122` is **1.06:1 from chile** — visually identical, defeating its own
@@ -284,24 +284,39 @@ by a second pass or a runtime repro before landing here.
   tape-on-ticket 1.39:1 (invisible — needs ~3:1 amber); unselected stars
   1.48:1 (use `--faded`); focus ring kale-on-ink 2.35:1 on dark controls
   (two-color ring).
-- [ ] **6.6 P2 — Tap targets below the doc's 44px floor on touch tablets:**
+- [x] **6.6 P2 — Tap targets below the doc's 44px floor on touch tablets:** *(done: a `@media (pointer: coarse)` block enforces 44px on fav/plan/chip/star/toast-close/mast-link/etc regardless of width — fixes 768-1366 touch tablets without touching the mouse case)*
   the ≤767px fix doesn't cover 768-1366 (iPads get 36-38px fav/plan/chips);
   sub-44 at all widths: toast-close 28, mast-link 26, stars 34, suggest 34,
   nut-unit 34, search-clear/view-btn/plan-remove 40, ios-tease-close ~24.
   Gate compact sizes on `(hover:hover) and (pointer:fine)` instead of width.
-- [ ] **6.7 P2 — Safe-area gaps:** `.mobile-bar` (sticky top) has no
+- [x] **6.7 P2 — Safe-area gaps:** *(done: .mobile-bar gets safe-area-inset-top; .kitchen + .legal-main added to the landscape notch list; print hides .shop-send/.store-btns/.store-status/.store-note/.shop-go — reviews left printing by choice)* `.mobile-bar` (sticky top) has no
   `env(safe-area-inset-top)`; landscape notch list omits `.kitchen`
   (profile/log) and `.legal-main`. Paid print output includes the
   Instacart/Walmart/Amazon buttons + commission note as dead ink
   (styles.css:2946-2953 hide list) — add `.shop-send/.store-btns/
   .store-status/.store-note/.shop-go`; decide whether reviews belong in a
   printed recipe.
-- [ ] **6.8 P2 — Products page ships placeholder affiliate tags**
+- [x] **6.8 P2 — Products page ships placeholder affiliate tags** *(done: AFFILIATE_TAG="" + productUrl omits tag until real, matching grocery.js's existing guard; disclosure voice unified to third-person "Myse" around the required Associates line)*
   (`tag=YOUR-AFFILIATE-TAG-20` in every live Amazon URL): omit the param
   while AFFILIATE_TAG is placeholder, matching the empty-constant pattern
   everywhere else. Also unify disclosure voice (Myse/we/I across
   products.html:31-37, legal.html:34-39, app.js:1634-1636).
-- [ ] **6.9 P3 — Dead/redundant CSS list** (unmatchable `.rail.open ~ *`
+- [~] **6.9 P3 — grab-bag — real bugs done, cosmetic cleanup + decisions deferred.**
+  *Done:* `.chip` overflow-wrap/max-width moved to the base rule (long typed
+  chips no longer side-scroll the mobile rail); "5 ft 12 in" height carry fixed
+  (round total inches once); favorites clash flags refresh on an allergy-chip
+  toggle; the `unreachable` flag now clears on late auth (profile + log); the
+  two-press delete re-locks on a 4s timer (iOS never fires blur on a tapped
+  button); brand comment headers Mise→Myse across ~12 files (identifiers
+  untouched); stale "no server copy" / profile-weight comments corrected;
+  subscription.js header no longer undersells Plus. **Plus a bug found by live
+  testing:** a cold CDN can drop the `MiseAuth.onChange` event, leaving
+  signed-in users stranded (log/profile stuck on "can't reach", the board
+  showing SIGN IN with standing allergies NOT applied) — all three now adopt
+  the resolved account from `onSync` (store hydrate reliably fires), so sign-in
+  and allergy filtering land regardless.
+  *Deferred (pure cosmetic / needs Jake's call):* dead-CSS removal (unmatchable
+  `.rail.open ~ *`
   :623; overridden `.search-box` :217; four redundant `[hidden]` rules; dead
   5th grid track in ≤479 `.modal-actions` stealing ~48px from SAVE/ADD;
   `.chip` overflow-wrap only ≥1024 — long custom chips can side-scroll the

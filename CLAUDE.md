@@ -22,11 +22,12 @@ in rough sync when you change the workflow described here.
 
 **The site**
 - `index.html` — the recipe library (the home page). Wires up the filter rail,
-  results grid, search box, and three `<dialog>` modals (recipe, weekly plan,
-  sign-in). The Plus dialog is NOT here — `plus-ui.js` builds it on first open;
-  the old pre-print ad interstitial was deleted (see below).
+  results grid, search box, and four `<dialog>` modals (recipe, weekly plan,
+  sign-in, and the page-turn `ad-interstitial`). The Plus dialog is NOT here —
+  `plus-ui.js` builds it on first open. (The *old pre-print* interstitial was
+  deleted; the page-turn one that ships now is a different slot — see **Ads**.)
 - `styles.css` — all styling. Editorial "prep board" look (see the design doc).
-- `app.js` — all **board** behavior (~1200 lines, one IIFE, `"use strict"`):
+- `app.js` — all **board** behavior (~2070 lines, one IIFE, `"use strict"`):
   filtering, rendering, serving-scale math with proper fractions, the recipe
   modal, the persisted weekly plan + combined shopping list, and live search.
   Constants at the top (`PROTEINS`, `MEALS`, `SUGGEST_CANDIDATES`) define the
@@ -106,17 +107,35 @@ in rough sync when you change the workflow described here.
   (−92%, no visible loss since cards render ~400px and the modal ~810px).
   Run it on any photo you add.
 
+- `legal.html` — standalone "Privacy & Disclosures" page, linked from every
+  footer. Static content (no app.js): privacy (what Supabase stores when signed
+  in, that ratings/reviews are public, the account-deletion right), the
+  affiliate/FTC disclosures, a Myse Plus terms section, and a not-medical-advice
+  section. **Keep it in step with what actually ships** — it's the site's only
+  privacy statement.
+
 **Prep-gear page (affiliate)**
 - `products.html` — standalone "Prep Gear" page (linked from the masthead).
   Renders `PRODUCTS` inline; no app.js needed.
 - `products.js` — `PRODUCTS` (gear grouped by category) plus `productUrl()`.
   Links are Amazon searches tagged with `AFFILIATE_TAG`. **Monetization:**
-  replace `AFFILIATE_TAG` with a real Amazon Associates tag to activate.
+  replace `AFFILIATE_TAG` with a real Amazon Associates tag to activate. While
+  it's the placeholder, `productUrl()` omits the `tag=` param rather than ship a
+  dead affiliate id.
+
+**Grocery hand-off (from the weekly plan)**
+- `grocery.js` — `MiseGrocery`: turns the plan's combined shopping list into a
+  store hand-off three ways — Instacart (POSTs the line-items to the proxy
+  below, gets a pre-filled-cart URL back), Walmart (per-item search links,
+  optionally wrapped in an Impact affiliate template), and Amazon Fresh (tagged
+  per-item searches). All three are empty-constant/demo until their id is set
+  (`INSTACART_ENDPOINT`, `WALMART_IMPACT`, `AMAZON_TAG`); with none set it falls
+  back to copy-the-list. Reached from inside the plan modal, so it's Plus-gated.
 
 **Ads**
-- `ads.js` — config for the "before you print" interstitial. While
-  `NETWORK_AD_HTML` is empty, the slot shows *house ads* (two random picks from
-  `PRODUCTS`). Paste an ad-network embed into `NETWORK_AD_HTML` to run real ads.
+- `ads.js` — `NETWORK_AD_HTML`, the shared embed for **both** ad placements.
+  While it's empty they show *house ads* (a pick from `PRODUCTS`); paste an
+  ad-network embed to run real ads in both. See **Ads (two placements)** below.
 
 **Subscription (Mise Plus) — the paid tier**
 - `subscription.js` — `MiseSub`, the entitlement authority. **`isPlus()` is the
@@ -147,10 +166,12 @@ in rough sync when you change the workflow described here.
   products + a RevenueCat project whose entitlement id is `plus`; the
   `subscription.js` header is the runbook. Billing can be tested on a sideloaded
   debug APK once those exist — license testers bypass the install-source check.
-- **One ad slot only:** the in-feed `SPONSORED` ticket every `AD_EVERY` (12)
-  recipes in `render()`, honouring `NETWORK_AD_HTML`. The old pre-print
-  interstitial was deleted — print is Plus-only and Plus removes ads, so it was
-  unreachable. Don't reintroduce it without changing that logic.
+- **Ads (two placements), both suppressed for Plus and both honouring
+  `NETWORK_AD_HTML`:** (1) the in-feed `SPONSORED` ticket every `AD_EVERY` (12)
+  recipes in `render()`, and (2) the page-turn `ad-interstitial` a free reader
+  meets on "Next" (fires every turn, by product decision — Jul 2026). *Separate
+  from* the old **pre-print** interstitial, which was deleted and must not come
+  back (print is Plus-only and Plus removes ads, so it was unreachable).
 
 **App download links**
 - `apps.js` — `IOS_APP_URL` / `ANDROID_APP_URL`. Both empty as of Jul 2026
@@ -282,8 +303,9 @@ in rough sync when you change the workflow described here.
   the error variant uses an amber accent, **not `--chile`** (reserved for
   allergens).
   **Account deletion** lives here too: `deleteAccount()` invokes the
-  `delete-account` Edge Function (see below) — the only server-side code in the
-  project, because removing a Supabase auth user needs the admin key, which must
+  `delete-account` Edge Function (see below) — one of the project's two
+  server-side pieces (the other is `instacart-proxy/`), because removing a
+  Supabase auth user needs the admin key, which must
   never reach the browser. The profile page's danger zone deletes the auth user
   FIRST (that call is authorized by the live session), then wipes local data via
   `MiseStore.deleteUserData(who)` and signs out; a failed server call deletes
@@ -300,6 +322,15 @@ in rough sync when you change the workflow described here.
   `verify_jwt = false` for this function is deliberate (lets the CORS preflight
   through; the function verifies the token itself). If the project migrates off
   legacy keys later, see the README's note about setting the admin key explicitly.
+- `instacart-proxy/` — the project's **second** server-side piece: a small
+  Cloudflare Worker (`worker.js` + `wrangler.toml` + `README.md`), deployed with
+  `wrangler`, **not** part of the static bundle. It exists only to hold the
+  secret Instacart API key server-side: `grocery.js` POSTs it a shopping list,
+  it forwards to Instacart with the key and returns the cart URL, storing
+  nothing. Security is an origin allowlist that **rejects** unknown origins (a
+  browser-only CORS header doesn't stop `curl`), plus body/item/name caps and
+  per-field sanitization; add a Cloudflare rate-limiting rule before wiring
+  `INSTACART_ENDPOINT` in `grocery.js`. Inert until that endpoint is set.
 
 **Profile backend (Supabase Postgres) — `supabase/migrations/`**
 - `20260718000000_profile_backend.sql` — 6 tables + a public aggregate view that
@@ -350,18 +381,27 @@ in rough sync when you change the workflow described here.
 
 **Docs / meta**
 - `README.md` — public-facing readme (recipe count is patched by the tool).
+- `AGENTS.md` — short mirror of this file for other agent tools; keep in sync.
+- `HANDOFF.md` — running session-to-session status note (what's live vs
+  demo/empty-constant, accounts Jake has, traps). **CLAUDE.md is the authority**;
+  HANDOFF is a snapshot and goes stale — re-fetch git before trusting it.
+- `AUDIT.md` — the 18 Jul 2026 whole-site audit checklist (findings + which
+  waves fixed what).
 - `recipe-inbox/links.md` — drop-box for recipe URLs (see below).
 - `tools/add-recipes.js` — the recipe-ingest tool (see below).
 
 ## Cache-busting — do not skip this
 
-Asset links in `index.html`, `products.html`, `profile.html` and `log.html`
-carry `?v=N` query strings, e.g. `app.js?v=22`, `styles.css?v=19`. GitHub Pages sets long
+Asset links in `index.html`, `products.html`, `profile.html`, `log.html` and
+`legal.html` carry `?v=N` query strings (e.g. `app.js?v=37`, `styles.css?v=35`).
+GitHub Pages sets long
 cache headers, so **if you change a file, bump its `?v=N` everywhere it's
 referenced**, or returning visitors get a stale cache (this has caused real
 breakage — a stale `recipes.js` against fresh HTML). Note `styles.css` is
-referenced from **all four** HTML files — keep the versions in step. The
-recipe tool bumps `recipes.js?v=` for you; everything else is manual.
+referenced from **all five** HTML files (index, profile, log, products, legal)
+— keep the versions in step. The recipe tool bumps `recipes.js?v=` for you (in
+both `index.html` and `profile.html`, which both load it); everything else is
+manual.
 
 This bites *during local testing too*, not just in production: a plain reload
 will happily re-run a cached `.js` while the server has your new one, so a fix
@@ -428,8 +468,10 @@ it:
    re-interleaves the library by protein, rewrites `recipes.js` **and
    `recipes.json`** (same data, so they can't drift — the JSON file is what
    lets an already-installed app pick up the new recipes; see `recipe-sync.js`),
-   and patches the counts + bumps `recipes.js?v=` in `index.html` and the
-   counts in `README.md`. **Fix anything it rejects rather than forcing it** —
+   and patches the counts + bumps `recipes.js?v=` in **`index.html` and
+   `profile.html`** (both load it) and the counts in `README.md`. It also
+   enforces a unit whitelist and per-batch id/name uniqueness, and type-checks
+   the numeric fields. **Fix anything it rejects rather than forcing it** —
    it writes nothing if any check fails.
 6. Verify in a browser (count went up, the new recipes open, filters catch their
    allergens), then move the processed links in `links.md` from **To add** to

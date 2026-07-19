@@ -1,9 +1,10 @@
-/* Mise prep-gear data.
+/* Myse prep-gear data.
    MONETIZATION: replace AFFILIATE_TAG below with your Amazon Associates tag
    (e.g. "mise0a-20") and every link on the gear page becomes an affiliate
-   link. Until then links work as plain Amazon searches. */
+   link. Until then links ship as plain Amazon searches with NO tag param —
+   never a dead placeholder id (same empty-constant pattern as billing/apps). */
 
-var AFFILIATE_TAG = "YOUR-AFFILIATE-TAG-20"; // <-- put your Associates tag here
+var AFFILIATE_TAG = ""; // <-- put your Associates tag here to activate affiliate links
 
 var PRODUCTS = [
   {
@@ -96,6 +97,10 @@ var PRODUCTS = [
 ];
 
 function productUrl(p) {
-  return "https://www.amazon.com/s?k=" + encodeURIComponent(p.search) +
-    "&tag=" + encodeURIComponent(AFFILIATE_TAG);
+  var base = "https://www.amazon.com/s?k=" + encodeURIComponent(p.search);
+  // No tag until a real one is set: a placeholder/empty tag is a dead affiliate
+  // id, so ship a plain search instead (matches how apps.js/ads.js stay inert).
+  var tag = (AFFILIATE_TAG || "").trim();
+  if (!tag || tag === "YOUR-AFFILIATE-TAG-20") return base;
+  return base + "&tag=" + encodeURIComponent(tag);
 }

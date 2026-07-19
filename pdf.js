@@ -1,4 +1,4 @@
-/* Mise — tiny dependency-free PDF generator for recipe downloads.
+/* Myse — tiny dependency-free PDF generator for recipe downloads.
    Lays a recipe out as a single-column printable sheet using the PDF
    base-14 Courier fonts (always present in viewers, monospace so text
    wrapping is exact — no font metrics or embedding needed). */

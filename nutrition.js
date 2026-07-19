@@ -1,4 +1,4 @@
-/* Mise — calorie-goal maths.
+/* Myse — calorie-goal maths.
  *
  * Pure functions, no DOM, no storage: given a profile, return numbers. Kept
  * separate from the UI so the arithmetic can be checked on its own.

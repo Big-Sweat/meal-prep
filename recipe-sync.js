@@ -1,4 +1,4 @@
-/* Mise — keep an installed app's recipe data current without a new release.
+/* Myse — keep an installed app's recipe data current without a new release.
  *
  * The apps ship recipes.js baked in at build time, so browsing works with no
  * signal at all — see CLAUDE.md. The cost of that is the one this file exists

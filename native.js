@@ -1,4 +1,4 @@
-/* Mise — native (iOS + Android) adaptations.
+/* Myse — native (iOS + Android) adaptations.
    Loads on the website too, where every branch below is skipped: on the web
    `window.MiseNative.isNative` is false and nothing else runs. */
 (function () {

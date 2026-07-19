@@ -1,4 +1,4 @@
-/* Mise — meal-prep recipe library */
+/* Myse — meal-prep recipe library */
 (function () {
   "use strict";
 
@@ -386,9 +386,9 @@
   // get none of these; see subscription.js.
   var AD_EVERY = 12;
 
-  // This is now the only ad slot on the site, so it is also where a real ad
-  // network lands: set NETWORK_AD_HTML in ads.js and it renders that embed
-  // instead of a house ad.
+  // One of the two ad slots (the other is the page-turn interstitial below);
+  // both render a real network embed when NETWORK_AD_HTML is set in ads.js,
+  // otherwise a house ad.
   function adCardHTML() {
     if (typeof NETWORK_AD_HTML !== "undefined" && NETWORK_AD_HTML) {
       return (
@@ -1374,6 +1374,15 @@
        only onSync is the public rating summaries landing — that must not touch
        the session's allergy chips, so the baseline reset is gated on who().) */
     MiseStore.onSync(function () {
+      // hydrate() only runs for a signed-in user, so if the MiseAuth.onChange
+      // event was missed or delayed (a cold CDN can drop it), adopt the account
+      // here — otherwise a signed-in visitor keeps the SIGN IN masthead AND,
+      // more importantly, their standing allergies never get applied.
+      var u = MiseAuth.user && MiseAuth.user();
+      if (u && u.id && !profile) {
+        profile = { id: u.id, name: u.name, email: u.email };
+        updateAuthUI();
+      }
       loadFavs();
       if (who()) applyStandingAllergies();
       render();

@@ -2,11 +2,11 @@
 
 `CLAUDE.md` is the canonical guide — read it first. This is the short version.
 
-Static site, **no build step, no dependencies**. Four pages: `index.html` (the
+Static site, **no build step, no dependencies**. Five pages: `index.html` (the
 board — `app.js`), `profile.html` (**"your kitchen"**, the per-account page —
-`profile.js`), `log.html` (**"the log"** — weight/lifts/runs — `log.js`), and
-`products.html` (affiliate prep gear — `products.js`), over `styles.css` +
-`recipes.js` (the data).
+`profile.js`), `log.html` (**"the log"** — weight/lifts/runs — `log.js`),
+`products.html` (affiliate prep gear — `products.js`), and `legal.html` (privacy
+& disclosures, static), over `styles.css` + `recipes.js` (the data).
 
 Shared modules: `store.js` (`MiseStore` — **the only place a per-user storage
 key is written down**, plus the big-9 `ALLERGENS` list; both pages read it.
@@ -19,13 +19,21 @@ gate, and it builds its own markup), `subscription.js` (`MiseSub` — the
 entitlement; `isPlus()` is THE gate), `nutrition.js` (pure calorie maths),
 `progress.js` (pure trend/1RM/pace maths — **`node tools/test-progress.js`**),
 `auth.js` (Supabase sign-in — configured and live; `MiseAuth.client()` backs store.js),
-`pdf.js` (recipe PDF), `ads.js`, `apps.js` (store links — both empty because
-nothing is published; the footer block hides itself rather than show a dead
-link, and the buttons carry no Apple/Google logos on purpose), `native.js`
-(iOS + Android adaptations, no-op on web), `recipe-sync.js` (native-only:
-fetches `recipes.json` — data only, never `recipes.js`, never `eval` — so an
-already-installed app can pick up new recipes without a new release; applies
-only at the START of the next open, never mid-session).
+`pdf.js` (recipe PDF), `ads.js` (`NETWORK_AD_HTML` — the shared embed for the
+site's **two** ad slots: the in-feed SPONSORED ticket and the page-turn
+interstitial), `grocery.js` (`MiseGrocery` — plan → Instacart/Walmart/Amazon
+hand-off, Plus-gated, demo until its store ids are set), `apps.js` (store links —
+both empty because nothing is published; the footer block hides itself rather
+than show a dead link, and the buttons carry no Apple/Google logos on purpose),
+`native.js` (iOS + Android adaptations, no-op on web), `recipe-sync.js`
+(native-only: fetches `recipes.json` — data only, never `recipes.js`, never
+`eval` — so an already-installed app can pick up new recipes without a new
+release; applies only at the START of the next open, never mid-session).
+
+Two server-side pieces, both deployed separately from the static bundle:
+`supabase/functions/delete-account/` (Edge Function — deletes the caller's own
+auth user via the admin key) and `instacart-proxy/` (Cloudflare Worker — holds
+the secret Instacart key for `grocery.js`).
 
 **`app.js` binds `index.html`'s DOM at module scope — never load it on another
 page.** That's why `profile.js` exists.
@@ -40,11 +48,12 @@ Design rules: `CLAUDEwebdesign copy (1).md`.
 
 Local preview: `python -m http.server 8347` (launch.json name `mise-static`).
 
-**Cache-busting:** asset links in all four HTML files carry `?v=N`. Bump the
+**Cache-busting:** asset links in all five HTML files carry `?v=N`. Bump the
 version anywhere a file you changed is referenced, or returning visitors get
-stale caches. `styles.css` is linked from **all four** HTML files — keep them in
-step. This bites during local testing too: a reload will re-run a cached `.js`
-while the server has the new one, so a fix looks like it failed.
+stale caches. `styles.css` is linked from **all five** HTML files — keep them in
+step (and `recipes.js` from `index.html` **and** `profile.html`). This bites
+during local testing too: a reload will re-run a cached `.js` while the server
+has the new one, so a fix looks like it failed.
 
 **The log is a log, not a coach.** No streaks, no goal-weight countdown, nothing
 congratulatory; always lead with the 7-day trend, never the last weigh-in. Weight

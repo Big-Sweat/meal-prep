@@ -1,4 +1,4 @@
-/* Mise — the profile page ("your kitchen").
+/* Myse — the profile page ("your kitchen").
  *
  * A separate page from the board, sharing its data through store.js and its
  * paywall through plus-ui.js. app.js is not loaded here: it grabs index.html's
@@ -181,6 +181,7 @@
         else next.splice(at, 1);
         MiseStore.setAllergies(me(), next);
         renderAllergies();   // redraw so the sentence under the chips stays true
+        renderFavorites();   // a favorite may now clash (or stop clashing) with the list
       });
     });
   }
@@ -277,8 +278,12 @@
     var imperial = d.units === "imperial";
     var calc = targetCalc(d);
 
-    var ft = d.heightCm ? Math.floor(MiseNutrition.cmToIn(d.heightCm) / 12) : "";
-    var inch = d.heightCm ? Math.round(MiseNutrition.cmToIn(d.heightCm) % 12) : "";
+    // Round total inches ONCE, then split — rounding feet and inches
+    // separately produced "5 ft 12 in" (12 > the input's max=11) for heights
+    // near a foot boundary, e.g. 182cm.
+    var totalIn = d.heightCm ? Math.round(MiseNutrition.cmToIn(d.heightCm)) : null;
+    var ft = totalIn !== null ? Math.floor(totalIn / 12) : "";
+    var inch = totalIn !== null ? totalIn % 12 : "";
     var lb = d.weightKg ? Math.round(MiseNutrition.kgToLb(d.weightKg)) : "";
 
     el.innerHTML =
@@ -525,27 +530,34 @@
             "about what you&rsquo;d change.</p>") +
       "</div>";
 
-    /* Two presses to delete. Nothing here is recoverable — there's no server
-       holding a copy — so one stray tap shouldn't take away something someone
-       wrote. The button says what the next press does. */
+    /* Two presses to delete. A review lives on the server and is public, so a
+       deletion removes it everywhere — one stray tap shouldn't do that. The
+       button says what the next press does, and re-locks itself if left alone. */
     $("#kit-activity").querySelectorAll("[data-del]").forEach(function (b) {
+      var armTimer;
+      function disarm() {
+        clearTimeout(armTimer);
+        b.setAttribute("data-armed", "no");
+        b.classList.remove("kit-review-del--arm");
+        b.textContent = "DELETE REVIEW";
+      }
       b.addEventListener("click", function () {
         if (this.getAttribute("data-armed") !== "yes") {
           this.setAttribute("data-armed", "yes");
           this.classList.add("kit-review-del--arm");
           this.textContent = "TAP AGAIN TO DELETE";
+          // Blur doesn't fire on iOS (a tap doesn't focus a button), so also
+          // re-lock on a timer — otherwise it can sit primed indefinitely.
+          clearTimeout(armTimer);
+          armTimer = setTimeout(disarm, 4000);
           return;
         }
+        clearTimeout(armTimer);
         MiseStore.removeReview(me(), this.getAttribute("data-del"));
         renderActivity();
         renderIdentity();   // the stats line counts reviews
       });
-      // Moving away disarms it, so it can't sit primed indefinitely.
-      b.addEventListener("blur", function () {
-        this.setAttribute("data-armed", "no");
-        this.classList.remove("kit-review-del--arm");
-        this.textContent = "DELETE REVIEW";
-      });
+      b.addEventListener("blur", disarm);
     });
   }
 
@@ -648,12 +660,25 @@
     MiseAuth.onChange(function (user) {
       account = user ? { id: user.id, name: user.name, email: user.email } : null;
       ready = true;
+      unreachable = false;   // auth answered after all — clear a fired timeout
       draft = null;        // a different person gets a different form
       render();
     });
     // Sign-in renders from cache first; hydrate() then loads this account's rows
     // from Supabase and fires onSync, so redraw the whole page with real data.
-    MiseStore.onSync(function () { draft = null; render(); });
+    // hydrate only runs for a signed-in user, so if onChange was missed or
+    // delayed (a cold CDN can drop the event, stranding the 8s "can't reach"
+    // state), adopt the resolved account here.
+    MiseStore.onSync(function () {
+      var u = MiseAuth.user && MiseAuth.user();
+      if (u && u.id && !account) {
+        account = { id: u.id, name: u.name, email: u.email };
+        ready = true;
+        unreachable = false;
+      }
+      draft = null;
+      render();
+    });
     /* auth.js pulls the Supabase SDK off jsDelivr, so with no connection
        onChange never fires and this page would spin forever. Give up after a
        few seconds and say which of the two things went wrong. */
