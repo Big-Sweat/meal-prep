@@ -71,6 +71,147 @@
     }
   };
 
+  /* Cooking knowledge for a protein swap, so a substitution can be *adapted*
+     rather than word-replaced in place. A swap can't rewrite a recipe's whole
+     technique (a sheet-pan roast, an 8-hour braise and a wok stir-fry are
+     structural to the recipe, not to the protein), so instead we fix the parts
+     that genuinely depend on the protein: how long it cooks under the method
+     the step already uses, its doneness cue, its safe internal temperature, and
+     any prep the raw protein needs. When the recipe's method doesn't suit the
+     new protein at all — shrimp can't spend eight hours in a slow cooker, cod
+     won't shred like pork — we DON'T fabricate a time; we flag it so the reader
+     adjusts rather than trusting a wrong number. Undercooking is the real risk,
+     so temps/cues are conservative and match the USDA safe-minimum guidance the
+     rest of the app already follows.
+
+     `times` is keyed by the method a step is cooking in (see stepMethod). A
+     missing key means "this protein doesn't belong in that method" → a caution,
+     not a rewrite. `{ keepTime: true }` means the protein suits the method but
+     its duration is recipe-specific (long braises, slow cookers) so we correct
+     only the doneness, never invent a shorter time. `cue`/`cueGround` are the
+     doneness signal for whole/cut vs. ground-or-crumbled form; `temp` (and
+     `tempGround` when it differs) is the safe internal target. */
+  var PROTEIN_COOK = {
+    chicken: {
+      temp: "165°F", cue: "browned and cooked through", cueGround: "no longer pink",
+      prep: null, prepMins: 0,
+      times: {
+        quick: { phrase: "6 to 8 minutes", mins: 8 },
+        stirfry: { phrase: "about 4 minutes", mins: 4 },
+        grill: { phrase: "5 to 6 minutes per side", mins: 12 },
+        roast: { phrase: "18 to 22 minutes", mins: 22 },
+        broil: { phrase: "6 to 8 minutes", mins: 8 },
+        poach: { phrase: "12 to 15 minutes", mins: 15 },
+        braise: { keepTime: true, note: "use thighs — chicken breast dries out before it shreds" },
+        slowcook: { keepTime: true, note: "use thighs; breast can overcook to dry over a long cook" }
+      }
+    },
+    turkey: {
+      temp: "165°F", cue: "browned and cooked through", cueGround: "no longer pink",
+      prep: null, prepMins: 0,
+      times: {
+        quick: { phrase: "6 to 8 minutes", mins: 8 },
+        stirfry: { phrase: "about 4 minutes", mins: 4 },
+        grill: { phrase: "5 to 6 minutes per side", mins: 12 },
+        roast: { phrase: "18 to 22 minutes", mins: 22 },
+        broil: { phrase: "6 to 8 minutes", mins: 8 },
+        poach: { phrase: "12 to 15 minutes", mins: 15 },
+        braise: { keepTime: true, note: "use thigh meat — turkey breast dries out before it shreds" },
+        slowcook: { keepTime: true, note: "use thigh meat; breast can overcook to dry" }
+      }
+    },
+    pork: {
+      temp: "145°F", tempGround: "160°F", cue: "just cooked through", cueGround: "no longer pink",
+      prep: null, prepMins: 0,
+      times: {
+        quick: { phrase: "4 to 6 minutes", mins: 6 },
+        stirfry: { phrase: "about 3 minutes", mins: 3 },
+        grill: { phrase: "4 to 5 minutes per side", mins: 10 },
+        roast: { phrase: "18 to 22 minutes", mins: 22 },
+        broil: { phrase: "5 to 8 minutes", mins: 8 },
+        poach: { phrase: "12 to 15 minutes", mins: 15 },
+        braise: { keepTime: true },
+        slowcook: { keepTime: true }
+      }
+    },
+    beef: {
+      temp: "145°F", tempGround: "160°F", cue: "well browned outside and cooked to your liking",
+      cueGround: "no longer pink",
+      prep: null, prepMins: 0,
+      times: {
+        quick: { phrase: "3 to 4 minutes", mins: 4 },
+        stirfry: { phrase: "about 2 minutes per batch", mins: 4 },
+        grill: { phrase: "3 to 4 minutes per side", mins: 8 },
+        roast: { phrase: "15 to 18 minutes", mins: 18 },
+        broil: { phrase: "3 to 5 minutes", mins: 5 },
+        poach: { phrase: "2 to 3 minutes", mins: 3 },
+        braise: { keepTime: true },
+        slowcook: { keepTime: true }
+      }
+    },
+    fish: {
+      temp: "145°F", cue: "opaque and flaking easily", cueGround: "opaque and flaking easily",
+      prep: "Pat the {p} dry and feel for any pin bones.", prepMins: 0,
+      times: {
+        quick: { phrase: "3 to 4 minutes per side", mins: 8 },
+        grill: { phrase: "3 to 4 minutes per side", mins: 8 },
+        roast: { phrase: "10 to 14 minutes", mins: 14 },
+        broil: { phrase: "8 to 10 minutes", mins: 10 },
+        poach: { phrase: "6 to 8 minutes", mins: 8 }
+        /* no stirfry/braise/slowcook — delicate fillets break up or overcook */
+      }
+    },
+    shrimp: {
+      temp: "", cue: "pink, opaque, and curled", cueGround: "pink, opaque, and curled",
+      prep: "If frozen, thaw the {p}; peel, devein, and pat dry.", prepMins: 0,
+      times: {
+        quick: { phrase: "2 to 3 minutes per side", mins: 6 },
+        stirfry: { phrase: "2 to 3 minutes", mins: 3 },
+        grill: { phrase: "2 to 3 minutes per side", mins: 6 },
+        roast: { phrase: "6 to 8 minutes", mins: 8 },
+        broil: { phrase: "4 to 6 minutes", mins: 6 },
+        poach: { phrase: "3 to 4 minutes", mins: 4 }
+        /* no braise/slowcook — shrimp turns rubbery in minutes */
+      }
+    },
+    tofu: {
+      temp: "", cue: "golden and crisp on all sides", cueGround: "golden and crisp",
+      prep: "Press the {p} between towels under a weight for 15 minutes, then cut into 1-inch cubes.",
+      prepMins: 15,
+      times: {
+        quick: { phrase: "8 to 10 minutes, turning to crisp all sides", mins: 10 },
+        stirfry: { phrase: "about 5 minutes", mins: 5 },
+        grill: { phrase: "3 to 4 minutes per side", mins: 8 },
+        roast: { phrase: "25 to 30 minutes, flipping halfway", mins: 30 },
+        broil: { phrase: "8 to 10 minutes", mins: 10 },
+        poach: { phrase: "8 to 10 minutes to heat through", mins: 10 }
+        /* no braise/slowcook — extra-firm tofu just needs heating, not hours */
+      }
+    },
+    beans: {
+      temp: "", cue: "heated through", cueGround: "heated through",
+      prep: null, prepMins: 0,
+      times: {
+        quick: { phrase: "4 to 5 minutes", mins: 5 },
+        stirfry: { phrase: "3 to 4 minutes", mins: 4 },
+        roast: { phrase: "20 to 25 minutes, until crisp", mins: 25 },
+        poach: { phrase: "about 5 minutes", mins: 5 },
+        braise: { keepTime: true, note: "canned beans only need warming — add them for the last 10 minutes" }
+        /* no grill/broil/slowcook — canned beans would fall apart */
+      }
+    },
+    eggs: {
+      temp: "160°F", cue: "the whites and yolks are set", cueGround: "just set",
+      prep: null, prepMins: 0,
+      times: {
+        quick: { phrase: "3 to 4 minutes, stirring", mins: 4 },
+        stirfry: { phrase: "2 to 3 minutes", mins: 3 },
+        poach: { phrase: "8 to 10 minutes", mins: 10 }
+        /* no grill/broil/roast/braise/slowcook */
+      }
+    }
+  };
+
   var MEALS = [
     { id: "breakfast", label: "Breakfast" },
     { id: "main", label: "Lunch & dinner" }
@@ -788,15 +929,310 @@
     return { qty: Math.max(1, Math.round(grams / 28.3495)), unit: "oz" };
   }
 
+  /* The noun a protein reads as in step prose. Mostly the filter label, but a
+     couple of labels are list-y ("Beans & legumes") and read badly mid-sentence. */
+  var PROSE_NOUN = { beans: "beans" };
+  function proteinNoun(id) { return PROSE_NOUN[id] || proteinLabel(id).toLowerCase(); }
+
   function swapWords(text, originalProtein, newProtein) {
     var matcher = new RegExp(PROTEIN_SWAPS[originalProtein].terms, "gi");
-    var lower = proteinLabel(newProtein).toLowerCase();
+    var lower = proteinNoun(newProtein);
     return String(text).replace(matcher, function (match) {
       return match.charAt(0) === match.charAt(0).toUpperCase()
         ? lower.charAt(0).toUpperCase() + lower.slice(1)
         : lower;
     });
   }
+
+  /* ---------- protein-swap: adapting the method ----------
+
+     The pieces below turn a bare word-swap into an adaptation: they find the
+     step(s) that actually cook the protein, classify the cooking method the
+     recipe is using, and rewrite that step's time and doneness for the new
+     protein — leaving the rest of the recipe's structure alone. See the
+     PROTEIN_COOK comment for why this is done in place rather than regenerated. */
+
+  /* "roast" the verb, not "chuck/pork/pot roast" (a cut) or "roasted vegetables"
+     (a side dish). Variable-length lookbehind is fine on modern engines. */
+  var ROAST_VERB_RE = /(?<!\b(?:chuck|pork|beef|pot|rump|shoulder|top)\s)roast(?:ed|ing)?\b(?!\s+(?:vegetable|veg|potato|pepper|onion|garlic|tomato|carrot|broccoli|cauliflower|sweet|root|chickpea))/i;
+  /* "brown" the verb, not "brown sugar/rice/ale" or "browned bits/edges". */
+  var BROWN_VERB_RE = /\bbrown(?:ed|ing|s)?\b(?!\s+(?:sugar|rice|ale|bits|butter|edges|spots?))/i;
+
+  /* Which family of technique a step is cooking in. Order matters: the more
+     specific/slower methods are tested first so a step that both "browns" and
+     "simmers" is read as the simmer. Returns null for non-cooking steps. */
+  function stepMethod(step) {
+    var t = " " + String(step).toLowerCase() + " ";
+    if (/slow cooker|slow-cook|cook on (?:low|high)|on low for|on high for/.test(t)) return "slowcook";
+    if (/broil/.test(t)) return "broil";
+    if (/\bgrill/.test(t)) return "grill";
+    if (/stir-fry|stir fry|\bwok\b/.test(t)) return "stirfry";
+    /* Eggs cooked in sauce/hash wells — but only when the step actually cooks
+       (covers-and-cooks/simmers), not a bare "nestle into wells" assembly step. */
+    if ((/\bwells?\b|crack an? |nestle/.test(t)) && /\bcook|simmer|cover/.test(t)) return "poach";
+    /* "sheet pan" / "baking dish" alone are not roasting — they're vessels (also
+       used for cooling grains or transferring cooked meat); the real roast step
+       always says roast/bake/oven. And "roast" as a noun ("chuck roast") or an
+       adjective ("roasted vegetables") is not the act of roasting. */
+    if (ROAST_VERB_RE.test(t) || /\bbake\b|oven to \d|at \d{3}\s*°?\s*f/.test(t)) return "roast";
+    if (/simmer|braise|stew|poach|barely cover|shreds? easily|pulls? apart|fork-tender/.test(t)) {
+      /* A long simmer that breaks the protein down (shredding, hours) is a
+         braise; a short one (curry, shakshuka, lentils) is a poach. */
+      return /shreds?|pulls? apart|fork-tender|\bhours?\b|90 minutes|1 hour/.test(t) ? "braise" : "poach";
+    }
+    /* "skillet"/"pan" alone are vessels, not the act of cooking — require a real
+       cook verb. "brown sugar"/"brown rice"/"browned bits" aren't cooking. */
+    if (/sear|saut|pan-fry|pan fry|\bfry\b|scramble|\bcook\b/.test(t) || BROWN_VERB_RE.test(t)) return "quick";
+    return null;
+  }
+
+  /* True when the protein is an actual food object in this step (not just named
+     as a stock/sauce/seasoning). Uses the same curated per-protein `terms` that
+     locate the ingredient, so it never matches secondary ingredients — but a
+     literal "chicken broth" or "fish sauce" would, so those contexts are cut
+     before the test. */
+  function proteinIsFoodInStep(step, protein) {
+    var terms = PROTEIN_SWAPS[protein].terms;
+    var stripped = String(step).replace(
+      new RegExp("(?:" + terms + ")\\s+(?:broth|stock|bouillon|base|sauce|seasoning|powder|paste|skillet|pan)", "gi"),
+      " "
+    );
+    return new RegExp(terms, "i").test(stripped);
+  }
+
+  var PREP_VERB_RE = /\b(?:whisk|beat|rub|season|toss|mix|combine|stir together|marinat|press)\w*/i;
+  var COOK_VERB_RE = /\b(?:sear|brown|roast|bake|broil|grill|fry|saut|simmer|poach|scramble|cook|steam)\w*/i;
+
+  /* The comma/clause of a step in which the protein appears as food, or null.
+     Used to tell whether the cook verb actually acts on the protein rather than
+     on something else in the same sentence ("while the potatoes roast, whisk
+     the eggs"). Split on "and" too so an add-then-cook clause stays whole only
+     when it truly is. */
+  function proteinClause(step, protein) {
+    var parts = String(step).split(/[;,]|\bwhile\b|\bthen\b/i);
+    for (var i = 0; i < parts.length; i++) {
+      if (proteinIsFoodInStep(parts[i], protein)) return parts[i];
+    }
+    return null;
+  }
+
+  /* If this step cooks the protein, the method string; otherwise false. */
+  function proteinCookMethod(step, protein) {
+    if (!proteinIsFoodInStep(step, protein)) return false;
+    var method = stepMethod(step);
+    if (!method) return false;
+    /* A marinate step names the raw protein but isn't cooking it. */
+    if (/marinat/i.test(step) && !COOK_VERB_RE.test(step)) return false;
+    /* The protein is only named inside a background "while/as …" clause ("while
+       the shrimp simmers, cook the rice"; "spread the rice while you cook the
+       chicken") — the real action is on something else. Drop that clause and, if
+       no protein remains as food, it isn't a protein cook step. */
+    var bg = new RegExp("\\b(?:while|as)\\b[^,;.]*?\\b(?:" + PROTEIN_SWAPS[protein].terms + ")\\b[^,;.]*", "i");
+    if (bg.test(step) && !proteinIsFoodInStep(step.replace(bg, " "), protein)) return false;
+    /* If the protein's own clause is a prep action (whisk/season/toss) and the
+       cooking word belongs to a different clause/ingredient, it isn't a cook
+       step — the classic "while the potatoes roast, whisk the eggs". */
+    var clause = proteinClause(step, protein);
+    if (clause && PREP_VERB_RE.test(clause) && !COOK_VERB_RE.test(clause)) return false;
+    return method;
+  }
+
+  /* High end of the first time range in a step, in minutes (hours ×60), or null. */
+  function parseStepMinutes(step) {
+    var range = String(step).match(/(\d+)\s*(?:to|-|–|and)\s*(\d+)\s*(minutes?|mins?|hours?)/i);
+    if (range) return /hour/i.test(range[3]) ? Number(range[2]) * 60 : Number(range[2]);
+    var single = String(step).match(/(\d+)\s*(minutes?|mins?|hours?)/i);
+    if (single) return /hour/i.test(single[2]) ? Number(single[1]) * 60 : Number(single[1]);
+    return null;
+  }
+
+  /* A whole time expression: "6 to 8 minutes", "about 2 1/2 hours",
+     "1 hour 45 minutes", "2 minutes per side". Matching the whole thing (incl.
+     fractions and compound hour+minute) keeps a rewrite from clobbering the
+     middle of "2 1/2 hours" and leaving "2 1/6 to 8 minutes". */
+  var SWAP_TIME_RE = /(?:about |around |roughly )?\d+(?:\s+\d+\/\d+|\.\d+)?(?:\s*(?:to|-|–|and)\s*\d+(?:\.\d+)?)?\s*(?:minutes?|mins?|hours?)(?:\s+\d+\s*(?:minutes?|mins?))?(?:\s+(?:per side|per batch|more))?/i;
+  /* A doneness clause "until …", but it must not swallow a following time — a
+       step like "cook until no longer pink, 6 to 8 minutes" keeps its minutes so
+       the time rewrite can find them. The lookahead stops the clause before a
+       ", 6"/", about 6". */
+  var SWAP_DONE_RE = /until (?:(?!,\s*(?:about |around |roughly )?\d)[^.;])*?\b(?:cooked|browne?d?|pink|opaque|flakes?|crisp|set|through|shreds?|tender|no longer|pulls?|apart|fork)\b(?:(?!,\s*(?:about |around |roughly )?\d)[^.;])*/i;
+
+  /* Rewrite one cooking step for the new protein. `step` is already word-swapped.
+     Returns { step, oldMins, newMins, note, incompatible }. When the recipe's
+     method doesn't suit the protein at all, the step is adapted to the protein's
+     own quick/poach technique so it still reads sensibly (a shred-braise becomes
+     a short cook), and `incompatible` is set so the caller raises a caution. */
+  function adaptCookStep(step, newProtein, method, form) {
+    var prof = PROTEIN_COOK[newProtein];
+    var spec = prof && prof.times[method];
+    var incompatible = null;
+    if (!spec) {
+      spec = prof && (prof.times.poach || prof.times.quick);
+      incompatible = method;
+      if (!spec) return { incompatible: method };
+    }
+
+    var cue = (form === "ground" && prof.cueGround) ? prof.cueGround : prof.cue;
+    var temp = (form === "ground" && prof.tempGround) ? prof.tempGround : prof.temp;
+    var doneness = cue + (temp ? " (" + temp + " internal)" : "");
+
+    var out = step;
+    /* A slow-cooker/braise step reworked for a quick protein: drop the
+       long-cook scaffolding so the shortened time doesn't read "on low for
+       2 to 3 minutes". */
+    if (incompatible && (method === "slowcook" || method === "braise")) {
+      out = out.replace(/\bslow cooker\b/gi, "pan").replace(/\bon (?:low|high)\b\s*/gi, "");
+    }
+
+    var oldMins = parseStepMinutes(step);
+    var newMins = oldMins;
+    if (spec.phrase) {
+      /* When borrowing a quick/poach time for an incompatible long-cook, drop
+         the adverb/"per side" so it doesn't read "cook for gently 3 to 4
+         minutes per side" inside a former braise. */
+      var phrase = incompatible
+        ? spec.phrase.replace(/^(?:gently|just cooked,?)\s+/i, "").replace(/\s+per (?:side|batch)/i, "")
+        : spec.phrase;
+      out = out.replace(SWAP_TIME_RE, phrase);
+      newMins = spec.mins;
+    }
+
+    /* Replace an existing doneness clause; if the step never spelled one out
+       (e.g. "brown the beef, about 7 minutes"), append the new protein's. */
+    if (SWAP_DONE_RE.test(out)) {
+      out = out.replace(SWAP_DONE_RE, "until " + doneness);
+    } else if (!/\buntil\b/i.test(out)) {
+      out = out.replace(/\s*\.?\s*$/, "") + ", until " + doneness + ".";
+    }
+
+    return { step: out, oldMins: oldMins, newMins: newMins, note: spec.note || null, incompatible: incompatible };
+  }
+
+  /* Verbs for breaking a cooked protein down, so a recipe that says "shred the
+     pork" reads correctly after a swap (you flake fish, crumble tofu, chop
+     shrimp). [present, past] forms. */
+  var SHRED_VERB = {
+    chicken: ["shred", "shredded"], turkey: ["shred", "shredded"],
+    pork: ["shred", "shredded"], beef: ["shred", "shredded"],
+    fish: ["flake", "flaked"], tofu: ["crumble", "crumbled"],
+    shrimp: ["chop", "chopped"], beans: ["mash", "mashed"], eggs: ["chop", "chopped"]
+  };
+
+  function reEsc(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); }
+
+  /* Fix the "a"/"an" article immediately before the swapped noun. */
+  function fixArticles(step, noun) {
+    var want = /^[aeiou]/i.test(noun) ? "an" : "a";
+    return step.replace(new RegExp("\\b(an?)(\\s+)" + reEsc(noun) + "\\b", "gi"), function (m, art, sp) {
+      var w = /^A/.test(art) ? want.charAt(0).toUpperCase() + want.slice(1) : want;
+      return w + sp + noun;
+    });
+  }
+
+  /* Clean up verbs a bare word-swap can't: breaking-down verbs, the egg-only
+     "crack ... into each well" and "scramble" techniques, and article agreement.
+     Applied to every step (cooking or not) after the swap. */
+  function polishStep(step, newProtein, origProtein) {
+    var noun = proteinNoun(newProtein);
+    var nre = reEsc(noun);
+    var v = SHRED_VERB[newProtein] || ["shred", "shredded"];
+
+    step = step.replace(new RegExp("\\bshred(ded)?\\s+((?:the\\s+)?)" + nre + "\\b", "gi"),
+      function (m, ded, the) { return (ded ? v[1] : v[0]) + " " + the + noun; });
+    /* "shred it with two forks" — the verb with no protein noun after it. */
+    step = step.replace(/\bshred(ded)?\b(?=\s+(?:it\s+)?with\s+(?:a|two)?\s*forks?)/gi,
+      function (m, ded) { return ded ? v[1] : v[0]; });
+    step = step.replace(/\bpulls?\s+apart(\s+easily)?\b/gi, "is cooked through");
+
+    if (origProtein === "eggs") {
+      step = step.replace(new RegExp("crack an?\\s+" + nre + "\\s+into each", "gi"),
+        "nestle a piece of " + noun + " into each well");
+      step = step.replace(new RegExp("\\bscrambled\\s+" + nre + "\\b", "gi"), "cooked " + noun);
+      step = step.replace(new RegExp("\\bscramble\\s+((?:the\\s+)?)" + nre + "\\b", "gi"),
+        function (m, the) { return "cook " + the + noun; });
+      /* Eggs get whisked/beaten before cooking; nothing else does. Tofu can be
+         crumbled for a scramble-style dish; others are just seasoned. */
+      var whiskRepl = newProtein === "tofu" ? "crumble " : "season ";
+      step = step.replace(new RegExp("\\b(?:whisk|beat)(?:en)?\\s+((?:together\\s+)?(?:the\\s+)?)" + nre + "\\b", "gi"),
+        function (m, the) { return whiskRepl + the.replace(/together\s+/i, "") + noun; });
+    }
+
+    return fixArticles(step, noun);
+  }
+
+  /* Whole/cut vs. ground-or-crumbled, read from the recipe's own words. */
+  function proteinForm(r) {
+    var idx = proteinIndex(r);
+    var ing = idx >= 0 ? r.ingredients[idx] : null;
+    var hay = ((ing ? ing.item + " " + (ing.note || "") : "") + " " + r.steps.join(" ")).toLowerCase();
+    return /\bground\b|crumbl/.test(hay) ? "ground" : "cut";
+  }
+
+  /* Does the recipe already do the prep this protein needs? */
+  var PREP_ALREADY = {
+    tofu: /\bpress(?:ed|ing)?\b/i,
+    shrimp: /\bthaw|pat(?:ted)?\s+(?:the\s+|them\s+)?\S*\s*dry|peel|devein/i,
+    fish: /pat(?:ted)?\s+(?:the\s+|it\s+|them\s+)?\S*\s*dry|pin bone/i
+  };
+
+  /* Build the adapted step list plus the cautions/tips the swap produced.
+     Returns { steps, cookDelta, prepMins, cautions, adapted }. */
+  function adaptSteps(r, newProtein, form) {
+    var prof = PROTEIN_COOK[newProtein];
+    var origLabel = proteinNoun(r.protein);
+    var newLabel = proteinNoun(newProtein);
+    var cautions = [];
+    var cookDelta = 0;
+    var adapted = false;
+
+    var steps = r.steps.map(function (raw) {
+      var method = proteinCookMethod(raw, r.protein);
+      var swapped = swapWords(raw, r.protein, newProtein);
+      if (method) {
+        var result = adaptCookStep(swapped, newProtein, method, form);
+        if (result.incompatible) {
+          var c = methodCaution(result.incompatible, origLabel, newLabel);
+          if (cautions.indexOf(c) === -1) cautions.push(c);
+        }
+        if (result.step) {
+          swapped = result.step;
+          adapted = true;
+          if (result.oldMins != null && result.newMins != null) cookDelta += (result.newMins - result.oldMins);
+          var tip = result.note && capitalize(newLabel + ": " + result.note + ".");
+          if (tip && cautions.indexOf(tip) === -1) cautions.push(tip);
+        }
+      }
+      return polishStep(swapped, newProtein, r.protein);
+    });
+
+    /* Prep the raw protein needs that the recipe doesn't already handle. */
+    var prepMins = 0;
+    if (prof.prep && !(PREP_ALREADY[newProtein] && PREP_ALREADY[newProtein].test(r.steps.join(" ")))) {
+      var prepStep = prof.prep.replace(/\{p\}/g, proteinNoun(newProtein));
+      /* Pressing/thawing/patting is the first thing you'd do, so lead with it. */
+      steps.splice(0, 0, prepStep);
+      prepMins = prof.prepMins || 0;
+      adapted = true;
+    }
+
+    return { steps: steps, cookDelta: cookDelta, prepMins: prepMins, cautions: cautions, adapted: adapted };
+  }
+
+  function methodCaution(method, origLabel, newLabel) {
+    var o = origLabel.toLowerCase(), n = newLabel.toLowerCase();
+    if (method === "slowcook") {
+      return capitalize(n + " can't slow-cook like " + o +
+        " — cook it separately just before serving and stir it in at the end.");
+    }
+    if (method === "braise") {
+      return capitalize(n + " won't shred or hold up to a long braise the way " + o +
+        " does — cook it briefly and add it near the end instead.");
+    }
+    return capitalize("This step's method suits " + o + ", not " + n +
+      " — cook the " + n + " separately and combine it at the end.");
+  }
+
+  function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
 
   function substitutedRecipe(r, newProtein) {
     var index = proteinIndex(r);
@@ -807,6 +1243,7 @@
     var grams = proteinGrams(r.ingredients[index], r.protein);
     var quantity = swapQuantity(grams, newProtein);
     var perServingFactor = grams / 100 / r.baseServings;
+    var form = proteinForm(r);
     var ingredients = r.ingredients.map(function (ing) {
       return {
         qty: ing.qty, unit: ing.unit, item: ing.item, note: ing.note,
@@ -829,18 +1266,25 @@
       });
     });
 
+    var method = adaptSteps(r, newProtein, form);
+    var cookMinutes = Math.max(0, Math.round(r.cookMinutes + method.cookDelta));
+    var prepMinutes = r.prepMinutes + method.prepMins;
+
     return Object.assign({}, r, {
       name: swapWords(r.name, r.protein, newProtein),
       description: swapWords(r.description, r.protein, newProtein),
       protein: newProtein,
+      prepMinutes: prepMinutes,
+      cookMinutes: cookMinutes,
       caloriesPerServing: Math.max(0, Math.round(r.caloriesPerServing + (substitute.calories - original.calories) * perServingFactor)),
       proteinGrams: Math.max(0, Math.round(r.proteinGrams + (substitute.protein - original.protein) * perServingFactor)),
       carbsGrams: Math.max(0, Math.round(r.carbsGrams + (substitute.carbs - original.carbs) * perServingFactor)),
       fatGrams: Math.max(0, Math.round(r.fatGrams + (substitute.fat - original.fat) * perServingFactor)),
       allergens: allergens,
       ingredients: ingredients,
-      steps: r.steps.map(function (step) { return swapWords(step, r.protein, newProtein); }),
-      storageNote: swapWords(r.storageNote, r.protein, newProtein)
+      steps: method.steps,
+      storageNote: swapWords(r.storageNote, r.protein, newProtein),
+      _swap: { cautions: method.cautions, adapted: method.adapted, newLabel: proteinLabel(newProtein) }
     });
   }
 
@@ -903,11 +1347,35 @@
     };
   }
 
+  function statsHTML(rec) {
+    return "<span>" + DIFF_WORDS[rec.difficulty].toUpperCase() + "</span>" +
+      "<span>PREP " + rec.prepMinutes + " MIN</span>" +
+      "<span>COOK " + rec.cookMinutes + " MIN</span>" +
+      "<span>TOTAL " + (rec.prepMinutes + rec.cookMinutes) + " MIN</span>";
+  }
+
+  /* The note under "Method" after a swap. Leads with any cautions the swap
+     produced (a technique that doesn't suit the new protein, a form tip), then
+     the standing reminder to cook to a safe temperature. */
+  function renderSwapNote(el, rec, selected) {
+    el.hidden = !selected;
+    if (!selected || !rec) { el.innerHTML = ""; return; }
+    var swap = rec._swap || { cautions: [] };
+    var noun = proteinLabel(rec.protein).toLowerCase();
+    var html = "";
+    if (swap.cautions.length) {
+      html += '<span class="swap-caution-head">Heads up for ' + esc(noun) + ":</span><ul>" +
+        swap.cautions.map(function (c) { return "<li>" + esc(c) + "</li>"; }).join("") + "</ul>";
+    }
+    html += "<span>The method and times are adjusted for " + esc(noun) +
+      "; treat them as estimates and check it is cooked through.</span>";
+    el.innerHTML = html;
+  }
+
   function openModal(r, servingsOverride) {
     var servings = servingsOverride || state.servings;
     var currentRecipe = r;
     openRecipe = r;
-    var total = r.prepMinutes + r.cookMinutes;
     var contains = r.allergens.length
       ? "CONTAINS: " + r.allergens.join(" · ").toUpperCase()
       : "NO MAJOR ALLERGENS";
@@ -961,12 +1429,7 @@
         : "") +
       '<p class="modal-desc" id="m-description">' + esc(r.description) + "</p>" +
       '<div id="m-macros">' + macroSummaryHTML(r, "modal-nutrition") + "</div>" +
-      '<p class="modal-stats">' +
-        "<span>" + DIFF_WORDS[r.difficulty].toUpperCase() + "</span>" +
-        "<span>PREP " + r.prepMinutes + " MIN</span>" +
-        "<span>COOK " + r.cookMinutes + " MIN</span>" +
-        "<span>TOTAL " + total + " MIN</span>" +
-      "</p>" +
+      '<p class="modal-stats" id="m-stats">' + statsHTML(r) + "</p>" +
       '<p id="m-contains" class="modal-contains' + (r.allergens.length ? "" : " none") + '">' + esc(contains) + "</p>" +
       (r.source === "community"
         ? '<p class="community-note">Community recipe — nutrition and allergen info are ' +
@@ -979,7 +1442,7 @@
           '<option value="">Choose a protein</option>' + proteinOptions(r) +
         "</select>" +
         '<span id="protein-swap-confirm" class="protein-swap-confirm" role="status" hidden>Protein substituted!</span>' +
-        '<small>Macros are estimated from an equal-weight swap.</small>' +
+        '<small>The method, times, and macros are adjusted for the new protein — all estimates.</small>' +
       "</div>" +
       '<div class="rate-row">' +
         '<span class="rate-label mono">YOUR RATING</span>' +
@@ -1001,7 +1464,7 @@
         "</div>" +
         "<div>" +
           '<p class="modal-section-title">Method</p>' +
-          '<p class="swap-method-note" id="m-swap-note" hidden></p>' +
+          '<div class="swap-method-note" id="m-swap-note" hidden></div>' +
           '<ol class="step-list" id="m-step-list">' +
             r.steps.map(function (s) { return "<li>" + esc(s) + "</li>"; }).join("") +
           "</ol>" +
@@ -1042,6 +1505,7 @@
       $("#modal-title").textContent = currentRecipe.name;
       $("#m-description").textContent = currentRecipe.description;
       $("#m-macros").innerHTML = macroSummaryHTML(currentRecipe, "modal-nutrition", !!selected);
+      $("#m-stats").innerHTML = statsHTML(currentRecipe);
       $("#m-contains").textContent = currentContains;
       $("#m-contains").className = "modal-contains" + (currentRecipe.allergens.length ? "" : " none");
       $("#m-ing-list").innerHTML = ingredientRows(currentRecipe, mServings);
@@ -1050,10 +1514,7 @@
       }).join("");
       $("#m-storage-text").textContent = currentRecipe.storageNote;
       $("#protein-swap-confirm").hidden = !selected;
-      $("#m-swap-note").hidden = !selected;
-      $("#m-swap-note").textContent = selected
-        ? "Cooking time may change with " + proteinLabel(selected).toLowerCase() + "; follow its package guidance and check that it is cooked through."
-        : "";
+      renderSwapNote($("#m-swap-note"), selected ? currentRecipe : null, selected);
     });
 
     renderModalRating(r.id);

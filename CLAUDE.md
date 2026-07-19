@@ -42,7 +42,19 @@ in rough sync when you change the workflow described here.
   must survive, not be erased).
   Constants at the top (`PROTEINS`, `MEALS`, `SUGGEST_CANDIDATES`) define the
   filter chips; `ALLERGENS` comes from `store.js` because the profile page needs
-  the same list. **It grabs `index.html`'s DOM at module scope, so it cannot be
+  the same list. The recipe modal's **"Substitute protein?"** picker doesn't just
+  word-swap: `substitutedRecipe` *adapts* the recipe to the new protein — it
+  rewrites the cook step's time and doneness for the method that step uses,
+  corrects the safe internal temp, inserts any prep the new protein needs (press
+  tofu, thaw/pat shrimp, pat fish), recomputes prep/cook minutes, and — when the
+  recipe's technique doesn't suit the protein (shrimp in an 8-hour braise) —
+  raises a plain-language caution instead of a wrong number. The cooking
+  knowledge lives in **`PROTEIN_COOK`** (per-protein doneness cue, safe temp, and
+  method→time table): **the temps are USDA safe minimums and the times are
+  representative — don't "tidy" them, undercooking is the real risk.** The step
+  detection (`stepMethod`/`proteinCookMethod`) is heuristic and was tuned against
+  every recipe×protein combo; if you add recipes with unusual step phrasing,
+  re-check that swaps still read sensibly. **It grabs `index.html`'s DOM at module scope, so it cannot be
   loaded on another page** — that's why `profile.js` exists rather than a flag.
   Inbound `index.html#<recipe-id>` opens that recipe (`openFromHash`), which is
   what the profile page's lists link to.
