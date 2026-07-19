@@ -25,7 +25,7 @@ create or replace function public.has_banned_word(txt text)
 as $fn$
 declare
   low text := lower(coalesce(txt, ''));
-  pat text := '\y(?:fuck(?:ing|in|ed|er|ers|s|wit|tard)?|motherfuck(?:er|ers|ing|in)?|shit(?:ty|ting|s|head|hole|bag)?|bullshit|bitch(?:es|ing|y)?|cunt(?:s|y)?|dick(?:s|head|wad|face)?|cock(?:s|sucker|suckers)?|puss(?:y|ies)|ass(?:hole|holes|hat|wipe|es|clown)?|(?:dumb|jack|bad|smart|fat|hard)ass(?:es)?|bastard(?:s)?|goddamn(?:ed)?|crap(?:py|s|ping)?|piss(?:ing|ed|es|er)?|prick(?:s)?|slut(?:s|ty)?|whore(?:s)?|douche(?:bag|bags)?|wank(?:er|ers|ing)?|twat(?:s)?|bollock(?:s)?|bugger|nigg(?:er|ers|a|as|ah|ahs)|fag(?:got|gots|gy|s)?|retard(?:ed|s)?|spic(?:s)?|chink(?:s)?|kike(?:s)?|gook(?:s)?|wetback(?:s)?|trann(?:y|ies)|dyke(?:s)?|coon(?:s)?|paki(?:s)?|beaner(?:s)?|raghead(?:s)?|towelhead(?:s)?|jap(?:s)?|wop(?:s)?|dago(?:s|es)?)\y';
+  pat text := '\y(?:fuck(?:ing|in|ed|er|ers|s|wit|tard)?|motherfuck(?:er|ers|ing|in)?|shit(?:ty|ting|s|head|hole|bag)?|bullshit|bitch(?:es|ing|y)?|cunt(?:s|y)?|dick(?:s|head|wad|face)?|cock(?:s|sucker|suckers)?|puss(?:y|ies)|ass(?:hole|holes|hat|wipe|es|clown)?|(?:dumb|jack|bad|smart|fat|hard)ass(?:es)?|bastard(?:s)?|piss(?:ing|ed|es|er)?|prick(?:s)?|slut(?:s|ty)?|whore(?:s)?|douche(?:bag|bags)?|wank(?:er|ers|ing)?|twat(?:s)?|bollock(?:s)?|bugger|nigg(?:er|ers|a|as|ah|ahs)|fag(?:got|gots|gy|s)?|retard(?:ed|s)?|spic(?:s)?|chink(?:s)?|kike(?:s)?|gook(?:s)?|wetback(?:s)?|trann(?:y|ies)|dyke(?:s)?|coon(?:s)?|paki(?:s)?|beaner(?:s)?|raghead(?:s)?|towelhead(?:s)?|jap(?:s)?|wop(?:s)?|dago(?:s|es)?)\y';
 begin
   if low = '' then return false; end if;
   -- raw pass, then a leetspeak-folded pass (a$$ / sh1t / f4g)

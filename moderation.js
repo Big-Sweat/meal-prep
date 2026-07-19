@@ -37,8 +37,6 @@ var MiseModeration = (function () {
     "ass(?:hole|holes|hat|wipe|es|clown)?",
     "(?:dumb|jack|bad|smart|fat|hard)ass(?:es)?",
     "bastard(?:s)?",
-    "goddamn(?:ed)?",
-    "crap(?:py|s|ping)?",
     "piss(?:ing|ed|es|er)?",
     "prick(?:s)?",
     "slut(?:s|ty)?",
