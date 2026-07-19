@@ -36,6 +36,9 @@ var MiseStore = (function () {
   var ALLERGY_PREFIX   = "mise-allergies-";  // who -> [allergen id]
   var LOG_PREFIX       = "mise-log-";        // who -> [entries]
   var SUMMARY_KEY      = "mise-rating-sums";  // cache of the public aggregate: { recipeId: { avg, count } }
+  var SYNCED_PREFIX    = "mise-synced-";     // who -> 1 once THIS browser has merged its local data up (see hydrate)
+  var LOG_RM_PREFIX    = "mise-log-rm-";     // who -> [entry ids deleted here, kept until the server confirms]
+  var LOG_UNITS_PREFIX = "mise-log-units-";  // who -> display units; log.js reads/writes it, we wipe it on delete
 
   /* The US big-9. Lives here rather than in app.js because both pages need it. */
   var ALLERGENS = [
@@ -148,7 +151,13 @@ var MiseStore = (function () {
     },
     logRemove: function (b, id) {
       b.c.from("log_entries").delete().eq("user_id", b.uid).eq("id", id)
-        .then(null, function (e) { log("push log remove failed", e); });
+        .then(function () {
+          // Confirmed gone server-side — the tombstone has done its job.
+          var dead = read(LOG_RM_PREFIX + b.uid, []);
+          if (!Array.isArray(dead)) return;
+          var i = dead.indexOf(id);
+          if (i !== -1) { dead.splice(i, 1); write(LOG_RM_PREFIX + b.uid, dead); }
+        }, function (e) { log("push log remove failed", e); });
     },
     rating: function (b, recipeId, stars) {
       b.c.from("ratings").upsert({
@@ -167,92 +176,139 @@ var MiseStore = (function () {
     }
   };
 
-  /* Pull this person's rows into the cache. On a FIRST sync (they have local
-     data from before the backend, or from using the site before signing in),
-     merge it up so nothing is lost: sets union, singletons keep the server's
-     copy when it has one, and anything local-only is pushed to the server. Then
-     fireSync so the pages redraw with the reconciled data. */
+  /* Pull this person's rows into the cache.
+
+     FIRST sync on a given browser (no SYNCED marker yet): they may have local
+     data from before the backend existed, so merge it UP and nothing is lost —
+     sets union, singletons prefer the newer side, local-only rows are pushed.
+
+     EVERY LATER sync: the server is the source of truth and the cache is
+     replaced wholesale. The union used to re-run on every page load, which
+     made a row deleted on another device indistinguishable from never-synced
+     local data — so deletions were resurrected forever. Two exceptions:
+
+       - LOG ENTRIES still merge by id (an entry written here while its push
+         died must not be dropped), with a tombstone list so entries deleted
+         HERE can't ride back in through that union.
+       - THE NUTRITION PROFILE keeps whichever side is NEWER (local savedAt vs
+         the row's updated_at). It used to be server-wins, so a weigh-in whose
+         push died was quietly reverted on the next page load — and the board
+         computed a calorie target from the stale server weight. Local-newer
+         re-pushes, healing the server instead.
+
+     Then fireSync so the pages redraw with the reconciled data. */
+  var hydrating = null;   // uid mid-pull; two auth events on one load must not double-run
   function hydrate(user) {
     var b = backend();
     if (!b || !user || user.id !== b.uid) return;
     var uid = b.uid;
+    if (hydrating === uid) return;
+    hydrating = uid;
+    var firstSync = !read(SYNCED_PREFIX + uid, null);
 
     Promise.all([
       b.c.from("favorites").select("recipe_id"),
       b.c.from("allergies").select("allergen_id"),
-      b.c.from("nutrition_profiles").select("profile").maybeSingle(),
+      b.c.from("nutrition_profiles").select("profile,updated_at").maybeSingle(),
       b.c.from("log_entries").select("*"),
       b.c.from("ratings").select("recipe_id,stars").eq("user_id", uid),
       b.c.from("reviews").select("*").eq("user_id", uid),
       b.c.from("recipe_rating_summary").select("*")
     ]).then(function (res) {
+      hydrating = null;
       var err = res.filter(function (r) { return r && r.error; })[0];
       if (err) { log("hydrate error", err.error); return; }
-      var sbFavs = (res[0].data || []).map(function (r) { return r.recipe_id; });
-      var sbAllg = (res[1].data || []).map(function (r) { return r.allergen_id; });
-      var sbNut  = res[2].data ? res[2].data.profile : null;
-      var sbLog  = (res[3].data || []).map(logFromRow);
-      var sbRate = res[4].data || [];
-      var sbRev  = res[5].data || [];
-      var sbSum  = res[6].data || [];
+      var sbFavs  = (res[0].data || []).map(function (r) { return r.recipe_id; });
+      var sbAllg  = (res[1].data || []).map(function (r) { return r.allergen_id; });
+      var sbNut   = res[2].data ? res[2].data.profile : null;
+      var sbNutAt = res[2].data ? (Date.parse(res[2].data.updated_at) || 0) : 0;
+      var sbLog   = (res[3].data || []).map(logFromRow);
+      var sbRate  = res[4].data || [];
+      var sbRev   = res[5].data || [];
+      var sbSum   = res[6].data || [];
 
-      // ----- favorites: union, migrate local-only up -----
-      var locFavs = read(FAVS_PREFIX + uid, []);
-      var favSet = {}; sbFavs.concat(locFavs).forEach(function (id) { favSet[id] = 1; });
-      var favs = Object.keys(favSet);
-      write(FAVS_PREFIX + uid, favs);
-      if (locFavs.some(function (id) { return sbFavs.indexOf(id) === -1; })) push.favorites(b, favs);
+      // ----- favorites -----
+      if (firstSync) {
+        var locFavs = read(FAVS_PREFIX + uid, []);
+        var favSet = {}; sbFavs.concat(locFavs).forEach(function (id) { favSet[id] = 1; });
+        var favs = Object.keys(favSet);
+        write(FAVS_PREFIX + uid, favs);
+        if (locFavs.some(function (id) { return sbFavs.indexOf(id) === -1; })) push.favorites(b, favs);
+      } else {
+        write(FAVS_PREFIX + uid, sbFavs);
+      }
 
-      // ----- allergies: union, migrate -----
-      var locAllg = read(ALLERGY_PREFIX + uid, []);
-      var aSet = {}; sbAllg.concat(locAllg).forEach(function (id) { aSet[id] = 1; });
-      var allg = Object.keys(aSet);
-      write(ALLERGY_PREFIX + uid, allg);
-      if (locAllg.some(function (id) { return sbAllg.indexOf(id) === -1; })) push.allergies(b, allg);
+      // ----- allergies -----
+      if (firstSync) {
+        var locAllg = read(ALLERGY_PREFIX + uid, []);
+        var aSet = {}; sbAllg.concat(locAllg).forEach(function (id) { aSet[id] = 1; });
+        var allg = Object.keys(aSet);
+        write(ALLERGY_PREFIX + uid, allg);
+        if (locAllg.some(function (id) { return sbAllg.indexOf(id) === -1; })) push.allergies(b, allg);
+      } else {
+        write(ALLERGY_PREFIX + uid, sbAllg);
+      }
 
-      // ----- nutrition: server wins if present, else migrate local up -----
+      // ----- nutrition: the newer side wins -----
       var locNut = read(NUTRITION_PREFIX + uid, null);
-      if (sbNut) { write(NUTRITION_PREFIX + uid, sbNut); }
-      else if (locNut) { push.nutrition(b, locNut); }   // keep local, send it up
+      var locNutAt = (locNut && typeof locNut.savedAt === "number") ? locNut.savedAt : 0;
+      if (sbNut && (!locNut || sbNutAt >= locNutAt)) {
+        write(NUTRITION_PREFIX + uid, sbNut);
+      } else if (locNut) {
+        push.nutrition(b, locNut);   // local is newer (or server empty): heal the server
+      }
 
-      // ----- log: union by id, migrate local-only up -----
+      // ----- log: union by id, minus the local tombstones -----
       var locLog = read(LOG_PREFIX + uid, []);
       if (!Array.isArray(locLog)) locLog = [];
+      var dead = read(LOG_RM_PREFIX + uid, []);
+      if (!Array.isArray(dead)) dead = [];
+      var deadSet = {}; dead.forEach(function (id) { deadSet[id] = 1; });
       var byId = {};
-      sbLog.forEach(function (e) { byId[e.id] = e; });
+      sbLog.forEach(function (e) { if (!deadSet[e.id]) byId[e.id] = e; });
       locLog.forEach(function (e) {
-        if (e && e.id && !byId[e.id]) { byId[e.id] = e; push.logAdd(b, e); }  // local-only -> up
+        if (e && e.id && !deadSet[e.id] && !byId[e.id]) { byId[e.id] = e; push.logAdd(b, e); }  // local-only -> up
       });
       write(LOG_PREFIX + uid, Object.keys(byId).map(function (k) { return byId[k]; }));
+      // Deletions the server hasn't caught up on: re-issue them, and forget
+      // tombstones for anything the server no longer has anyway.
+      var sbIds = {}; sbLog.forEach(function (e) { sbIds[e.id] = 1; });
+      var pending = dead.filter(function (id) { return sbIds[id]; });
+      write(LOG_RM_PREFIX + uid, pending);
+      pending.forEach(function (id) { push.logRemove(b, id); });
 
-      // ----- ratings (own): server wins per recipe, migrate local-only up -----
-      var locRatings = read(RATINGS_KEY, {});
+      // ----- ratings (own) -----
       var ratings = {};
       sbRate.forEach(function (r) { (ratings[r.recipe_id] = ratings[r.recipe_id] || {})[uid] = r.stars; });
-      Object.keys(locRatings).forEach(function (rid) {
-        var mine = locRatings[rid] && locRatings[rid][uid];
-        if (mine && !(ratings[rid] && ratings[rid][uid])) {
-          (ratings[rid] = ratings[rid] || {})[uid] = mine;
-          push.rating(b, rid, mine);
-        }
-      });
+      if (firstSync) {
+        var locRatings = read(RATINGS_KEY, {});
+        Object.keys(locRatings).forEach(function (rid) {
+          var mine = locRatings[rid] && locRatings[rid][uid];
+          if (mine && !(ratings[rid] && ratings[rid][uid])) {
+            (ratings[rid] = ratings[rid] || {})[uid] = mine;
+            push.rating(b, rid, mine);
+          }
+        });
+      }
       write(RATINGS_KEY, ratings);
 
-      // ----- reviews (own): server wins per recipe, migrate local-only up -----
-      var locReviews = read(REVIEWS_KEY, {});
+      // ----- reviews (own) -----
       var reviews = {};
       sbRev.forEach(function (r) {
         reviews[r.recipe_id] = [{ by: uid, author: r.author, stars: r.stars, text: r.body,
           date: (r.created_at || "").slice(0, 10) }];
       });
-      Object.keys(locReviews).forEach(function (rid) {
-        (locReviews[rid] || []).forEach(function (rv) {
-          if ((rv.by || rv.author) === uid && !reviews[rid]) {
-            reviews[rid] = [rv];
-            push.review(b, rid, rv.stars, rv.text, rv.author);
-          }
+      if (firstSync) {
+        var locReviews = read(REVIEWS_KEY, {});
+        Object.keys(locReviews).forEach(function (rid) {
+          (locReviews[rid] || []).forEach(function (rv) {
+            if ((rv.by || rv.author) === uid && !reviews[rid]) {
+              reviews[rid] = [rv];
+              push.review(b, rid, rv.stars, rv.text, rv.author);
+            }
+          });
         });
-      });
+      }
       write(REVIEWS_KEY, reviews);
 
       // ----- public rating aggregates -----
@@ -260,10 +316,11 @@ var MiseStore = (function () {
       sbSum.forEach(function (r) { sums[r.recipe_id] = { avg: Number(r.avg) || 0, count: r.count || 0 }; });
       write(SUMMARY_KEY, sums);
 
+      write(SYNCED_PREFIX + uid, 1);
       hydratedFor = uid;
-      log("hydrated", uid);
+      log("hydrated", uid, firstSync ? "(first sync: merged local data up)" : "");
       fireSync();
-    }, function (e) { log("hydrate rejected", e); });
+    }, function (e) { hydrating = null; log("hydrate rejected", e); });
   }
 
   /* The public rating aggregate for the whole board. Anon-readable, so it loads
@@ -326,6 +383,9 @@ var MiseStore = (function () {
     drop(NUTRITION_PREFIX + w);
     drop(ALLERGY_PREFIX + w);
     drop(LOG_PREFIX + w);
+    drop(LOG_RM_PREFIX + w);
+    drop(LOG_UNITS_PREFIX + w);
+    drop(SYNCED_PREFIX + w);
 
     var ratings = read(RATINGS_KEY, {});
     Object.keys(ratings).forEach(function (id) {
@@ -434,6 +494,7 @@ var MiseStore = (function () {
   }
   function setNutrition(w, p) {
     if (!w) return;
+    p.savedAt = Date.now();   // recency stamp — hydrate keeps whichever side is newer
     write(NUTRITION_PREFIX + w, p);
     var b = forPush(w); if (b) push.nutrition(b, p);
   }
@@ -518,7 +579,15 @@ var MiseStore = (function () {
   function removeLogEntry(w, id) {
     if (!w) return;
     write(LOG_PREFIX + w, logEntries(w).filter(function (e) { return e.id !== id; }));
-    var b = forPush(w); if (b) push.logRemove(b, id);
+    var b = forPush(w);
+    if (b) {
+      // Tombstone until the server confirms, so hydrate's union can't
+      // resurrect an entry deleted here whose delete-push died mid-flight.
+      var dead = read(LOG_RM_PREFIX + w, []);
+      if (!Array.isArray(dead)) dead = [];
+      if (dead.indexOf(id) === -1) { dead.push(id); write(LOG_RM_PREFIX + w, dead); }
+      push.logRemove(b, id);
+    }
   }
 
   /* A weigh-in updates the body the calorie target is computed from. Not gated,
@@ -527,7 +596,9 @@ var MiseStore = (function () {
     if (!w || !(kg > 0)) return false;
     var p = read(NUTRITION_PREFIX + w, null);
     if (!p || typeof p !== "object") return false;
+    if (p.weightKg === kg) return true;   // already current: no write, no push, no churn
     p.weightKg = kg;
+    p.savedAt = Date.now();   // recency stamp — hydrate keeps whichever side is newer
     write(NUTRITION_PREFIX + w, p);
     var b = forPush(w); if (b) push.nutrition(b, p);
     return true;

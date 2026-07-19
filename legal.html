@@ -28,7 +28,7 @@
   </header>
 
   <main class="legal-main">
-    <p class="legal-updated">Last updated: 17 July 2026</p>
+    <p class="legal-updated">Last updated: 18 July 2026</p>
 
     <h2>Affiliate disclosure</h2>
     <p>Myse is free. Some links to grocery stores and prep gear are <strong>affiliate
@@ -43,26 +43,33 @@
     Myse.</p>
 
     <h2>What Myse stores about you</h2>
-    <p>Myse is a static website with no server of its own for your recipe activity.
-    Almost everything you do stays <strong>in your own browser</strong>, in local
-    storage on your device:</p>
+    <p><strong>Signed out</strong>, everything you do stays in your own browser, in
+    local storage on your device. It is not sent to Myse, and clearing your
+    browser's site data removes it.</p>
+    <p><strong>Signed in</strong>, the things that belong to your account are also
+    stored in Myse's database (hosted by Supabase), so they can follow you across
+    devices and survive a cleared browser:</p>
     <ul>
-      <li>your favorites, ratings, and reviews;</li>
-      <li>your weekly plan and its shopping list;</li>
-      <li>your standing allergies;</li>
+      <li>your favorites and standing allergies;</li>
       <li>your nutrition profile (the height, weight, age, sex, and goal used to
       estimate a calorie target) and your log of weight, lifts, and runs;</li>
-      <li>your display name and whether Myse Plus is active on this device.</li>
+      <li>your ratings and reviews.</li>
     </ul>
-    <p>This information is not sent to Myse, and clearing your browser's site data
-    removes it.</p>
+    <p><strong>Ratings and reviews are public:</strong> the star average is shown
+    to every visitor, and a review appears under the display name on your account.
+    Everything else in the list is private to you — the database only ever answers
+    for the signed-in account that owns the rows.</p>
+    <p>Two things stay in the browser only, even signed in: your weekly plan (and
+    its shopping list) and whether Myse Plus is active on this device.</p>
+    <p>Clearing your browser does <strong>not</strong> remove what's stored with
+    your account — deleting the account does (see &ldquo;Your choices&rdquo;).</p>
 
     <h2>When data does leave your device</h2>
     <ul>
-      <li><strong>Signing in.</strong> Myse offers an optional account. If email or
-      social (Google/Apple) sign-in is enabled, it is handled by a third-party
-      authentication provider, Supabase, which processes your email address to sign
-      you in. If you never sign in, this doesn't apply.</li>
+      <li><strong>Signing in.</strong> Accounts are handled by Supabase, which
+      processes your email address (and, for Google or Apple sign-in, the name and
+      email those providers share) to sign you in, and hosts the account data
+      listed above. If you never sign in, none of this applies.</li>
       <li><strong>Building an Instacart cart.</strong> If you use &ldquo;Build my
       Instacart cart,&rdquo; the ingredient names from your shopping list are sent to
       Instacart (through a small proxy service) so it can create the cart. Nothing
@@ -75,13 +82,32 @@
     <p>Myse does not serve third-party advertising networks, and it does not sell your
     personal information.</p>
 
+    <h2>Myse Plus</h2>
+    <p>Myse Plus is an optional paid tier ($2.99/month with a 14-day free trial, or
+    $29.99 once) that unlocks printing, PDF export, the weekly plan view, and the
+    calorie target, and removes sponsored tickets. In the mobile apps, billing is
+    handled by the app store you subscribed through &mdash; cancellation and
+    refunds follow that store's rules, and cancelling stops future charges without
+    deleting your account or anything you've saved. In the current demo build no
+    real payment is taken.</p>
+
+    <h2>Not medical advice</h2>
+    <p>The calorie target is an estimate from a population equation, and the log is
+    a notebook, not a coach. Nothing on Myse is medical advice, and none of it
+    replaces a clinician or a registered dietitian &mdash; especially around weight
+    loss. Recipe and allergen data are illustrative: if an allergy is severe,
+    always verify every label yourself.</p>
+
     <h2>Children</h2>
     <p>Myse isn't directed to children, and its calorie-target tool deliberately
     refuses to compute a target for anyone under 18.</p>
 
     <h2>Your choices</h2>
     <p>You can use the whole site without an account, skip the store links entirely,
-    and clear your saved data at any time through your browser's settings. Blocking
+    and clear your browser-only data at any time through your browser's settings.
+    Signed in, <strong>Delete my account</strong> on the profile page permanently
+    removes the account and every server-side row that belongs to it &mdash;
+    favorites, allergies, nutrition profile, log, ratings, and reviews. Blocking
     cookies or third-party requests will still leave the recipes fully usable.</p>
 
     <h2>Changes &amp; contact</h2>

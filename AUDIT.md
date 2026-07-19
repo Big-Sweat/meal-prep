@@ -36,41 +36,41 @@ by a second pass or a runtime repro before landing here.
 
 ## 1. Store/sync layer (the profile backend)
 
-- [ ] **1.1 P1 — Hydrate re-merges every page load and resurrects deletions.**
+- [x] **1.1 P1 — Hydrate re-merges every page load and resurrects deletions.** *(done: `mise-synced-<uid>` marker; post-first-sync hydrate is server-wins)*
   `hydratedFor` is in-memory only (store.js:199-256, 79, 263); the local→server
   union re-runs each load with no tombstones, so a favorite/allergy/log
   entry/review deleted on phone A is unioned back by laptop B's next load.
   Fix: persist a per-uid synced-once marker; post-first-sync hydrate is
   server-wins wholesale; writes remain the only upward path.
-- [ ] **1.2 P1 — Server-wins hydrate reverts newer local data after a failed
-  push.** Nutrition + ratings branches (store.js:213-216, 228-238) never
+- [x] **1.2 P1 — Server-wins hydrate reverts newer local data after a failed
+  push.** *(done: nutrition keeps the newer of savedAt vs updated_at; local-newer re-pushes)* Nutrition + ratings branches (store.js:213-216, 228-238) never
   compare `updated_at` (the select at :183 doesn't even fetch it). **Live-
   confirmed:** profile weight 89.81 kg (=198.0 lb, stale server) vs newest
   weigh-in 79.37 kg (=175.0 lb); board + profile computed the calorie target
   ~125-200 kcal high from a 10 kg-stale weight; only log.html self-heals
   (`maybeSyncWeight` runs on its render). Fix: fetch `updated_at`, keep
   whichever side is newer, stamp local writes; plus §1.5.
-- [ ] **1.3 P1 — Star-less reviews are silently destroyed.** UI supports
+- [x] **1.3 P1 — Star-less reviews are silently destroyed.** *(migration `20260718120000_review_constraints.sql` written — Jake must run it in the SQL editor)* UI supports
   review-without-rating (app.js:161-163, render at 1117-1118) but
   `reviews.stars` is `NOT NULL` (migration :108); push 23502s (only logged),
   local cache shows it posted, next `fetchRecipeSocial` erases it. Fix
   (migration): drop NOT NULL — the 1-5 CHECK passes NULL. Surface push
   failures.
-- [ ] **1.4 P2 — No length caps on `reviews.body`/`author`/`recipe_id`.**
+- [x] **1.4 P2 — No length caps on `reviews.body`/`author`/`recipe_id`.** *(same migration + render truncation in app.js)*
   Unbounded text; RLS permits own-row PATCH to multi-MB; every visitor
   downloads it (store.js:293); junk `recipe_id` rows inflate the summary every
   visitor fetches unfiltered (store.js:276). Fix (same migration):
   `char_length(body) <= 1000`, `author <= 64`, `recipe_id <= 64`; truncate at
   render; consider `.in("recipe_id", knownIds)` for summaries.
-- [ ] **1.5 P3 — `syncNutritionWeight` pushes unconditionally on every log
-  render** (store.js:526-534; log.js:292) — churn + widens the §1.2 race.
+- [x] **1.5 P3 — `syncNutritionWeight` pushes unconditionally on every log
+  render** *(done: early-return when current)* (store.js:526-534; log.js:292) — churn + widens the §1.2 race.
   Early-return when `p.weightKg === kg`.
-- [ ] **1.6 P3 — Double hydrate on load** (auth.js:106-131 notifies twice;
+- [x] **1.6 P3 — Double hydrate on load** *(done: in-flight guard)* (auth.js:106-131 notifies twice;
   guard set only on completion, store.js:557/561/263). In-flight flag.
 - [ ] **1.7 P3 — `push.favorites`/`allergies` are delete-then-insert**
   (store.js:122-135) — a drop between the two leaves the server list empty
   until next union. Upsert + targeted deletes.
-- [ ] **1.8 P3 — `deleteUserData` misses `mise-log-units-<who>`**
+- [x] **1.8 P3 — `deleteUserData` misses `mise-log-units-<who>`** *(done: wipes log-units, tombstones, and the synced marker; `mise-plan` decision still open)*
   (store.js:323-347 vs log.js:31,65); also decide whether the global
   `mise-plan` (app.js:182) should survive account deletion on a shared
   browser.
@@ -89,7 +89,7 @@ by a second pass or a runtime repro before landing here.
 
 ## 2. Board (app.js + index.html)
 
-- [ ] **2.1 P1 — Modal opened before auth resolves never updates.**
+- [x] **2.1 P1 — Modal opened before auth resolves never updates.** *(done: `refreshModalSocial()` on auth/onSync + `openAuth` no-ops signed-in; live-verified)*
   `openFromHash` runs synchronously at eval (app.js:2059); the async SDK
   always loses the race, `fetchRecipeSocial` no-ops once (null client) and is
   never retried; `onChange`/`onSync` re-render only the grid (1305-1331). The
@@ -99,13 +99,13 @@ by a second pass or a runtime repro before landing here.
   `profile` is set, 1146-1147). Fix: re-render the open modal's social
   section + re-fetch on auth/sync arrival; make `openAuth` no-op when signed
   in.
-- [ ] **2.2 P2 — Auth events reset session filter chips.** Every Supabase
+- [x] **2.2 P2 — Auth events reset session filter chips.** *(done: uid-change guard; signed-out onSync no longer touches chips either)* Every Supabase
   event (`TOKEN_REFRESHED` ~hourly, `SIGNED_IN` on tab refocus) funnels to
   `applyStandingAllergies()` + full `render()` (auth.js:113-131 →
   app.js:1305-1314, 1484-1493), reverting session chip changes mid-browse.
   Guard: only reset when the uid actually changed.
-- [ ] **2.3 P2 — Stale `fetchRecipeSocial` callback clobbers the wrong
-  modal** (app.js:1003-1006): no still-current guard; recipe A's late
+- [x] **2.3 P2 — Stale `fetchRecipeSocial` callback clobbers the wrong
+  modal** *(done: same-recipe-still-open guard on both fetch sites)* (app.js:1003-1006): no still-current guard; recipe A's late
   response overwrites open recipe B, or throws if closed. Bail unless same id
   still open.
 - [ ] **2.4 P2 — Search re-renders everything per keystroke** with per-card
@@ -154,18 +154,18 @@ by a second pass or a runtime repro before landing here.
 
 ## 3. Auth, entitlement, backend services
 
-- [ ] **3.1 P1 — Supabase SDK injected unpinned** (auth.js:93, jsDelivr
+- [x] **3.1 P1 — Supabase SDK injected unpinned** *(done: pinned 2.110.7 + sha384 SRI + crossorigin + onerror)* (auth.js:93, jsDelivr
   `@2`, no SRI, no onerror): supply-chain exposure on every load + silent
   dead sign-in if the CDN is unreachable (only profile.html has a timeout).
   Pin exact version + `integrity` + `crossorigin` + onerror notice.
-- [ ] **3.2 P1 (pre-wiring) — Instacart worker is callable by anyone**
+- [x] **3.2 P1 (pre-wiring) — Instacart worker is callable by anyone** *(done in code: 403 unknown origins, body/item/name caps, field sanitization, no detail leak; CF rate rule + redeploy when wiring the endpoint)*
   (worker.js:32-51): disallowed origins are processed anyway (fallback header,
   no rejection), no rate limit, no size/item caps, and error `detail` leaks
   upstream responses. Must fix before `INSTACART_ENDPOINT` goes live: 403
   unknown origins, cap items (~200) + body size, validate item shape, add a
   CF rate rule.
-- [ ] **3.3 P1 (pre-app-release) — delete-account CORS misses Capacitor
-  origins** (index.ts:27-30 vs `https://localhost` / `capacitor://localhost`):
+- [x] **3.3 P1 (pre-app-release) — delete-account CORS misses Capacitor
+  origins** *(done in code, both files; Edge Function needs a CLI redeploy before the next app build)* (index.ts:27-30 vs `https://localhost` / `capacitor://localhost`):
   in-app account deletion — which both stores require — always fails in the
   built apps. Add both origins to the function and the worker.
 - [ ] **3.4 P3 — Recovery gating one-load-deep + substring match**
@@ -253,7 +253,7 @@ by a second pass or a runtime repro before landing here.
 
 ## 6. Copy, legal, docs, design system
 
-- [ ] **6.1 P0 — legal.html materially misstates where data lives**
+- [x] **6.1 P0 — legal.html materially misstates where data lives** *(done: rewritten + Myse Plus & not-medical-advice sections + deletion right + date; log.html footer reworded)*
   (:45-76, "Last updated 17 July" — one day before the backend shipped):
   claims favorites/ratings/reviews/allergies/nutrition/log stay in the
   browser and clearing site data removes them; in fact Supabase stores all of

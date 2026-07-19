@@ -214,6 +214,7 @@
   var badgeEl = $("#filter-count-badge");
   var clearBtn = $("#clear-all");
   var openerBtn = null; // element to restore focus to after modal closes
+  var openRecipe = null; // recipe shown in the modal right now (null when closed)
   var firstRender = true;
 
   /* ---------- quantity formatting ---------- */
@@ -865,6 +866,7 @@
   function openModal(r, servingsOverride) {
     var servings = servingsOverride || state.servings;
     var currentRecipe = r;
+    openRecipe = r;
     var total = r.prepMinutes + r.cookMinutes;
     var contains = r.allergens.length
       ? "CONTAINS: " + r.allergens.join(" · ").toUpperCase()
@@ -1001,6 +1003,9 @@
        recipe and redraw the modal when they land. Works signed out too (the
        ratings/reviews tables are world-readable). */
     MiseStore.fetchRecipeSocial(r.id, function () {
+      // The response can land after this modal closed or a different recipe
+      // opened — never paint recipe A's reviews into recipe B.
+      if (!modalEl.open || !openRecipe || openRecipe.id !== r.id) return;
       renderModalRating(r.id);
       renderReviews(r.id);
     });
@@ -1064,6 +1069,7 @@
 
   modalEl.addEventListener("close", function () {
     modalBody.innerHTML = "";
+    openRecipe = null;
     if (openerBtn && document.contains(openerBtn)) openerBtn.focus();
     openerBtn = null;
   });
@@ -1116,17 +1122,43 @@
       host.innerHTML = list.map(function (rv) {
         var n = Math.max(0, Math.min(5, parseInt(rv.stars, 10) || 0));
         var stars = n ? "&#9733;".repeat(n) + '<span class="review-stars-off">' + "&#9734;".repeat(5 - n) + "</span>" : "";
+        // Length caps mirror the DB constraints — a hostile row PATCHed past
+        // the form's maxlength must not flood every visitor's modal.
         return '<div class="review">' +
           '<p class="review-head mono">' +
             (stars ? '<span class="review-stars">' + stars + "</span> " : "") +
-            esc(rv.author.toUpperCase()) + " &middot; " + esc(rv.date) +
+            esc(String(rv.author).slice(0, 80).toUpperCase()) + " &middot; " + esc(rv.date) +
           "</p>" +
-          '<p class="review-text">' + esc(rv.text) + "</p>" +
+          '<p class="review-text">' + esc(String(rv.text).slice(0, 1000)) + "</p>" +
         "</div>";
       }).join("");
     }
     $("#review-form").hidden = !profile;
     $("#review-signin").hidden = !!profile;
+  }
+
+  /* Sign-in resolves AFTER a hash-opened modal is already up (the Supabase SDK
+     loads async and always loses that race), so auth state has to reach INTO
+     the open modal — the grid re-render can't. Repaints the social section
+     (stars, reviews, fav state) and re-issues the shared-social fetch, which
+     no-oped pre-auth because the client didn't exist yet. Called from the
+     auth/onSync handlers below; harmless when no modal is open. */
+  function refreshModalSocial() {
+    if (!modalEl.open || !openRecipe) return;
+    var id = openRecipe.id;
+    renderModalRating(id);
+    renderReviews(id);
+    var fav = $("#modal-fav");
+    if (fav) {
+      var on = favs.has(id);
+      fav.innerHTML = on ? "&#9829; SAVED" : "&#9825; SAVE";
+      fav.setAttribute("aria-pressed", String(on));
+    }
+    MiseStore.fetchRecipeSocial(id, function () {
+      if (!modalEl.open || !openRecipe || openRecipe.id !== id) return;
+      renderModalRating(id);
+      renderReviews(id);
+    });
   }
 
   /* ---------- auth + favorites UI ---------- */
@@ -1153,6 +1185,10 @@
   }
 
   function openAuth() {
+    // Already signed in: every view in this dialog hides itself, so opening it
+    // would show an empty shell (the pre-auth "sign in to review" button used
+    // to dead-end here when clicked after auth had resolved).
+    if (profile) return;
     // Always open on the main sign-in view with no stale messages, even if the
     // dialog was last closed on the reset or new-password step.
     ["#auth-error", "#reset-msg", "#newpass-msg"].forEach(function (id) {
@@ -1302,16 +1338,27 @@
         "error");
     }
 
+    var lastAuthUid; // undefined until the first auth event lands
     MiseAuth.onChange(function (user) {
       profile = user ? { id: user.id, name: user.name, email: user.email } : null;
-      if (!profile) {
-        state.favOnly = false;
-        favChip.setAttribute("aria-pressed", "false");
-      }
-      loadFavs();
-      applyStandingAllergies();  // per-account, so they arrive with the session
+      var uid = profile ? profile.id : null;
+      var uidChanged = uid !== lastAuthUid;
+      lastAuthUid = uid;
       updateAuthUI();
-      render();
+      if (uidChanged) {
+        // An actual sign-in or sign-out. Everything below is per-account
+        // state; same-uid events (hourly TOKEN_REFRESHED, SIGNED_IN on tab
+        // refocus) must not reach it — they used to wipe session filter chips
+        // and re-deal the board mid-browse.
+        if (!profile) {
+          state.favOnly = false;
+          favChip.setAttribute("aria-pressed", "false");
+        }
+        loadFavs();
+        applyStandingAllergies();  // per-account, so they arrive with the session
+        render();
+        refreshModalSocial();      // a hash-opened modal predates this sign-in
+      }
       if (profile && authModal.open) authModal.close();
       // The code exchange that signs them in is the confirmation completing.
       if (confirmPending && profile) {
@@ -1323,11 +1370,14 @@
 
     /* Sign-in renders immediately from whatever's cached; hydrate() then pulls
        this account's rows from Supabase and fires onSync, so re-load favorites
-       and standing allergies and redraw with the real data. */
+       and standing allergies and redraw with the real data. (Signed-out, the
+       only onSync is the public rating summaries landing — that must not touch
+       the session's allergy chips, so the baseline reset is gated on who().) */
     MiseStore.onSync(function () {
       loadFavs();
-      applyStandingAllergies();
+      if (who()) applyStandingAllergies();
       render();
+      refreshModalSocial();
     });
 
     $("#auth-mode-toggle").addEventListener("click", function () {

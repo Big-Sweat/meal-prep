@@ -26,6 +26,12 @@ import { createClient } from "jsr:@supabase/supabase-js@2";
 // Add a new origin here if the site ever moves to a custom domain.
 const ALLOWED_ORIGINS = [
   "https://big-sweat.github.io",
+  // The Capacitor apps: Android's WebView serves the bundle from
+  // https://localhost, iOS from capacitor://localhost. Both app stores require
+  // in-app account deletion, and without these two origins the preflight
+  // fails and the button is dead in every built app.
+  "https://localhost",
+  "capacitor://localhost",
   "http://localhost:8347",
 ];
 
