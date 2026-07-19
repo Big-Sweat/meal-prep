@@ -66,6 +66,10 @@
           '<section class="kit-section" id="kit-allergies"></section>' +
           '<section class="kit-section" id="kit-target"></section>' +
           '<section class="kit-section" id="kit-favorites"></section>' +
+          // Community recipes need the Supabase backend; the demo layer has no
+          // place to post to, so the section (and its Share button) only appears
+          // with real auth.
+          (realAuth ? '<section class="kit-section" id="kit-recipes"></section>' : "") +
           '<section class="kit-section" id="kit-activity"></section>' +
           '<section class="kit-section" id="kit-danger"></section>' +
         "</div>" +
@@ -76,6 +80,7 @@
     renderAllergies();
     renderTarget();
     renderFavorites();
+    if (realAuth) renderMyRecipes();
     renderActivity();
     renderDanger();
   }
@@ -527,6 +532,103 @@
       "</div>";
   }
 
+  /* ---------- what you've shared ---------- */
+
+  // Community recipes you've posted. Fetched async from Supabase (myRecipes),
+  // cached so a re-render doesn't flash "Loading"; null means not-yet-fetched.
+  var myRecipesCache = null;
+
+  function loadMyRecipes() {
+    MiseStore.myRecipes(me(), function (list) {
+      myRecipesCache = list || [];
+      renderMyRecipes();
+    });
+  }
+
+  function renderMyRecipes() {
+    var el = $("#kit-recipes");
+    if (!el) return;
+    var list = myRecipesCache;
+
+    var inner;
+    if (list === null) {
+      inner = '<p class="kit-none">Loading&hellip;</p>';
+    } else if (!list.length) {
+      inner = '<p class="kit-none">You haven&rsquo;t shared any recipes yet. Post one and it joins ' +
+        "the Community board for everyone to cook, review, and plan.</p>" +
+        '<button class="sub-buy kit-share-btn" type="button" data-share-recipe>Share a recipe</button>';
+    } else {
+      inner = '<p class="kit-lede">' + list.length + (list.length === 1 ? " recipe" : " recipes") +
+          " you&rsquo;ve shared to the Community board.</p>" +
+        '<ul class="kit-list">' +
+          list.map(function (r) {
+            return "<li><div class=\"kit-review\">" +
+              '<a class="kit-row kit-row--flush" href="index.html#' + esc(r.id) + '">' +
+                '<span class="kit-row-name">' + esc(r.name) + "</span>" +
+                '<span class="kit-row-meta mono">' +
+                  esc(String(r.protein).toUpperCase()) + " · " + (r.prepMinutes + r.cookMinutes) + " MIN · " +
+                  r.caloriesPerServing + " CAL" +
+                "</span>" +
+              "</a>" +
+              '<div class="kit-recipe-actions">' +
+                '<button class="kit-review-del mono" data-edit="' + esc(r.id) + '" type="button">EDIT</button>' +
+                '<button class="kit-review-del mono" data-del-recipe="' + esc(r.id) + '" type="button">DELETE</button>' +
+              "</div>" +
+            "</div></li>";
+          }).join("") +
+        "</ul>" +
+        '<button class="sub-buy kit-share-btn" type="button" data-share-recipe>Share another recipe</button>';
+    }
+
+    el.innerHTML =
+      '<div class="kit-card">' +
+        '<span class="tape mono" aria-hidden="true">YOUR RECIPES</span>' +
+        "<h2>What you&rsquo;ve shared</h2>" +
+        inner +
+      "</div>";
+
+    if (list === null) { loadMyRecipes(); return; }   // first paint kicks the fetch
+
+    el.querySelectorAll("[data-edit]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var id = this.getAttribute("data-edit");
+        var r = (myRecipesCache || []).filter(function (x) { return x.id === id; })[0];
+        if (r && typeof MiseCommunityUI !== "undefined") MiseCommunityUI.open(r);
+      });
+    });
+
+    /* Two presses to delete: the recipe is public and shared, so removal is
+       everywhere — one stray tap shouldn't do it. Same arm pattern as reviews. */
+    el.querySelectorAll("[data-del-recipe]").forEach(function (b) {
+      var armTimer;
+      function disarm() {
+        clearTimeout(armTimer);
+        b.setAttribute("data-armed", "no");
+        b.classList.remove("kit-review-del--arm");
+        b.textContent = "DELETE";
+      }
+      b.addEventListener("click", function () {
+        if (this.getAttribute("data-armed") !== "yes") {
+          this.setAttribute("data-armed", "yes");
+          this.classList.add("kit-review-del--arm");
+          this.textContent = "TAP AGAIN TO DELETE";
+          clearTimeout(armTimer);
+          armTimer = setTimeout(disarm, 4000);
+          return;
+        }
+        clearTimeout(armTimer);
+        var id = this.getAttribute("data-del-recipe");
+        this.disabled = true;
+        MiseStore.deleteRecipe(me(), id, function (err) {
+          if (err) { disarm(); b.disabled = false; return; }
+          myRecipesCache = (myRecipesCache || []).filter(function (x) { return x.id !== id; });
+          renderMyRecipes();
+        });
+      });
+      b.addEventListener("blur", disarm);
+    });
+  }
+
   /* ---------- what you've cooked ---------- */
 
   // Ratings and reviews are one thought per recipe, so they're one list: your
@@ -707,12 +809,28 @@
     renderIdentity();
   });
 
+  // "Share a recipe" buttons on this page (no app.js here to catch them). Already
+  // signed in on the profile page, so open the form straight away.
+  document.addEventListener("click", function (e) {
+    var t = e.target.closest && e.target.closest("[data-share-recipe]");
+    if (!t) return;
+    e.preventDefault();
+    if (account && typeof MiseCommunityUI !== "undefined") MiseCommunityUI.open();
+  });
+
+  // A publish/edit from the dialog refreshes the "your recipes" list.
+  document.addEventListener("mise:recipe-published", function () {
+    myRecipesCache = null;
+    renderMyRecipes();
+  });
+
   if (realAuth) {
     MiseAuth.onChange(function (user) {
       account = user ? { id: user.id, name: user.name, email: user.email } : null;
       ready = true;
       unreachable = false;   // auth answered after all — clear a fired timeout
       draft = null;        // a different person gets a different form
+      myRecipesCache = null;   // and a different person's shared recipes
       render();
     });
     // Sign-in renders from cache first; hydrate() then loads this account's rows
@@ -728,6 +846,7 @@
         unreachable = false;
       }
       draft = null;
+      myRecipesCache = null;   // hydrate landed — refetch this account's shared recipes
       render();
     });
     /* auth.js pulls the Supabase SDK off jsDelivr, so with no connection

@@ -3044,3 +3044,333 @@ button {
   .ios-tease-close { min-width: 44px; min-height: 44px; }
   .mast-link { display: inline-flex; align-items: center; min-height: 44px; }
 }
+
+/* ============================================================
+   COMMUNITY RECIPES — the "community only" filter, the card /
+   modal flag + attribution, the self-declared disclaimer, and
+   the submit / report dialog.
+   ============================================================ */
+
+/* The "community only" chip is a filter, so it uses the default kale pressed
+   state (like "Favorites only") — no override needed here. */
+
+/* The COMMUNITY flag stamp on a mixed-in card and in the modal byline. Ink, not
+   a semantic color (--chile = allergen, --amber = warning, --kale = favorite). */
+.card-flag {
+  display: inline-block;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  padding: 2px 5px;
+  border-radius: 2px;
+  vertical-align: 1px;
+  margin-right: 4px;
+}
+.modal-byline .card-flag { font-size: 10px; }
+
+.community-share-link {
+  display: inline-block;
+  margin-top: 10px;
+  background: none;
+  border: 0;
+  padding: 6px 0;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--kale-deep);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.community-share-link[hidden] { display: none; }
+
+/* Author attribution on the card and in the modal. */
+.card-byline {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--faded);
+  margin: -2px 0 4px;
+}
+.modal-byline {
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--faded);
+  margin: 2px 0 8px;
+}
+
+/* The self-declared nutrition/allergen disclaimer — amber, never --chile,
+   which is reserved for allergen semantics. */
+.community-note {
+  border-left: 3px solid var(--amber);
+  background: rgba(166, 106, 0, 0.06);
+  padding: 8px 12px;
+  margin: 10px 0 4px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--ink);
+}
+.community-note strong { color: var(--amber); }
+
+/* Community action buttons in the modal action row. */
+.plan-tool--report { color: var(--amber); }
+.plan-tool--danger { color: var(--chile); }
+
+/* Empty-state "post a recipe" link (community view, nothing shared yet). */
+.empty-share-btn {
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  color: var(--kale-deep);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+/* ---------- the submit / edit / report dialog ---------- */
+.community-modal .modal-body { max-width: 640px; }
+
+.cf-form { display: block; margin-top: 4px; }
+.cf-field { margin-bottom: 14px; }
+.cf-field > label,
+.cf-group-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--faded);
+  margin-bottom: 5px;
+}
+.cf-opt { text-transform: none; color: var(--faded); font-style: italic; letter-spacing: 0; }
+
+.cf-form input[type="text"],
+.cf-form input[type="number"],
+.cf-form input[type="file"],
+.cf-form select,
+.cf-form textarea {
+  width: 100%;
+  font: inherit;
+  font-size: 15px;
+  padding: 9px 11px;
+  border: 1px solid var(--ink);
+  background: var(--ticket);
+  color: var(--ink);
+  border-radius: 0;
+}
+.cf-form input[type="file"] { padding: 8px; font-size: 13px; }
+.cf-form textarea { resize: vertical; }
+.cf-form input::placeholder,
+.cf-form textarea::placeholder { color: var(--faded); font-style: italic; }
+
+.cf-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 12px; }
+.cf-grid--nums { grid-template-columns: repeat(4, 1fr); }
+.cf-grid .cf-field { margin-bottom: 0; }
+
+.cf-legend {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--faded);
+  margin: 6px 0;
+}
+
+.cf-checks { display: flex; flex-wrap: wrap; gap: 6px 14px; }
+.cf-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.cf-check input { width: auto; margin: 0; }
+.cf-freezer { display: inline-flex; margin-bottom: 14px; }
+
+/* Repeatable ingredient / step rows. */
+.cf-rows { display: flex; flex-direction: column; gap: 8px; }
+.ci-row {
+  display: grid;
+  grid-template-columns: 64px 84px 1fr 1fr 32px;
+  gap: 6px;
+  align-items: center;
+}
+.cs-row { display: grid; grid-template-columns: 1fr 32px; gap: 6px; align-items: start; }
+.ci-remove, .cs-remove {
+  border: 1px solid var(--line);
+  background: var(--paper);
+  color: var(--faded);
+  font-size: 18px;
+  line-height: 1;
+  height: 36px;
+  cursor: pointer;
+}
+.ci-remove:hover, .cs-remove:hover { color: var(--chile); border-color: var(--chile); }
+
+.cf-add {
+  align-self: flex-start;
+  margin-top: 8px;
+  border: 1px dashed var(--ink);
+  background: none;
+  color: var(--ink);
+  padding: 8px 12px;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+
+.cf-photo-preview { margin-top: 8px; }
+.cf-photo-preview[hidden] { display: none; }
+.cf-photo-preview img { max-width: 180px; border: 1px solid var(--ink); display: block; }
+
+.cf-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  margin-top: 16px;
+}
+.cf-cancel {
+  border: 1px solid var(--ink);
+  background: none;
+  color: var(--ink);
+  padding: 10px 16px;
+  font-size: 13px;
+  cursor: pointer;
+  min-height: 44px;
+}
+
+/* Profile "your recipes" section: edit/delete row + share CTA. */
+.kit-recipe-actions { display: flex; gap: 8px; margin-top: 6px; }
+.kit-share-btn { margin-top: 12px; }
+
+@media (max-width: 560px) {
+  .cf-grid, .cf-grid--nums { grid-template-columns: 1fr 1fr; }
+  .ci-row { display: flex; flex-wrap: wrap; }
+  .ci-row .ci-qty { flex: 0 0 64px; }
+  .ci-row .ci-unit { flex: 1 1 90px; }
+  .ci-row .ci-item, .ci-row .ci-note { flex: 1 1 100%; }
+  .ci-row .ci-remove { flex: 0 0 36px; margin-left: auto; }
+}
+
+/* ============================================================
+   THE FORUM — a standalone page (forum.html + forum.js) over the
+   shared kitchen layout (.kit-grid / .kit-card / .chip / .review-post).
+   ============================================================ */
+
+.forum-grid { display: block; max-width: 760px; margin: 0 auto; }
+.forum-start { margin-top: 4px; }
+
+.forum-signin {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--faded);
+  margin-top: 6px;
+}
+.forum-signin a { color: var(--kale-deep); }
+
+.forum-cats { margin-bottom: 6px; }
+
+/* thread list */
+.forum-list { list-style: none; }
+.forum-list .forum-thread { border-top: 1px solid var(--line); }
+.forum-list .forum-thread:first-child { border-top: 0; }
+.forum-thread-main {
+  display: block;
+  padding: 14px 4px;
+  text-decoration: none;
+  color: var(--ink);
+}
+.forum-thread-main:hover .forum-thread-title { text-decoration: underline; }
+.forum-thread-title {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.25;
+  margin-bottom: 4px;
+}
+.forum-thread-meta { display: block; font-size: 11px; color: var(--faded); letter-spacing: 0.02em; }
+
+.forum-cat-tag {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: var(--tape);
+  color: var(--ink);
+  padding: 1px 6px;
+  border-radius: 2px;
+}
+
+/* thread view */
+.forum-back {
+  display: inline-block;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--kale-deep);
+  text-decoration: none;
+  margin-bottom: 12px;
+}
+.forum-back:hover { text-decoration: underline; }
+
+.forum-op-title {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.15;
+  margin: 10px 0 4px;
+}
+.forum-byline { font-size: 11px; letter-spacing: 0.06em; color: var(--faded); margin-bottom: 10px; }
+.forum-body {
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.6;
+  white-space: pre-wrap;      /* keep the poster's line breaks */
+  overflow-wrap: anywhere;    /* but never let a long token side-scroll */
+}
+
+.forum-replies-head {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--faded);
+  margin: 22px 0 8px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 6px;
+}
+.forum-replies { list-style: none; }
+.forum-reply { padding: 14px 0; border-bottom: 1px solid var(--line); }
+.forum-noreplies { font-style: italic; color: var(--faded); font-size: 14px; }
+
+.forum-reply-box { margin-top: 18px; }
+.forum-reply-form textarea {
+  width: 100%;
+  font: inherit;
+  font-size: 15px;
+  padding: 10px 12px;
+  border: 1px solid var(--ink);
+  background: var(--ticket);
+  color: var(--ink);
+  border-radius: 0;
+  resize: vertical;
+  margin-bottom: 8px;
+}
+
+/* report / delete on a post */
+.forum-actions { margin-top: 8px; }
+.forum-act {
+  border: 0;
+  background: none;
+  padding: 2px 0;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  color: var(--faded);
+  cursor: pointer;
+}
+.forum-act:hover { color: var(--amber); }
+.forum-act--del:hover { color: var(--chile); }
+.forum-act[disabled] { opacity: 0.6; cursor: default; }
+
+.forum-compose { margin-top: 10px; }

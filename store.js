@@ -367,6 +367,408 @@ var MiseStore = (function () {
     }, function () { if (cb) cb(); });
   }
 
+  /* ---------- community recipes (user-submitted, world-readable) ----------
+
+     The first UGC that isn't a rating or review. Rows live in `user_recipes`
+     (owner-writable, world-readable via an auto-hide-on-reports RLS policy — see
+     supabase/migrations/20260719000000_community_recipes.sql). On read they are
+     coerced into the recipe schema and handed to the board, which merges them
+     into the global RECIPES array so the modal, plan, reviews and favorites all
+     work unchanged. Same world-readable shape as loadSummaries(): a client but
+     no `who`, so it works signed out. A dedicated onCommunity channel (not
+     onSync) drives the board's re-merge, keeping it clear of the favorites/
+     ratings redraw. */
+
+  var COMMUNITY_KEY = "mise-community";   // cache of the mapped public recipe list
+  var communityListeners = [];
+  function onCommunity(fn) { communityListeners.push(fn); }
+  function fireCommunity() { communityListeners.forEach(function (fn) { try { fn(); } catch (e) {} }); }
+  function community() { var l = read(COMMUNITY_KEY, []); return Array.isArray(l) ? l : []; }
+
+  // A client with no session requirement — the read path is public.
+  function publicClient() {
+    return (typeof MiseAuth !== "undefined" && MiseAuth.enabled && MiseAuth.client && MiseAuth.client()) || null;
+  }
+
+  // The recipe fields we persist in the jsonb `data` column (everything except
+  // the injected id/source/author/photo, which live in their own columns).
+  var RECIPE_DATA_FIELDS = [
+    "name", "description", "protein", "cuisine", "tags", "meal",
+    "baseServings", "prepMinutes", "cookMinutes",
+    "caloriesPerServing", "proteinGrams", "carbsGrams", "fatGrams",
+    "fridgeDays", "freezerFriendly", "difficulty",
+    "allergens", "ingredients", "steps", "storageNote", "sourceUrl"
+  ];
+
+  function photoUrlFor(path) {
+    if (!path) return null;
+    var c = publicClient();
+    if (!c || !c.storage) return null;
+    try {
+      var res = c.storage.from("recipe-photos").getPublicUrl(path);
+      return (res && res.data && res.data.publicUrl) || null;
+    } catch (e) { return null; }
+  }
+
+  /* Turn one server row into a recipe object the board can render. Community
+     recipes are untrusted remote input AND their numeric fields are interpolated
+     raw (unescaped) into the card/modal HTML, so every value is coerced here:
+     numbers to finite numbers, arrays to arrays, difficulty clamped to 1-3 (or
+     DIFF_WORDS[r.difficulty].toUpperCase() throws), allergens filtered to the
+     big-9. A row missing a name, any ingredient, or any step is dropped. */
+  function mapRecipeRow(row) {
+    if (!row || typeof row !== "object" || !row.id || !row.data || typeof row.data !== "object") return null;
+    var d = row.data;
+
+    function num(v, min, max, dflt) {
+      var n = Number(v);
+      if (!isFinite(n)) n = dflt;
+      if (min != null && n < min) n = min;
+      if (max != null && n > max) n = max;
+      return n;
+    }
+    function str(v) { return v == null ? "" : String(v); }
+    function arr(v) { return Array.isArray(v) ? v : []; }
+
+    var name = str(d.name).trim();
+    if (!name) return null;
+
+    var validAllergen = {};
+    ALLERGENS.forEach(function (a) { validAllergen[a.id] = 1; });
+
+    var ingredients = arr(d.ingredients).map(function (ing) {
+      if (!ing || typeof ing !== "object") return null;
+      var item = str(ing.item).trim();
+      if (!item) return null;
+      var qty = (ing.qty == null || ing.qty === "") ? null : num(ing.qty, 0, 100000, null);
+      return {
+        qty: (qty != null && isFinite(qty)) ? qty : null,
+        unit: str(ing.unit).slice(0, 40),
+        item: item.slice(0, 120),
+        note: str(ing.note).slice(0, 200),
+        allergens: arr(ing.allergens).map(String).filter(function (a) { return validAllergen[a]; })
+      };
+    }).filter(Boolean);
+    if (!ingredients.length) return null;
+
+    var steps = arr(d.steps).map(function (s) { return str(s).trim().slice(0, 800); }).filter(Boolean);
+    if (!steps.length) return null;
+
+    var difficulty = Math.round(num(d.difficulty, 1, 3, 2));
+    if (difficulty < 1 || difficulty > 3) difficulty = 2;
+
+    return {
+      id: String(row.id),
+      name: name.slice(0, 120),
+      description: str(d.description).slice(0, 500),
+      protein: str(d.protein).slice(0, 40) || "chicken",
+      cuisine: str(d.cuisine).slice(0, 60),
+      tags: arr(d.tags).map(function (t) { return str(t).slice(0, 40); }).slice(0, 20),
+      meal: d.meal === "breakfast" ? "breakfast" : "main",
+      baseServings: Math.max(1, Math.round(num(d.baseServings, 1, 24, 4))),
+      prepMinutes: Math.round(num(d.prepMinutes, 0, 100000, 0)),
+      cookMinutes: Math.round(num(d.cookMinutes, 0, 100000, 0)),
+      caloriesPerServing: Math.round(num(d.caloriesPerServing, 0, 100000, 0)),
+      proteinGrams: Math.round(num(d.proteinGrams, 0, 100000, 0)),
+      carbsGrams: Math.round(num(d.carbsGrams, 0, 100000, 0)),
+      fatGrams: Math.round(num(d.fatGrams, 0, 100000, 0)),
+      fridgeDays: Math.round(num(d.fridgeDays, 0, 3650, 3)),
+      freezerFriendly: !!d.freezerFriendly,
+      difficulty: difficulty,
+      allergens: arr(d.allergens).map(String).filter(function (a) { return validAllergen[a]; }),
+      ingredients: ingredients,
+      steps: steps,
+      storageNote: str(d.storageNote).slice(0, 500),
+      sourceUrl: str(d.sourceUrl).slice(0, 300),
+      // injected, not from `data`:
+      source: "community",
+      author: str(row.author || "Cook").slice(0, 80),
+      userId: row.user_id || null,
+      photoPath: row.photo_path || null,
+      photoUrl: photoUrlFor(row.photo_path),
+      createdAt: row.created_at || null
+    };
+  }
+
+  /* The whole public list. Reads user_recipes; RLS auto-hides anything over the
+     report threshold (the author still sees their own). Caches the mapped list
+     and fires onCommunity so the board re-merges. Signed out works too. */
+  function loadCommunity(cb) {
+    var c = publicClient();
+    if (!c) { if (cb) cb(); return; }
+    c.from("user_recipes").select("*").order("created_at", { ascending: false }).then(function (res) {
+      if (res.error) { log("community load error", res.error); if (cb) cb(); return; }
+      var mapped = (res.data || []).map(mapRecipeRow).filter(Boolean);
+      write(COMMUNITY_KEY, mapped);
+      fireCommunity();
+      log("community loaded", mapped.length);
+      if (cb) cb();
+    }, function (e) { log("community load rejected", e); if (cb) cb(); });
+  }
+
+  // Build the jsonb `data` payload from a client-side recipe object.
+  function recipeData(recipe) {
+    var data = {};
+    RECIPE_DATA_FIELDS.forEach(function (k) { if (recipe[k] !== undefined) data[k] = recipe[k]; });
+    return data;
+  }
+
+  /* Publish a recipe. Uploads the (already-downscaled webp) photo to the user's
+     own folder first; a failed upload doesn't block the recipe (photo is
+     optional). Then inserts the row and refreshes the public list so it appears
+     on the board. cb(err|null, id). */
+  function publishRecipe(w, recipe, photoBlob, cb) {
+    var b = forPush(w);
+    if (!b) { if (cb) cb(new Error("not signed in")); return; }
+    var id = String(recipe.id);
+    var author = String(recipe.author || "Cook").slice(0, 80);
+    var data = recipeData(recipe);
+
+    function insertRow(photoPath) {
+      b.c.from("user_recipes").insert({
+        id: id, user_id: b.uid, author: author, data: data, photo_path: photoPath || null
+      }).then(function (res) {
+        if (res.error) { log("publish failed", res.error); if (cb) cb(res.error); return; }
+        loadCommunity();          // refresh cache + redraw the board
+        if (cb) cb(null, id);
+      }, function (e) { log("publish rejected", e); if (cb) cb(e); });
+    }
+
+    if (photoBlob) {
+      var path = b.uid + "/" + id + ".webp";
+      b.c.storage.from("recipe-photos").upload(path, photoBlob, { upsert: true, contentType: "image/webp" })
+        .then(function (res) { insertRow(res && res.error ? null : path); },
+              function () { insertRow(null); });
+    } else {
+      insertRow(null);
+    }
+  }
+
+  /* Edit an existing recipe you own. A new photoBlob replaces the photo;
+     otherwise recipe.photoPath (the existing path, or null to clear) is kept. */
+  function updateRecipe(w, id, recipe, photoBlob, cb) {
+    var b = forPush(w);
+    if (!b) { if (cb) cb(new Error("not signed in")); return; }
+    id = String(id);
+    var data = recipeData(recipe);
+    var author = String(recipe.author || "Cook").slice(0, 80);
+
+    function applyUpdate(photoPath) {
+      b.c.from("user_recipes").update({
+        data: data, author: author, photo_path: photoPath || null, updated_at: new Date().toISOString()
+      }).eq("user_id", b.uid).eq("id", id).then(function (res) {
+        if (res.error) { log("update failed", res.error); if (cb) cb(res.error); return; }
+        loadCommunity();
+        if (cb) cb(null, id);
+      }, function (e) { log("update rejected", e); if (cb) cb(e); });
+    }
+
+    if (photoBlob) {
+      var path = b.uid + "/" + id + ".webp";
+      b.c.storage.from("recipe-photos").upload(path, photoBlob, { upsert: true, contentType: "image/webp" })
+        .then(function (res) { applyUpdate(res && res.error ? (recipe.photoPath || null) : path); },
+              function () { applyUpdate(recipe.photoPath || null); });
+    } else {
+      applyUpdate(recipe.photoPath || null);
+    }
+  }
+
+  /* Delete a recipe you own. The row's reports cascade away with it (FK); the
+     photo is best-effort removed. */
+  function deleteRecipe(w, id, cb) {
+    var b = forPush(w);
+    if (!b) { if (cb) cb(new Error("not signed in")); return; }
+    id = String(id);
+    b.c.from("user_recipes").delete().eq("user_id", b.uid).eq("id", id).then(function (res) {
+      try { b.c.storage.from("recipe-photos").remove([b.uid + "/" + id + ".webp"]); } catch (e) {}
+      var list = read(COMMUNITY_KEY, []);
+      if (Array.isArray(list)) {
+        write(COMMUNITY_KEY, list.filter(function (x) { return x.id !== id; }));
+        fireCommunity();
+      }
+      if (res.error) { log("delete failed", res.error); if (cb) cb(res.error); return; }
+      if (cb) cb(null);
+    }, function (e) { log("delete rejected", e); if (cb) cb(e); });
+  }
+
+  /* Report someone else's recipe. ignoreDuplicates makes a re-report a clean
+     no-op (ON CONFLICT DO NOTHING) — and, crucially, DO NOTHING needs only the
+     INSERT privilege, so it works without an UPDATE grant/policy on the
+     author-private reports table (a plain upsert emits ON CONFLICT DO UPDATE,
+     which Postgres requires UPDATE rights for and would 42501). Enough distinct
+     reports auto-hide the recipe (RLS). */
+  function reportRecipe(w, id, reason, cb) {
+    var b = forPush(w);
+    if (!b) { if (cb) cb(new Error("not signed in")); return; }
+    b.c.from("recipe_reports").upsert({
+      reporter_id: b.uid, recipe_id: String(id), reason: reason ? String(reason).slice(0, 400) : null
+    }, { onConflict: "reporter_id,recipe_id", ignoreDuplicates: true }).then(function (res) {
+      if (res.error) log("report failed", res.error);
+      if (cb) cb(res.error || null);
+    }, function (e) { log("report rejected", e); if (cb) cb(e); });
+  }
+
+  /* The signed-in user's own recipes (including any auto-hidden ones), for the
+     profile page's "your recipes" section. */
+  function myRecipes(w, cb) {
+    var b = forPush(w);
+    if (!b) { if (cb) cb([]); return; }
+    b.c.from("user_recipes").select("*").eq("user_id", b.uid)
+      .order("created_at", { ascending: false }).then(function (res) {
+        if (res.error) { log("myRecipes error", res.error); if (cb) cb([]); return; }
+        if (cb) cb((res.data || []).map(mapRecipeRow).filter(Boolean));
+      }, function (e) { log("myRecipes rejected", e); if (cb) cb([]); });
+  }
+
+  /* ---------- the forum (threads + flat replies, world-readable) ----------
+
+     Same rails as community recipes: a world-readable list fetched into a cache
+     and redrawn via a dedicated channel (onForum), author-scoped writes, and
+     auto-hide-on-reports enforced by RLS. Threads carry a reply count + last
+     activity from the `forum_thread_meta` view so the list can sort by what's
+     active. Replies for one thread are fetched on open (fetchThread), like
+     reviews for a recipe. See supabase/migrations/20260719000001_forum.sql. */
+
+  var FORUM_KEY = "mise-forum-threads";   // cache of the mapped thread list
+  var forumListeners = [];
+  function onForum(fn) { forumListeners.push(fn); }
+  function fireForum() { forumListeners.forEach(function (fn) { try { fn(); } catch (e) {} }); }
+  function forumThreads() { var l = read(FORUM_KEY, []); return Array.isArray(l) ? l : []; }
+
+  function mapThreadRow(row) {
+    if (!row || !row.id) return null;
+    var id = String(row.id);
+    if (!/^[a-z0-9-]+$/.test(id)) return null;
+    var title = String(row.title == null ? "" : row.title).slice(0, 140);
+    if (!title.trim()) return null;
+    return {
+      id: id,
+      userId: row.user_id || null,
+      author: String(row.author || "Cook").slice(0, 80),
+      category: String(row.category || "general").slice(0, 40),
+      title: title,
+      body: String(row.body == null ? "" : row.body).slice(0, 5000),
+      createdAt: row.created_at || null,
+      updatedAt: row.updated_at || null,
+      replyCount: 0,
+      lastActivity: row.created_at || null
+    };
+  }
+
+  /* The whole thread list + per-thread reply meta, merged and sorted by most
+     recent activity (a reply bumps a thread). Signed out works too. */
+  function loadForumThreads(cb) {
+    var c = publicClient();
+    if (!c) { if (cb) cb(); return; }
+    Promise.all([
+      c.from("forum_threads").select("*"),
+      c.from("forum_thread_meta").select("*")
+    ]).then(function (res) {
+      if (res[0].error) { log("forum load error", res[0].error); if (cb) cb(); return; }
+      var meta = {};
+      if (!res[1].error) (res[1].data || []).forEach(function (m) { meta[m.thread_id] = m; });
+      var threads = (res[0].data || []).map(mapThreadRow).filter(Boolean).map(function (t) {
+        var m = meta[t.id];
+        if (m) { t.replyCount = m.reply_count || 0; if (m.last_reply_at) t.lastActivity = m.last_reply_at; }
+        return t;
+      });
+      threads.sort(function (a, b) {
+        var av = a.lastActivity || "", bv = b.lastActivity || "";
+        return av > bv ? -1 : av < bv ? 1 : 0;   // newest activity first
+      });
+      write(FORUM_KEY, threads);
+      fireForum();
+      log("forum loaded", threads.length);
+      if (cb) cb();
+    }, function (e) { log("forum load rejected", e); if (cb) cb(); });
+  }
+
+  /* Replies for one thread, oldest first. World-readable (works signed out). */
+  function fetchThread(threadId, cb) {
+    var c = publicClient();
+    if (!c) { if (cb) cb([]); return; }
+    c.from("forum_replies").select("*").eq("thread_id", threadId)
+      .order("created_at", { ascending: true }).then(function (res) {
+        if (res.error) { log("thread fetch error", res.error); if (cb) cb([]); return; }
+        var replies = (res.data || []).map(function (r) {
+          if (!r || !r.id) return null;
+          return {
+            id: String(r.id), threadId: r.thread_id, userId: r.user_id || null,
+            author: String(r.author || "Cook").slice(0, 80),
+            body: String(r.body == null ? "" : r.body).slice(0, 5000),
+            createdAt: r.created_at || null
+          };
+        }).filter(Boolean);
+        if (cb) cb(replies);
+      }, function (e) { log("thread fetch rejected", e); if (cb) cb([]); });
+  }
+
+  function createThread(w, data, cb) {
+    var b = forPush(w);
+    if (!b) { if (cb) cb(new Error("not signed in")); return; }
+    var id = "t-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 8);
+    b.c.from("forum_threads").insert({
+      id: id, user_id: b.uid,
+      author: String(data.author || "Cook").slice(0, 80),
+      category: String(data.category || "general").slice(0, 40),
+      title: String(data.title || "").slice(0, 140),
+      body: String(data.body || "").slice(0, 5000)
+    }).then(function (res) {
+      if (res.error) { log("create thread failed", res.error); if (cb) cb(res.error); return; }
+      loadForumThreads();
+      if (cb) cb(null, id);
+    }, function (e) { log("create thread rejected", e); if (cb) cb(e); });
+  }
+
+  function createReply(w, threadId, body, author, cb) {
+    var b = forPush(w);
+    if (!b) { if (cb) cb(new Error("not signed in")); return; }
+    var id = "r-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 8);
+    b.c.from("forum_replies").insert({
+      id: id, thread_id: String(threadId), user_id: b.uid,
+      author: String(author || "Cook").slice(0, 80),
+      body: String(body || "").slice(0, 5000)
+    }).then(function (res) {
+      if (res.error) { log("create reply failed", res.error); if (cb) cb(res.error); return; }
+      // A reply lifts the thread in the list; the meta view recomputes activity.
+      loadForumThreads();
+      if (cb) cb(null, id);
+    }, function (e) { log("create reply rejected", e); if (cb) cb(e); });
+  }
+
+  function deleteThread(w, id, cb) {
+    var b = forPush(w);
+    if (!b) { if (cb) cb(new Error("not signed in")); return; }
+    b.c.from("forum_threads").delete().eq("user_id", b.uid).eq("id", String(id)).then(function (res) {
+      loadForumThreads();
+      if (cb) cb(res.error || null);
+    }, function (e) { if (cb) cb(e); });
+  }
+
+  function deleteReply(w, id, cb) {
+    var b = forPush(w);
+    if (!b) { if (cb) cb(new Error("not signed in")); return; }
+    b.c.from("forum_replies").delete().eq("user_id", b.uid).eq("id", String(id)).then(function (res) {
+      if (cb) cb(res.error || null);   // caller re-fetches the open thread
+    }, function (e) { if (cb) cb(e); });
+  }
+
+  /* Report a thread or a reply (kind = 'thread' | 'reply'). ignoreDuplicates ->
+     ON CONFLICT DO NOTHING, which needs only INSERT (no UPDATE grant/policy on
+     the author-private reports table); a repeat report is a clean no-op. Enough
+     distinct reports auto-hide it (RLS). Same reasoning as reportRecipe. */
+  function reportForum(w, kind, id, reason, cb) {
+    var b = forPush(w);
+    if (!b) { if (cb) cb(new Error("not signed in")); return; }
+    b.c.from("forum_reports").upsert({
+      reporter_id: b.uid, target_kind: kind, target_id: String(id),
+      reason: reason ? String(reason).slice(0, 400) : null
+    }, { onConflict: "reporter_id,target_kind,target_id", ignoreDuplicates: true }).then(function (res) {
+      if (res.error) log("report forum failed", res.error);
+      if (cb) cb(res.error || null);
+    }, function (e) { if (cb) cb(e); });
+  }
+
   /* ---------- the demo account (unused once a real account signs in) ---------- */
 
   function account() { return read(ACCOUNT_KEY, null); }
@@ -622,15 +1024,27 @@ var MiseStore = (function () {
      defined yet at module time. onChange is the reliable trigger (it fires once
      the SDK loads and resolves the session); the direct hydrate() covers a
      session that resolved before we wired. */
+  var communityLoaded = false;   // load the public list exactly once, when the client is first ready
+  function maybeLoadCommunity() {
+    if (communityLoaded) return;
+    // publicClient() is null until the Supabase SDK finishes loading async, so a
+    // wireBackend()-time call would no-op; onChange (which fires once the client
+    // is ready) is the reliable trigger, same as loadSummaries().
+    if (!publicClient()) return;
+    communityLoaded = true;
+    loadCommunity();   // world-readable + auth-independent; fires onCommunity when it lands
+  }
   function wireBackend() {
     if (typeof MiseAuth === "undefined" || !MiseAuth.enabled || !MiseAuth.onChange) return;
     MiseAuth.onChange(function (user) {
       if (user && user.id) { if (hydratedFor !== user.id) hydrate(user); }   // pulls summaries too
       else { hydratedFor = null; loadSummaries(); }                          // signed out: board aggregates only
+      maybeLoadCommunity();                                                  // client is ready now
     });
     var u = MiseAuth.user && MiseAuth.user();
     if (u && u.id) { if (hydratedFor !== u.id) hydrate(u); }
     else { loadSummaries(); }
+    maybeLoadCommunity();   // covers a client already ready before we wired
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", wireBackend);
   else wireBackend();
@@ -651,6 +1065,14 @@ var MiseStore = (function () {
     removeLogEntry: removeLogEntry, syncNutritionWeight: syncNutritionWeight,
     stats: stats,
     // backend hooks — pages redraw on onSync; the recipe modal fetches shared social.
-    onSync: onSync, hydrate: hydrate, fetchRecipeSocial: fetchRecipeSocial
+    onSync: onSync, hydrate: hydrate, fetchRecipeSocial: fetchRecipeSocial,
+    // community recipes (user-submitted): board merges on onCommunity.
+    onCommunity: onCommunity, community: community, loadCommunity: loadCommunity,
+    publishRecipe: publishRecipe, updateRecipe: updateRecipe, deleteRecipe: deleteRecipe,
+    reportRecipe: reportRecipe, myRecipes: myRecipes,
+    // the forum (threads + replies): forum.js redraws on onForum.
+    onForum: onForum, forumThreads: forumThreads, loadForumThreads: loadForumThreads,
+    fetchThread: fetchThread, createThread: createThread, createReply: createReply,
+    deleteThread: deleteThread, deleteReply: deleteReply, reportForum: reportForum
   };
 })();
