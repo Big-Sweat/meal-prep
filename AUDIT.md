@@ -177,30 +177,30 @@ by a second pass or a runtime repro before landing here.
 
 ## 4. The apps (Capacitor)
 
-- [ ] **4.1 P1 — Android back button exits the app from an open ad.**
+- [x] **4.1 P1 — Android back button exits the app from an open ad.** *(done: ad-interstitial in the list + a generic dialog[open] sweep so future dialogs can't regress it)*
   native.js:25 dialog list lacks `"ad-interstitial"` (index.html:176); every
   free user who paginates then presses back quits the app from inside an ad.
   Fix: `document.querySelector("dialog[open]")` instead of a hardcoded list.
-- [ ] **4.2 P1 — iOS 16px input rule missing for every profile/log field**
+- [x] **4.2 P1 — iOS 16px input rule missing for every profile/log field** *(done: nut-fields, log-form date/text/number/select, protein-swap added, type-qualified to outrank base rules; CSSOM-verified)*
   (styles.css:2904-2917 covers board/auth only; `.nut-fields input` 15px
   :1824, `.log-form` inputs/selects 13px :2257, `.protein-swap select` 12px
   :1043): iPhone focus-zooms with no zoom-back — a documented invariant the
   newer forms shipped without. Add them to the @supports block.
-- [ ] **4.3 P2 — recipe-sync applies any cached copy unconditionally**
+- [x] **4.3 P2 — recipe-sync applies any cached copy unconditionally** *(done: bundle fingerprint stamped into cache entries — mismatched = app updated = cache dropped; corrupt/legacy entries removed; 2MB cap; 18-assertion node harness passes incl. the round-trip)*
   (recipe-sync.js:58-64; "newer" is never checked against the bundle): an app
   update built ahead of the site deploy has its new recipes silently reverted
   by the cache every launch. Stamp recipes.json with a generated date and
   compare; invalidate cache when bundled data changes. Also: remove corrupt
   cache entries on validation failure; add a size cap before parse/setItem.
-- [ ] **4.4 P2 — `allowBackup="true"`** (AndroidManifest.xml:5): WebView
+- [x] **4.4 P2 — `allowBackup="true"`** *(done: false, with the why in a comment)* (AndroidManifest.xml:5): WebView
   localStorage — Supabase session token included — rides device backups.
   Disable or add backup rules before store launch.
-- [ ] **4.5 P2 — Launcher branding still "Mise"** — capacitor.config.json:3,
+- [x] **4.5 P2 — Launcher branding still "Mise"** *(done: capacitor.config ×2, strings.xml, Info.plist, and the two web share strings; identifiers untouched)* — capacitor.config.json:3,
   android strings.xml:3-4, iOS Info.plist CFBundleDisplayName — while the web
   is Myse. (Identifiers — `com.deadliftdigital.mise`, product ids, storage
   keys, `Mise*` globals — stay.) Plus the two user-visible web strings:
   Instacart cart title app.js:1663, share title app.js:1761.
-- [ ] **4.6 P2 — Runbook prices wrong** (app/README.md:196-197: $0.99/$4.99
+- [x] **4.6 P2 — Runbook prices wrong** *(done: $2.99/$29.99; also fixed the stale "Untested on a device" gap, the MISE block quote, the one-ad-slot claim, and apps.js's stale debug-APK header; auth.js:74 comment folded in from 4.7)* (app/README.md:196-197: $0.99/$4.99
   vs the real $2.99/$29.99 everywhere else) — following it creates mispriced
   live store products. Also §6: stale "Untested on a device" + debug-APK
   claims contradicted elsewhere in the same file.

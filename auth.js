@@ -71,7 +71,8 @@ var MiseAuth = (function () {
     recoveryListeners.forEach(function (fn) { fn(); });
   }
 
-  // Android only: Supabase sends the browser to com.deadliftdigital.mise://auth?code=…
+  // Native (Android AND iOS — both need it, since detectSessionInUrl is off on
+  // native): Supabase sends the browser to com.deadliftdigital.mise://auth?code=…
   // once the provider is done. Trade that code for a session and close the tab.
   function listenForDeepLink() {
     var P = (window.Capacitor && window.Capacitor.Plugins) || {};

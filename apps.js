@@ -1,14 +1,15 @@
-/* Mise — mobile app download links.
+/* Myse — mobile app download links.
 
    The "get the app" block on the site reads these two constants. While BOTH are
    empty the block does not render at all — no dead links, no "coming soon"
    promise. Fill one in and it appears; fill both and both buttons appear.
 
    ─────────────────────────────────────────────────────────────────────────
-   THESE ARE EMPTY BECAUSE NOTHING IS PUBLISHED YET (as of Jul 2026).
-   The Android build is a *debug* APK and the iOS app has never been compiled.
-   Do not paste a guess here — an App Store / Play URL only exists once the
-   listing is live. See app/README.md for how to get there.
+   THESE ARE EMPTY BECAUSE NEITHER STORE LISTING EXISTS YET (as of Jul 2026).
+   A release-signed Android APK is distributed directly via ANDROID_APK_URL
+   below; the iOS app has never been compiled (needs a Mac). Do not paste a
+   guess here — an App Store / Play URL only exists once the listing is live.
+   See app/README.md for how to get there.
    ─────────────────────────────────────────────────────────────────────────
 
    ANDROID_APP_URL — after publishing on Google Play, the listing URL is built

@@ -123,7 +123,7 @@ ask you to pick a team.
 
 ### Turning on the website's download links
 
-The site has a "MISE ON YOUR PHONE" block ready to go, but it **renders nothing
+The site has a "MYSE ON YOUR PHONE" block ready to go, but it **renders nothing
 until a store URL exists** — there is no "coming soon", no dead link. Once a
 listing is live, paste its URL into `apps.js` in the repo root:
 
@@ -177,10 +177,11 @@ signup would kill the ratings/reviews/favorites the site already has.
 labels in `subscription.js`; the store is the source of truth once billing is
 live, so keep them in step.
 
-**Ads:** one placement — a `SPONSORED` ticket every 12 recipes, drawn from
-`products.js` house ads, or an ad-network embed if you set `NETWORK_AD_HTML` in
-`ads.js`. The old before-you-print interstitial is **gone**: print is Plus-only
-and Plus removes ads, so it could never have fired again.
+**Ads:** two placements, both suppressed for Plus and both honouring
+`NETWORK_AD_HTML` in `ads.js` (house ads from `products.js` until it's set) — a
+`SPONSORED` ticket every 12 recipes, and a page-turn interstitial when a free
+reader taps "Next". (The old before-you-print interstitial is gone: print is
+Plus-only and Plus removes ads, so it could never have fired.)
 
 **A "restore purchase" path exists** because both stores require you to offer one.
 
@@ -193,8 +194,8 @@ and Plus removes ads, so it could never have fired again.
    create a subscription product until such a build exists — this is the gate
    most people hit.
 3. Create **both** products and mark each **ACTIVE**: `mise_plus_monthly`
-   (subscription, $0.99/month) and `mise_plus_lifetime` (one-time /
-   non-consumable, $4.99). An inactive or unpropagated product makes queries
+   (subscription, $2.99/month) and `mise_plus_lifetime` (one-time /
+   non-consumable, $29.99). An inactive or unpropagated product makes queries
    return an empty list *with no error*, which looks exactly like a code bug.
 4. Wire the SDK and set `BILLING_ANDROID_KEY` / `BILLING_IOS_KEY` in
    `subscription.js`. Non-empty key turns demo mode off. The app only calls
@@ -316,10 +317,7 @@ exposes `MiseNative.platform` (`ios` / `android` / `web`).
 
 ## Known gaps
 
-- **Untested on a device.** The native paths above are written but nothing has
-  been run on an emulator or phone yet — that needs Android Studio. Test Google
-  sign-in first; it's the most intricate path.
-- **Icon:** the adaptive icon (Android 8+, so effectively everyone) is the Mise
+- **Icon:** the adaptive icon (Android 8+, so effectively everyone) is the Myse
   mark — paper, a strip of manila tape, the wordmark's M and green dot, drawn as
   vectors in `res/drawable/mise_icon_*.xml`. The raster fallbacks in `mipmap-*/`
   are still Capacitor's default, which only Android 7 devices would ever see;

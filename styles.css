@@ -2903,15 +2903,24 @@ button {
 
 @supports (-webkit-touch-callout: none) {
   /* iOS zooms the whole page when you focus an input smaller than 16px, and
-     does not zoom back out. Every field here was 14.5-15px. One pixel of size
-     for no layout jolt is a good trade — and only iOS pays it. */
+     does not zoom back out. A pixel or three of size for no layout jolt is a
+     good trade — and only iOS pays it. EVERY focusable text/number field on
+     every page must be in this list; the profile and log forms shipped
+     without it once and iPhones zoom-locked on them. The .log-form selectors
+     stay type-qualified to outrank their 13px base rules. */
   .search-box input,
   .ing-form input,
   #auth-form input,
   #real-auth-form input,
   #reset-form input,
   #newpass-form input,
-  #review-form textarea {
+  #review-form textarea,
+  .nut-fields input,
+  .log-form input[type="date"],
+  .log-form input[type="text"],
+  .log-form input[type="number"],
+  .log-form select,
+  .protein-swap select {
     font-size: 16px;
   }
 }

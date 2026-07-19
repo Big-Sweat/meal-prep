@@ -1710,7 +1710,7 @@
       btn.disabled = true;
       btn.textContent = "Building your cart…";
       setStoreStatus("Sending your list to Instacart…");
-      MiseGrocery.buildInstacartCart("Mise — your week’s groceries", list.lineItems)
+      MiseGrocery.buildInstacartCart("Myse — your week’s groceries", list.lineItems)
         .then(function (url) {
           window.open(url, "_blank", "noopener");
           setStoreStatus("Your Instacart cart is ready — opened in a new tab.");
@@ -1808,7 +1808,7 @@
       // only reachable behind the plan gate, but belt and braces
       if (requirePlus()) return;
       if (window.MiseNative && MiseNative.isNative) {
-        MiseNative.shareText("Mise — the week's plan", planAsText());
+        MiseNative.shareText("Myse — the week's plan", planAsText());
       } else {
         window.print();
       }
