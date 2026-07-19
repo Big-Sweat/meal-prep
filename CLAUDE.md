@@ -82,6 +82,15 @@ in rough sync when you change the workflow described here.
   `mise:recipe-published` DOM event so the open page switches to the Community
   view. Posting is free but needs an account; it no-ops without a signed-in
   Supabase backend. Must be in `sync-web.js`'s FILES list to ship in the apps.
+- `moderation.js` — `MiseModeration`: the shared banned-word check (hate slurs +
+  profanity) that **blocks** on match in recipe text, forum posts, and display
+  names. `check(text)`/`checkAll(...)` return the offending match or null;
+  whole-word + a light leetspeak fold (a$$/sh1t/f4g). **This is only the client
+  UX gate** — the real fence is the `has_banned_word()` DB trigger (anon key is
+  public, so a raw POST bypasses the client). **Its `BODY` word list is
+  duplicated in `supabase/migrations/20260719000002_content_moderation.sql` —
+  keep the two in sync** (SQL uses `\y` for `\b`, otherwise identical). Loaded on
+  index/profile/forum before community-ui.js/forum.js; in `sync-web.js` FILES.
 - `profile.html` / `profile.js` — **"your kitchen": the per-account page.**
   Standing allergies, the calorie target, favorites, and your ratings/reviews.
   The masthead's "HI, NAME →" goes here when signed in. See the profile-page
@@ -390,6 +399,13 @@ in rough sync when you change the workflow described here.
   (a `security_invoker` view: reply count + last activity per thread, for the
   list). Same idempotent SQL-editor deal. Until applied, `loadForumThreads` gets
   a "table not found" error, swallows it, and the forum shows empty.
+- `20260719000002_content_moderation.sql` — **content moderation.** The
+  `has_banned_word()` function (whole-word + leetspeak match against a slur/
+  profanity pattern) plus BEFORE INSERT/UPDATE triggers on `user_recipes`,
+  `forum_threads`, `forum_replies` that reject (SQLSTATE 23514) banned content in
+  the author name, recipe object, or thread/reply text. **The real enforcement**
+  (the client `moderation.js` check is bypassable). **Its pattern is duplicated in
+  `moderation.js`'s `BODY` — keep in sync.** Idempotent SQL-editor deal.
 - **Security is RLS-only** — the anon key is public, so the policies are the
   whole fence. Private tables: owner-only (`auth.uid() = user_id`), and the anon
   role's default grants are **revoked** so a signed-out request hard-denies

@@ -39,6 +39,7 @@ const FILES = [
   "store.js",
   "plus-ui.js",
   "auth.js",
+  "moderation.js",
   "community-ui.js",
   "pdf.js",
   "native.js"

@@ -18,7 +18,11 @@ tables in `supabase/migrations/`),
 `plus-ui.js` (`MisePlusUI` — the one upgrade dialog, shared; `require()` is the
 gate, and it builds its own markup), `community-ui.js` (`MiseCommunityUI` — the
 community-recipe submit/edit + report dialog, shared and self-building;
-downscales the photo to WebP in-browser), `subscription.js` (`MiseSub` — the
+downscales the photo to WebP in-browser), `moderation.js` (`MiseModeration` —
+shared banned-word check that blocks slurs/profanity in recipe text, forum posts
+and display names; client UX gate only — the `has_banned_word()` DB trigger in
+`20260719000002_content_moderation.sql` is the real fence, **keep its word list
+in sync**), `subscription.js` (`MiseSub` — the
 entitlement; `isPlus()` is THE gate), `nutrition.js` (pure calorie maths),
 `progress.js` (pure trend/1RM/pace maths — **`node tools/test-progress.js`**),
 `auth.js` (Supabase sign-in — configured and live; `MiseAuth.client()` backs store.js),

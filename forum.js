@@ -190,6 +190,10 @@
       var body = ($("#fn-body").value || "").trim();
       if (!title) { show("Give your thread a title."); return; }
       if (!body) { show("Write something in the post."); return; }
+      if (typeof MiseModeration !== "undefined") {
+        if (MiseModeration.check(myName())) { show("Your display name contains language that isn't allowed here — change it on your account to post."); return; }
+        if (MiseModeration.checkAll(title, body)) { show("Please keep it clean — that contains language we don't allow here."); return; }
+      }
       var submit = form.querySelector('button[type="submit"]');
       submit.disabled = true;
       MiseStore.createThread(me(), {
@@ -310,6 +314,10 @@
       if (!account) { show("Sign in from the board to reply."); return; }
       var body = ($("#fr-body").value || "").trim();
       if (!body) { show("Write something first."); return; }
+      if (typeof MiseModeration !== "undefined") {
+        if (MiseModeration.check(myName())) { show("Your display name contains language that isn't allowed here — change it on your account to post."); return; }
+        if (MiseModeration.check(body)) { show("Please keep it clean — that contains language we don't allow here."); return; }
+      }
       var submit = form.querySelector('button[type="submit"]');
       submit.disabled = true;
       MiseStore.createReply(me(), t.id, body, myName(), function (err) {
