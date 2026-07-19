@@ -332,8 +332,9 @@ by a second pass or a runtime repro before landing here.
   (blur never fires — add a timer); unspecified-sex floor uses 1200 (design
   call: the file's conservative stance argues for 1500 or an explicit
   caveat); "MYSE — DEMO BUILD" footer accuracy now that accounts/storage are
-  real (Jake's call); HANDOFF says Android 15, CLAUDE.md + app README say 16
-  — one is wrong; comment-rot sweep (profile.js:528-530 "no server copy",
+  real (Jake's call); ~~HANDOFF says Android 15, CLAUDE.md + app README say 16~~
+  RESOLVED 19 Jul via adb: phone runs Android 15 (API 35, TCL T513V) — HANDOFF
+  was right, CLAUDE.md + app/README corrected to 15; comment-rot sweep (profile.js:528-530 "no server copy",
   log.js:282-283, subscription.js:1 header, ~18 "Mise" dev headers);
   recipe-inbox has one unprocessed TikTok link.
 

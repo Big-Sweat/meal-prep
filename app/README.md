@@ -17,7 +17,7 @@ checks for recipes added to the site since this build and applies them the
 | | Android | iOS |
 | --- | --- | --- |
 | Project | `app/android/` | `app/ios/` |
-| Status | **built and run** on Android 16 (API 36) | **scaffolded, never compiled** |
+| Status | **built and run** on Android 15 (API 35) | **scaffolded, never compiled** |
 | Needs | Android Studio (installed) | **a Mac with Xcode** |
 
 ## Build and run — Android

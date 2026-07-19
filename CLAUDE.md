@@ -362,7 +362,8 @@ in rough sync when you change the workflow described here.
   copies the web files into `app/www/` (gitignored) and `npm run sync` then runs
   `cap sync` for both. **If you add a new top-level web file, add it to that
   script's `FILES` allowlist or it won't ship in the apps.**
-  - `app/android/` — **built and verified** on Android 16. Build output is
+  - `app/android/` — **built and verified** on Android 15 (API 35, a TCL
+    T513V). Build output is
     redirected outside OneDrive (see `app/README.md`; OneDrive locks `build/`
     and breaks rebuilds).
   - `app/ios/` — **scaffolded but never compiled**: Apple only allows iOS builds
