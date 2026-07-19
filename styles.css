@@ -137,6 +137,93 @@ button {
   padding: 4px 9px;
 }
 
+/* ---------- main navigation ---------- */
+
+/* One nav band under the masthead, identical on all six pages. It used to be
+   a stack of bordered boxes inside .mast-meta, mixed in with the colophon —
+   eight look-alike chips in the top right, where nothing read as navigation.
+   Sections are now plain text (the current page wears the recipe card's
+   masking tape) and only true *actions* stay boxed, so the two never look like
+   each other again.
+   Adding a section is one <a> per page; nothing here needs JS. */
+
+.mainnav {
+  border-bottom: 1px solid var(--ink);
+  background: var(--ticket);
+}
+
+.mainnav-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 22px;
+  padding: 0 var(--pad);
+}
+
+/* Mobile-first: dissolved, so the five sections and the action buttons wrap as
+   one flow and the actions tuck in beside the last link instead of claiming a
+   whole third row (127px of nav before you saw a single recipe). It's a bare
+   <div> with no semantics, so `display: contents` costs nothing here. It
+   becomes a real flex row again at 768px, where everything fits on one line. */
+.nav-sections { display: contents; }
+
+.nav-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;              /* touch target */
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--faded);
+  text-decoration: none;
+}
+
+/* Bold + ink. Weight 700 is in every page's IBM Plex Mono request *only* for
+   this — the sheet otherwise tops out at 500, and a synthesised bold smears at
+   11px — so if this hover ever changes, drop `;700` from the font URL too.
+   Plex Mono is monospaced, so 400 → 700 keeps the same advance width and the
+   links either side don't shift. Keyboard focus gets the identical treatment —
+   the affordance shouldn't depend on owning a mouse. The current page is
+   excluded: its tape is Permanent Marker, which has no bold but would happily
+   be faked into a smear. */
+.nav-link:not([aria-current="page"]):hover,
+.nav-link:not([aria-current="page"]):focus-visible {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+/* The current page wears the board's masking tape — same manila, same marker
+   hand, same off-square tilt as the protein flag on every recipe ticket. It
+   lives on the inner <span> so the strip hugs the words instead of filling the
+   44px touch target, and the tilt is a transform, so it never nudges the links
+   either side of it. */
+.nav-link[aria-current="page"] > span {
+  /* Belt and braces: as a flex item of the inline-flex link this is already
+     blockified (so the tilt and vertical padding apply, and it still hugs its
+     text), but it would go back to being an inline box — silently dropping
+     both — if .nav-link ever stopped being a flex container. */
+  display: inline-block;
+  background: var(--tape);
+  color: var(--ink);
+  font-family: var(--font-marker);
+  font-size: 12px;
+  letter-spacing: 0;
+  padding: 4px 12px;
+  opacity: 0.95;
+  box-shadow: 0 1px 2px rgba(38, 41, 31, 0.18);
+  transform: rotate(-1.6deg);
+}
+
+/* Actions, not sections: SHARE A RECIPE and the account button. Boxed, so a
+   thing that opens a dialog never reads as another place to go. */
+.nav-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+}
+
 /* ---------- mobile filter bar ---------- */
 
 .mobile-bar {
@@ -2770,6 +2857,10 @@ button {
   .tape { font-size: 11px; padding: 3px 9px; left: 10px; }
   .card:nth-child(even) .tape { right: 10px; }
 
+  /* The nav's current-page tape shrinks with them, so the two read as the same
+     roll of tape when they're on screen together. */
+  .nav-link[aria-current="page"] > span { font-size: 11px; padding: 3px 9px; }
+
   /* ---------- the modal header ----------
      The recipe header packs a tape label, SAVE, ADD TO PLAN, a PDF button, a
      print button and the close × into one flex row that never wraps. At 375px
@@ -2824,6 +2915,11 @@ button {
     align-items: flex-end;
   }
   .mast-meta { flex-direction: column; align-items: flex-end; gap: 6px; }
+
+  /* Room for one line now: sections group at the left, actions pushed right. */
+  .nav-sections { display: flex; flex-wrap: wrap; gap: 0 22px; }
+  .nav-actions { margin-left: auto; }
+
   .cards { grid-template-columns: repeat(2, 1fr); }
   .modal-cols { grid-template-columns: 5fr 7fr; }
   .modal-body { padding: 36px 34px 34px; }

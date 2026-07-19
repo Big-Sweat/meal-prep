@@ -26,6 +26,8 @@ in rough sync when you change the workflow described here.
   sign-in, and the page-turn `ad-interstitial`). The Plus dialog is NOT here —
   `plus-ui.js` builds it on first open. (The *old pre-print* interstitial was
   deleted; the page-turn one that ships now is a different slot — see **Ads**.)
+  Carries the only `.mast-meta` colophon left (VOL. 02 / count / allergen tags)
+  and the nav's two action buttons — see **Navigation** below.
 - `styles.css` — all styling. Editorial "prep board" look (see the design doc).
 - `app.js` — all **board** behavior (~2300 lines, one IIFE, `"use strict"`):
   filtering, rendering, serving-scale math with proper fractions, the recipe
@@ -93,8 +95,8 @@ in rough sync when you change the workflow described here.
   index/profile/forum before community-ui.js/forum.js; in `sync-web.js` FILES.
 - `profile.html` / `profile.js` — **"your kitchen": the per-account page.**
   Standing allergies, the calorie target, favorites, and your ratings/reviews.
-  The masthead's "HI, NAME →" goes here when signed in. See the profile-page
-  section below.
+  Reached from the nav's YOUR KITCHEN on any page, or the board's "HI, NAME →"
+  when signed in. See the profile-page section below.
 - `log.html` / `log.js` — **"the log": weight, lifts and runs.** Free. Does not
   load `recipes.js` (no use for 448KB of recipe data here). See the log section
   below.
@@ -156,7 +158,7 @@ in rough sync when you change the workflow described here.
   privacy statement.
 
 **Prep-gear page (affiliate)**
-- `products.html` — standalone "Prep Gear" page (linked from the masthead).
+- `products.html` — standalone "Prep Gear" page (a nav section).
   Renders `PRODUCTS` inline; no app.js needed.
 - `products.js` — `PRODUCTS` (gear grouped by category) plus `productUrl()`.
   Links are Amazon searches tagged with `AFFILIATE_TAG`. **Monetization:**
@@ -249,7 +251,8 @@ in rough sync when you change the workflow described here.
 - Five sections plus an identity card: **standing allergies**, the **calorie
   target**, **favorites**, **your recipes** (the community recipes you've posted,
   with edit/delete — real-auth only, via `MiseStore.myRecipes`), and **your
-  ratings & reviews**. Reached from the masthead ("HI, NAME →") when signed in.
+  ratings & reviews**. Reached from the nav (YOUR KITCHEN) on every page, and
+  from the board's "HI, NAME →" when signed in.
 - **The page is free and needs only an account** — only the calorie card is
   gated. Do not wall the page: favorites, reviews and accounts are free forever,
   and an account is what a purchase restores into, so a wall here would strand
@@ -456,6 +459,58 @@ in rough sync when you change the workflow described here.
   waves fixed what).
 - `recipe-inbox/links.md` — drop-box for recipe URLs (see below).
 - `tools/add-recipes.js` — the recipe-ingest tool (see below).
+
+## Navigation — one band, all six pages
+
+`<nav class="mainnav">` sits directly under the masthead on **every** HTML file
+and is **plain static markup — no JS, no shared module**. Five sections, always
+in this order: THE RECIPES · THE FORUM · THE LOG · YOUR KITCHEN · PREP GEAR.
+`legal.html` is reachable from the footer only, so it carries the band with no
+item marked.
+
+- **Adding or renaming a section means editing all six files.** There is no
+  `nav.js` on purpose: gating would drag `auth.js` onto `products.html` and
+  `legal.html`, which load no JS at all today. Keep the block identical.
+- **Mark the current page with `aria-current="page"`** — that attribute *is* the
+  styling hook, so a missing one is both an a11y and a visual bug. Subpages no
+  longer carry a `.mast-meta` page-name chip; the marker says it instead.
+- **The current page wears the card tape** — manila, Permanent Marker, the same
+  −1.6deg tilt as the protein flag on a recipe ticket, and it shrinks with them
+  under 768px so both read as one roll of tape. Every nav label is therefore
+  wrapped in a `<span>`: the tape styles the span so the strip hugs the words
+  instead of filling the 44px touch target. **Keep the span** — without it the
+  tape becomes a 44px manila slab, and `display: inline-block` on it is what
+  makes the tilt and vertical padding apply at all.
+- **Hover is bold + ink** (`font-weight: 700`), and `:focus-visible` gets the
+  identical treatment — the affordance shouldn't depend on owning a mouse. The
+  current page is excluded: it's a marker, not a target, and its tape is
+  Permanent Marker, which has no bold but would happily be faked into a smear.
+- **Weight 700 is in every page's IBM Plex Mono request for that hover alone.**
+  The sheet otherwise tops out at 500, and a synthesised bold smears at 11px.
+  **If the hover style ever changes, drop `;700` from the font URL in all six
+  files** rather than shipping a font nobody renders. Plex Mono is monospaced,
+  so 400 → 700 holds the same advance width and the links either side don't
+  shift — a proportional face here would reflow the row on every hover.
+- Known, measured, and deliberately not fixed: the 700 face **lazy-loads**, so
+  the first nav hover of a first-ever visit briefly renders the Courier New
+  fallback (different metrics, so it shifts) until the woff2 lands. After that
+  it's an HTTP-cache read and imperceptible. The fixes are worse than the bug —
+  a `<link rel="preload">` needs a hardcoded gstatic URL that Google rotates
+  (stale = a 404 plus the flash back), and warming it with a hidden glyph
+  injects a stray character into the a11y tree.
+- **Nothing in the nav is gated.** The log, the forum and your kitchen each
+  render their own "sign in from the board" state, so a signed-out visitor sees
+  what's there. THE LOG used to be hidden until sign-in — that made a *free*
+  feature invisible to exactly the people who hadn't signed up. Don't re-hide it.
+- **Sections are plain text; only actions are boxed** (`.mast-link`). That split
+  is the whole point: eight look-alike bordered chips in `.mast-meta` were what
+  made the top right unreadable. Don't put a link back in the colophon.
+- **The two action buttons live only on `index.html`** — SHARE A RECIPE
+  (`app.js` unhides it once signed in) and `#auth-btn`, because the sign-in
+  dialog is on the board (`auth.js` redirects OAuth to the site root).
+- Mobile: `.nav-sections` is `display: contents` so links and actions wrap as
+  one flow; it becomes a real flex row at 768px. Don't give the actions their
+  own row back — that cost 127px of nav above the first recipe.
 
 ## Cache-busting — do not skip this
 

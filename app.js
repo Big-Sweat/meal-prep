@@ -1269,9 +1269,10 @@
     var reset = $("#auth-reset"), newpass = $("#auth-newpass");
     if (reset) reset.hidden = view !== "reset";
     if (newpass) newpass.hidden = view !== "newpass";
-    var logLink = $("#log-link");
-    if (logLink) logLink.hidden = !profile;   // no account, nothing to log against
-    // Every "share a recipe" entry (masthead + rail) — posting needs an account.
+    // The log is no longer hidden when signed out: it's a nav section now, and
+    // log.html renders its own "sign in from the board" state. Hiding it made
+    // a free feature invisible to exactly the people who hadn't signed up.
+    // Every "share a recipe" entry (nav + rail) — posting needs an account.
     var shareEls = document.querySelectorAll(".js-share-entry");
     for (var i = 0; i < shareEls.length; i++) shareEls[i].hidden = !profile;
   }
