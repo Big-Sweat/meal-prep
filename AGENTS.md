@@ -75,6 +75,24 @@ Design rules: `CLAUDEwebdesign copy (1).md`.
 
 Local preview: `python -m http.server 8347` (launch.json name `mise-static`).
 
+**Navigation:** `<nav class="mainnav">` under the masthead on all six pages —
+static markup, no JS, no shared module (gating would drag `auth.js` onto
+`products.html`/`legal.html`, which load none). Five sections, fixed order: THE
+RECIPES · THE FORUM · THE LOG · YOUR KITCHEN · PREP GEAR. **Adding or renaming
+one means editing all six files**, and the current page needs
+`aria-current="page"` — that attribute is also the styling hook. The current
+page wears the recipe card's masking tape (manila, Permanent Marker, same tilt);
+that's why every label is wrapped in a `<span>` — the tape styles the span so it
+hugs the words instead of filling the 44px touch target, so **keep the span**.
+Hover and `:focus-visible` turn a section **bold + ink** (`font-weight: 700`);
+the current page is excluded. Weight 700 is in the IBM Plex Mono request for
+that hover alone — **change the hover, drop `;700` from all six files.** Plex
+Mono is monospaced, so bolding doesn't reflow the row.
+Nothing is gated: each destination renders its own "sign in from the
+board" state, so don't re-hide THE LOG. Sections are plain text; only actions
+(SHARE A RECIPE, sign-in — `index.html` only) are boxed. Don't put links back
+in the `.mast-meta` colophon; eight look-alike chips there is what this replaced.
+
 **Cache-busting:** asset links in all six HTML files carry `?v=N`. Bump the
 version anywhere a file you changed is referenced, or returning visitors get
 stale caches. `styles.css` is linked from **all six** HTML files — keep them in
