@@ -2315,6 +2315,24 @@ button {
 }
 .kit-cta:hover { background: var(--kale); border-color: var(--kale); }
 
+/* Two ways out of a signed-out page: sign in (the point of the page) and go
+   back to the board (always available). Wraps to a column on a narrow phone
+   rather than squeezing two buttons under the 44px floor. */
+.kit-ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
+/* The same button, unfilled — a real alternative, not the thing being asked
+   for. Ink on paper so it reads as secondary without going grey-on-grey. */
+.kit-cta--ghost {
+  background: transparent;
+  color: var(--ink);
+}
+.kit-cta--ghost:hover { background: var(--tape); border-color: var(--ink); color: var(--ink); }
+
 /* ---------- the log (log.html) ---------- */
 
 .log-side-label { font-size: 10px; letter-spacing: 0.12em; color: var(--faded); margin-bottom: 4px; }

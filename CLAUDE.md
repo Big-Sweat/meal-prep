@@ -257,11 +257,30 @@ in rough sync when you change the workflow described here.
   gated. Do not wall the page: favorites, reviews and accounts are free forever,
   and an account is what a purchase restores into, so a wall here would strand
   the purchase it exists to recover.
-- **Sign-in deliberately stays on the board.** `auth.js` sends OAuth back to
-  `window.location.pathname`, and Supabase's redirect allowlist is configured
-  for the site root — a sign-in button here would bounce off it. Signed out, the
-  page just points at the board; **sign-out redirects there** rather than
-  leaving a dead page.
+- **The sign-in dialog deliberately stays on the board.** `auth.js` sends OAuth
+  back to `window.location.pathname`, and Supabase's redirect allowlist is
+  configured for the site root — a *dialog* here would bounce off it. **Sign-out
+  redirects there** rather than leaving a dead page.
+- **Signed out, the page still offers a "Sign in" button — it hands off.** It
+  links to `index.html?signin=1&next=profile.html`; `app.js` opens the dialog on
+  arrival and sends them back here once they're in. (`log.html` does the same
+  with `next=log.html`.) The hand-off lives in **`app.js`, outside the
+  `if (realAuth)` gate** so it works in demo mode too, and:
+  - `next` is parked in **sessionStorage**, not carried in the URL, because the
+    OAuth round-trip drops the query string entirely (`redirectTo` is
+    `origin + pathname`) — this is what makes Google and email land in the same
+    place.
+  - It is matched against a **fixed list of the site's own pages**. A raw
+    `?next=` would be an open redirect; a hostile one is dropped while
+    `signin=1` is still honoured, so the worst a crafted link does is open the
+    real sign-in dialog.
+  - It is **stamped and expires after 10 minutes**, and is cleared when the
+    dialog closes unused. The clock is not belt-and-braces: abandoning at
+    Google's consent screen navigates the page away so **no `close` event ever
+    fires**, and without it that destination would hijack an unrelated sign-in
+    later in the same tab.
+  - The button is **not shown when auth is unreachable** — the `unreachable`
+    branch already says so, and a sign-in button there would just fail.
 - Supabase resolves **asynchronously**, so the page renders a loading state
   first and `MiseAuth.onChange` drives the real render. There's an 8s timeout
   that says "can't reach the sign-in service" rather than spinning forever —
@@ -499,9 +518,11 @@ item marked.
   (stale = a 404 plus the flash back), and warming it with a hidden glyph
   injects a stray character into the a11y tree.
 - **Nothing in the nav is gated.** The log, the forum and your kitchen each
-  render their own "sign in from the board" state, so a signed-out visitor sees
-  what's there. THE LOG used to be hidden until sign-in — that made a *free*
-  feature invisible to exactly the people who hadn't signed up. Don't re-hide it.
+  render their own signed-out state — the log and your kitchen with a **Sign in**
+  button that hands off to the board and comes back (see the profile-page
+  section) — so a signed-out visitor sees what's there. THE LOG used to be
+  hidden until sign-in — that made a *free* feature invisible to exactly the
+  people who hadn't signed up. Don't re-hide it.
 - **Sections are plain text; only actions are boxed** (`.mast-link`). That split
   is the whole point: eight look-alike bordered chips in `.mast-meta` were what
   made the top right unreadable. Don't put a link back in the colophon.

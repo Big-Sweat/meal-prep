@@ -95,9 +95,15 @@
               "you may be offline. The recipes themselves work without a connection.</p>"
           : "<h2>You&rsquo;re not signed in</h2>" +
             '<p class="kit-empty-line">Your kitchen holds your allergies, your calorie target, and every ' +
-              "recipe you&rsquo;ve saved or rated. Sign in from the board to see it — an account is free, " +
-              "and always will be.</p>") +
-        '<a class="kit-cta" href="index.html">&larr; Back to the recipes</a>' +
+              "recipe you&rsquo;ve saved or rated. An account is free, and always will be.</p>") +
+        '<div class="kit-ctas">' +
+          // Sign-in lives on the board (auth.js's OAuth redirect is the site
+          // root), so this hands off to it and comes straight back here. Not
+          // offered when auth is unreachable — the button would just fail.
+          (unreachable ? "" :
+            '<a class="kit-cta" href="index.html?signin=1&amp;next=profile.html">Sign in</a>') +
+          '<a class="kit-cta kit-cta--ghost" href="index.html">&larr; Back to the recipes</a>' +
+        "</div>" +
       "</div>";
   }
 

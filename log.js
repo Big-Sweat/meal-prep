@@ -219,8 +219,13 @@
               "you may be offline. The recipes themselves work without a connection.</p>"
           : "<h2>You&rsquo;re not signed in</h2>" +
             '<p class="kit-empty-line">The log keeps your weigh-ins, lifts and runs, and it&rsquo;s free. ' +
-              "Sign in from the board to start one.</p>") +
-        '<a class="kit-cta" href="index.html">&larr; Back to the recipes</a>' +
+              "Sign in to start one.</p>") +
+        '<div class="kit-ctas">' +
+          // Same hand-off as the profile page — see the note there.
+          (unreachable ? "" :
+            '<a class="kit-cta" href="index.html?signin=1&amp;next=log.html">Sign in</a>') +
+          '<a class="kit-cta kit-cta--ghost" href="index.html">&larr; Back to the recipes</a>' +
+        "</div>" +
       "</div>";
   }
 

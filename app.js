@@ -1366,6 +1366,84 @@
     if (e.target === authModal) authModal.close();
   });
 
+  /* ---------- "sign in" arriving from another page ----------
+     The sign-in dialog only exists on the board: auth.js sends OAuth back to
+     window.location.pathname and Supabase's redirect allowlist is the site
+     root, so a dialog on profile.html/log.html would bounce off it. Those pages
+     link here with ?signin=1&next=<page> instead, and this opens the dialog and
+     sends the visitor back where they came from once they're in.
+
+     `next` is parked in sessionStorage because the OAuth round-trip drops the
+     query string entirely (redirectTo is origin + pathname), so email and
+     Google sign-in both return to the same place. It's matched against a fixed
+     list of the site's own pages — a raw ?next= would otherwise be an open
+     redirect. Lives outside the realAuth gate below so it works in demo mode
+     too, where the same dialog asks for a name. */
+  var NEXT_PAGES = ["profile.html", "log.html", "forum.html", "products.html", "legal.html"];
+  var NEXT_KEY = "mise-signin-next";
+
+  /* Stamped, because the close handler below can't be the only thing that
+     expires this. Abandoning at the Google consent screen navigates the page
+     away, so no close event ever fires — without a clock, that destination
+     would sit here and hijack some unrelated sign-in an hour later. Ten minutes
+     is far longer than an OAuth round-trip and far shorter than a browsing
+     session. */
+  var NEXT_TTL_MS = 10 * 60 * 1000;
+
+  function stashNext(page) {
+    if (NEXT_PAGES.indexOf(page) === -1) return;      // not one of ours: ignore
+    try {
+      sessionStorage.setItem(NEXT_KEY, JSON.stringify({ page: page, at: Date.now() }));
+    } catch (e) {}
+  }
+
+  /* Reads and clears in one go — a destination must never survive to fire on
+     some unrelated sign-in later in this tab. */
+  function takeNext() {
+    var raw = null;
+    try {
+      raw = sessionStorage.getItem(NEXT_KEY);
+      sessionStorage.removeItem(NEXT_KEY);
+    } catch (e) {}
+    if (!raw) return null;
+    var v;
+    try { v = JSON.parse(raw); } catch (e) { return null; }
+    if (!v || NEXT_PAGES.indexOf(v.page) === -1) return null;
+    if (!v.at || Date.now() - v.at > NEXT_TTL_MS) return null;
+    return v.page;
+  }
+
+  function goToPendingNext() {
+    var n = takeNext();
+    if (!n) return false;
+    // replace(), not href: the board was a waypoint, not somewhere they chose
+    // to be, so it shouldn't sit in history between their page and itself.
+    window.location.replace(n);
+    return true;
+  }
+
+  (function () {
+    // MiseAuth snapshots the URL before Supabase's init strips it; in demo mode
+    // there's no SDK to strip anything, so the live URL is fine.
+    var search = (typeof MiseAuth !== "undefined" && MiseAuth.landingSearch)
+      ? MiseAuth.landingSearch() : window.location.search;
+    var q = new URLSearchParams(search);
+    if (q.get("signin") !== "1") return;
+    stashNext(q.get("next"));
+    if (window.history && window.history.replaceState) {
+      window.history.replaceState(null, document.title, window.location.pathname);
+    }
+    // Opens on whatever profile is known right now (null this early). If auth
+    // then resolves to a real session, onChange closes it and redirects.
+    openAuth();
+  })();
+
+  authModal.addEventListener("close", function () {
+    // Closed without signing in — they changed their mind, so drop the
+    // destination rather than springing it on them later.
+    if (!profile) takeNext();
+  });
+
   $("#auth-form").addEventListener("submit", function (e) {
     e.preventDefault();
     var name = $("#auth-name").value.trim();
@@ -1377,6 +1455,8 @@
     updateAuthUI();
     render();
     authModal.close();
+    // Came from "sign in" on another page: take them back to it.
+    goToPendingNext();
   });
 
   /* ---------- real auth (Supabase) wiring ---------- */
@@ -1459,6 +1539,11 @@
         cleanUrl();
         showToast("Email confirmed!", "You're signed in as " + profile.name + ".");
       }
+      // Signed in after arriving from another page's "sign in" — go back to it.
+      // Gated on uidChanged so a token refresh can't bounce someone off the
+      // board mid-browse, and left until after the toast above so an email
+      // confirmation still gets to say so before we navigate.
+      if (profile && uidChanged) goToPendingNext();
     });
 
     /* Sign-in renders immediately from whatever's cached; hydrate() then pulls
