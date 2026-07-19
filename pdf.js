@@ -1,4 +1,4 @@
-/* Mise — tiny dependency-free PDF generator for recipe downloads.
+/* Myse — tiny dependency-free PDF generator for recipe downloads.
    Lays a recipe out as a single-column printable sheet using the PDF
    base-14 Courier fonts (always present in viewers, monospace so text
    wrapping is exact — no font metrics or embedding needed). */
@@ -141,7 +141,9 @@
     var qtys = m.ingredients.map(function (ing) { return sanitize(ing.qty); });
     var qtyCol = Math.min(16, Math.max.apply(null, qtys.map(function (q) { return q.length; }).concat([1])));
     m.ingredients.forEach(function (ing) {
-      var q = sanitize(ing.qty);
+      // Cap at the column width: hang()'s prefixes must be equal length, and a
+      // quantity longer than qtyCol would push the first line out of column.
+      var q = sanitize(ing.qty).slice(0, qtyCol);
       L.hang(padStart(q, qtyCol) + "  ", sp(qtyCol + 2), ing.text,
         { size: 10, font: "F1", color: INK, lead: 14 });
     });

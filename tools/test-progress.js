@@ -43,6 +43,27 @@ ok("2nd = mean(80,82)", t[1].v, 81, 0.001);
 ok("5th = mean of all 5 (inside 7d window)", t[4].v, 80, 0.001);
 ok("trend keeps the raw value alongside", t[4].raw, 78);
 ok("trend reports how many points it averaged", t[4].n, 5);
+// `at` directly: the mean DATE of the averaged points — what the average
+// describes. Five consecutive days ending Jul 5 average out to Jul 3, i.e. the
+// plotted point lags what it measures by two days. This is the value change()
+// measures rates from; if `at` drifts, every rate silently drifts with it.
+ok("at = mean date of the window (Jul 1-5 -> Jul 3)", t[4].at, Date.parse("2026-07-03T00:00:00Z"));
+ok("at of a 1-point window is that point's own date", t[0].at, Date.parse("2026-07-01T00:00:00Z"));
+
+// windowDays override: a 3-day window over the same data must only see 3 points.
+const t3 = MiseProgress.trend(daily, 3);
+ok("windowDays=3: last point averages only Jul 3-5", t3[4].v, (79 + 81 + 78) / 3, 0.001);
+ok("windowDays=3: reports 3 points averaged", t3[4].n, 3);
+
+// Two weigh-ins on the SAME day (the log allows it) must both join the window.
+const dupDay = [
+  { d: "2026-07-01", v: 80 },
+  { d: "2026-07-01", v: 82 },
+  { d: "2026-07-02", v: 84 }
+];
+const td = MiseProgress.trend(dupDay);
+ok("same-day duplicates both counted", td[2].n, 3);
+ok("same-day duplicates averaged, not corrupted", td[2].v, 82, 0.001);
 
 // A gap longer than the window: old readings must NOT be averaged in.
 const gapped = [
@@ -85,6 +106,11 @@ const cs = MiseProgress.change(shortLog, 28);
 ok("short history flagged incomplete", cs.complete, false);
 ok("...but still reports its real span", cs.spanDays, 3);
 
+// Two entries on one day span zero days: no honest rate exists, so null —
+// not an Infinity from dividing by the zero-day span.
+ok("same-day-only log -> null (zero span)",
+   MiseProgress.change([{ d: "2026-07-01", v: 80 }, { d: "2026-07-01", v: 79 }], 28), null);
+
 // A long log: both windows are full, so the lag cancels and the naive span is
 // already right. This is the case that hid the bug — only ~28-35 day logs show it.
 const long = [];
@@ -121,6 +147,14 @@ function ramp(start, perDay) {
 }
 ok("0.85kg/wk warns at 50kg (1.7% of bodyweight)", MiseProgress.warnings(ramp(50, 0.85 / 7)).length, 1);
 ok("0.85kg/wk is silent at 150kg (0.6% of bodyweight)", MiseProgress.warnings(ramp(150, 0.85 / 7)).length, 0);
+
+// The threshold itself, from both sides. For a steady ramp from 100kg the
+// final trend value is 100 - 26*perDay, so the boundary rate solves
+// 7*perDay = 0.01*(100 - 26*perDay) -> perDay = 1/7.26. Exact equality is a
+// floating-point coin flip by design (strict <), so probe 1% either side.
+const boundaryPerDay = 1 / 7.26;
+ok("just UNDER 1%/wk stays silent", MiseProgress.warnings(ramp(100, boundaryPerDay * 0.99)).length, 0);
+ok("just OVER 1%/wk warns", MiseProgress.warnings(ramp(100, boundaryPerDay * 1.01)).length, 1);
 
 console.log("\n" + pass + " passed, " + fail + " failed\n");
 process.exit(fail ? 1 : 0);

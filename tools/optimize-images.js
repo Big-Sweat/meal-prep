@@ -31,39 +31,52 @@ const DIR = path.join(__dirname, "..", "assets", "recipes");
 const keepPng = process.argv.includes("--keep-png");
 
 (async () => {
-  const pngs = fs.readdirSync(DIR).filter((f) => f.endsWith(".png"));
-  if (!pngs.length) {
-    console.log("no PNGs left in assets/recipes — nothing to do");
+  // .png/.jpg/.jpeg, any case — "run it on any photo you add" means any photo,
+  // not only lowercase PNGs.
+  const sources = fs.readdirSync(DIR).filter((f) => /\.(png|jpe?g)$/i.test(f));
+  if (!sources.length) {
+    console.log("no PNG/JPEG sources left in assets/recipes — nothing to do");
     return;
   }
 
   let before = 0;
   let after = 0;
+  let done = 0;
+  const failed = [];
 
-  for (const file of pngs) {
+  for (const file of sources) {
     const src = path.join(DIR, file);
-    const dest = src.replace(/\.png$/, ".webp");
-    const origBytes = fs.statSync(src).size;
+    const dest = src.replace(/\.(png|jpe?g)$/i, ".webp");
+    try {
+      const origBytes = fs.statSync(src).size;
 
-    // No resize: keep the source dimensions, just change the container.
-    await sharp(src).webp({ quality: QUALITY }).toFile(dest);
+      // No resize: keep the source dimensions, just change the container.
+      await sharp(src).webp({ quality: QUALITY }).toFile(dest);
 
-    const newBytes = fs.statSync(dest).size;
-    before += origBytes;
-    after += newBytes;
+      const newBytes = fs.statSync(dest).size;
+      before += origBytes;
+      after += newBytes;
+      done++;
 
-    if (!keepPng) fs.unlinkSync(src);
+      if (!keepPng) fs.unlinkSync(src);
 
-    console.log(
-      "  " + file.replace(".png", "") +
-      "  " + (origBytes / 1048576).toFixed(2) + "MB -> " + (newBytes / 1024).toFixed(0) + "KB"
-    );
+      console.log(
+        "  " + file.replace(/\.(png|jpe?g)$/i, "") +
+        "  " + (origBytes / 1048576).toFixed(2) + "MB -> " + (newBytes / 1024).toFixed(0) + "KB"
+      );
+    } catch (e) {
+      // One unreadable file must not abort the rest of the batch. The original
+      // is left in place (unlink only runs after a successful convert).
+      failed.push(file);
+      console.error("  " + file + "  FAILED: " + e.message);
+    }
   }
 
   console.log(
-    "\n" + pngs.length + " images  |  " +
+    "\n" + done + " of " + sources.length + " images  |  " +
     (before / 1048576).toFixed(1) + "MB -> " + (after / 1048576).toFixed(1) + "MB  (-" +
-    (100 - (after / before) * 100).toFixed(1) + "%)"
+    (before ? (100 - (after / before) * 100).toFixed(1) : "0") + "%)"
   );
-  if (!keepPng) console.log("PNG originals deleted. app.js must reference .webp");
+  if (failed.length) console.error("failed (originals kept): " + failed.join(", "));
+  if (!keepPng && done) console.log("converted originals deleted. app.js must reference .webp");
 })();

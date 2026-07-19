@@ -1,4 +1,4 @@
-/* Mise — progress maths.
+/* Myse — progress maths.
  *
  * Pure functions, no DOM, no storage: given logged entries, return numbers.
  * Same deal as nutrition.js — kept separate so the arithmetic can be checked
