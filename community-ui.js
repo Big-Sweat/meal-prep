@@ -345,6 +345,22 @@ var MiseCommunityUI = (function () {
     var recipe = collect();
     if (!recipe) return;
 
+    // Content moderation — block banned language (the DB trigger enforces it too).
+    if (typeof MiseModeration !== "undefined") {
+      if (MiseModeration.check(recipe.author)) {
+        formError("Your display name contains language that isn't allowed here. Change it on your Google/Apple account, then try again.");
+        return;
+      }
+      var recipeText = [recipe.name, recipe.description, recipe.cuisine, recipe.storageNote,
+        (recipe.tags || []).join(" "),
+        recipe.ingredients.map(function (i) { return i.item + " " + i.note; }).join(" "),
+        recipe.steps.join(" ")].join(" ");
+      if (MiseModeration.check(recipeText)) {
+        formError("Please keep it clean — your recipe contains language we don't allow here.");
+        return;
+      }
+    }
+
     var submit = $("#cf-submit");
     submit.disabled = true;
     var original = submit.textContent;
