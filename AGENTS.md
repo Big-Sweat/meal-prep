@@ -28,7 +28,10 @@ already-installed app can pick up new recipes without a new release; applies
 only at the START of the next open, never mid-session).
 
 **`app.js` binds `index.html`'s DOM at module scope — never load it on another
-page.** That's why `profile.js` exists.
+page.** That's why `profile.js` exists. The modal's protein-substitution feature
+*adapts* the recipe (rewrites cook times/doneness/safe temp for the new protein,
+inserts needed prep, flags techniques that don't suit it) using the `PROTEIN_COOK`
+table — **its USDA temps and times are deliberate; don't "tidy" them.**
 
 Also: `app/` (Capacitor project: `app/android/` builds and runs, `app/ios/` needs
 a Mac with Xcode — see `app/README.md`; **add any new top-level web file to
