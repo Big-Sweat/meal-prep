@@ -56,7 +56,12 @@
 
     host.innerHTML =
       '<div class="kit-grid">' +
-        '<aside class="kit-id" id="kit-id"></aside>' +
+        '<aside class="kit-id">' +
+          // The saved daily target surfaces here, above the identity card, so a
+          // just-saved target lands in view (see renderTargetReadout).
+          '<div id="kit-target-readout"></div>' +
+          '<div id="kit-id"></div>' +
+        "</aside>" +
         '<div class="kit-sections">' +
           '<section class="kit-section" id="kit-allergies"></section>' +
           '<section class="kit-section" id="kit-target"></section>' +
@@ -67,6 +72,7 @@
       "</div>";
 
     renderIdentity();
+    renderTargetReadout();
     renderAllergies();
     renderTarget();
     renderFavorites();
@@ -240,6 +246,39 @@
     if (save) save.disabled = !targetCalc(draft);
   }
 
+  // The saved daily target, surfaced in the sidebar above the identity card once
+  // a valid target is saved (Plus only, since the target is Plus-gated). It
+  // reflects what's SAVED, not the in-progress draft — edits land here when saved.
+  // Empty markup when there's nothing to show, so the sidebar collapses to just
+  // the identity card.
+  function renderTargetReadout() {
+    var slot = $("#kit-target-readout");
+    if (!slot) return;
+    var saved = MiseSub.isPlus() ? MiseStore.nutrition(me()) : null;
+    var calc = saved ? targetCalc(saved) : null;
+    slot.innerHTML = calc
+      ? '<div class="kit-card kit-card--readout">' + targetOutputHTML(saved) + "</div>"
+      : "";
+  }
+
+  // A quiet, self-dismissing "Target Saved!" — a confirmation, not a celebration
+  // (this page's tone). Lives in the actions row and fades after a couple seconds.
+  function flashSaved() {
+    var actions = $("#kit-target .nut-actions");
+    if (!actions) return;
+    var old = actions.querySelector(".nut-saved");
+    if (old) old.parentNode.removeChild(old);
+    var msg = document.createElement("p");
+    msg.className = "nut-saved mono";
+    msg.setAttribute("role", "status");
+    msg.textContent = "Target Saved!";
+    actions.appendChild(msg);
+    setTimeout(function () {
+      msg.classList.add("nut-saved--out");
+      setTimeout(function () { if (msg.parentNode) msg.parentNode.removeChild(msg); }, 400);
+    }, 2600);
+  }
+
   function renderTarget() {
     var el = $("#kit-target");
 
@@ -276,6 +315,11 @@
     var d = draft;
     var imperial = d.units === "imperial";
     var calc = targetCalc(d);
+    // A target is "saved" once a stored profile produces a valid result — the
+    // same condition the sidebar readout uses. Drives the button label and
+    // whether the inline result box shows (it doesn't, once saved: it's up top).
+    var savedProfile = MiseStore.nutrition(me());
+    var hasSaved = !!(savedProfile && targetCalc(savedProfile));
 
     var ft = d.heightCm ? Math.floor(MiseNutrition.cmToIn(d.heightCm) / 12) : "";
     var inch = d.heightCm ? Math.round(MiseNutrition.cmToIn(d.heightCm) % 12) : "";
@@ -345,11 +389,15 @@
           "</div>" +
         "</div>" +
 
-        '<div id="nut-output">' + targetOutputHTML(d) + "</div>" +
+        // Before the first save the result previews inline; afterwards it lives
+        // in the sidebar readout above the identity card, so the section is just
+        // the form again.
+        (hasSaved ? "" : '<div id="nut-output">' + targetOutputHTML(d) + "</div>") +
 
         '<div class="nut-actions">' +
-          '<button class="sub-buy" id="nut-save"' + (calc ? "" : " disabled") + ">Save my target</button>" +
-          (MiseStore.nutrition(me()) ? '<button class="review-signin mono" id="nut-clear">CLEAR MY PROFILE</button>' : "") +
+          '<button class="sub-buy" id="nut-save"' + (calc ? "" : " disabled") + ">" +
+            (hasSaved ? "Update my target" : "Save my target") + "</button>" +
+          (savedProfile ? '<button class="review-signin mono" id="nut-clear">CLEAR MY PROFILE</button>' : "") +
         "</div>" +
         '<p class="nut-disclaimer">Myse isn&rsquo;t a doctor or a dietitian. This is a population-average ' +
           "estimate; if you have a health condition, are pregnant, or are treating an eating disorder, " +
@@ -413,7 +461,9 @@
       syncDraftFromForm();
       if (!MiseNutrition.valid(draft)) return;
       MiseStore.setNutrition(me(), draft);
-      renderTarget();
+      renderTarget();          // section reverts to the form; button now "Update"
+      renderTargetReadout();   // surface the saved target above the identity card
+      flashSaved();            // "Target Saved!"
     });
 
     var clear = el.querySelector("#nut-clear");
@@ -421,6 +471,7 @@
       MiseStore.clearNutrition(me());
       draft = blankDraft();
       renderTarget();
+      renderTargetReadout();   // nothing saved now, so the sidebar readout clears
     });
   }
 
