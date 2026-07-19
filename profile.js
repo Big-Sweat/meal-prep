@@ -1,4 +1,4 @@
-/* Mise — the profile page ("your kitchen").
+/* Myse — the profile page ("your kitchen").
  *
  * A separate page from the board, sharing its data through store.js and its
  * paywall through plus-ui.js. app.js is not loaded here: it grabs index.html's
@@ -56,20 +56,31 @@
 
     host.innerHTML =
       '<div class="kit-grid">' +
-        '<aside class="kit-id" id="kit-id"></aside>' +
+        '<aside class="kit-id">' +
+          // The saved daily target surfaces here, above the identity card, so a
+          // just-saved target lands in view (see renderTargetReadout).
+          '<div id="kit-target-readout"></div>' +
+          '<div id="kit-id"></div>' +
+        "</aside>" +
         '<div class="kit-sections">' +
           '<section class="kit-section" id="kit-allergies"></section>' +
           '<section class="kit-section" id="kit-target"></section>' +
           '<section class="kit-section" id="kit-favorites"></section>' +
+          // Community recipes need the Supabase backend; the demo layer has no
+          // place to post to, so the section (and its Share button) only appears
+          // with real auth.
+          (realAuth ? '<section class="kit-section" id="kit-recipes"></section>' : "") +
           '<section class="kit-section" id="kit-activity"></section>' +
           '<section class="kit-section" id="kit-danger"></section>' +
         "</div>" +
       "</div>";
 
     renderIdentity();
+    renderTargetReadout();
     renderAllergies();
     renderTarget();
     renderFavorites();
+    if (realAuth) renderMyRecipes();
     renderActivity();
     renderDanger();
   }
@@ -84,9 +95,15 @@
               "you may be offline. The recipes themselves work without a connection.</p>"
           : "<h2>You&rsquo;re not signed in</h2>" +
             '<p class="kit-empty-line">Your kitchen holds your allergies, your calorie target, and every ' +
-              "recipe you&rsquo;ve saved or rated. Sign in from the board to see it — an account is free, " +
-              "and always will be.</p>") +
-        '<a class="kit-cta" href="index.html">&larr; Back to the recipes</a>' +
+              "recipe you&rsquo;ve saved or rated. An account is free, and always will be.</p>") +
+        '<div class="kit-ctas">' +
+          // Sign-in lives on the board (auth.js's OAuth redirect is the site
+          // root), so this hands off to it and comes straight back here. Not
+          // offered when auth is unreachable — the button would just fail.
+          (unreachable ? "" :
+            '<a class="kit-cta" href="index.html?signin=1&amp;next=profile.html">Sign in</a>') +
+          '<a class="kit-cta kit-cta--ghost" href="index.html">&larr; Back to the recipes</a>' +
+        "</div>" +
       "</div>";
   }
 
@@ -181,6 +198,7 @@
         else next.splice(at, 1);
         MiseStore.setAllergies(me(), next);
         renderAllergies();   // redraw so the sentence under the chips stays true
+        renderFavorites();   // a favorite may now clash (or stop clashing) with the list
       });
     });
   }
@@ -240,6 +258,39 @@
     if (save) save.disabled = !targetCalc(draft);
   }
 
+  // The saved daily target, surfaced in the sidebar above the identity card once
+  // a valid target is saved (Plus only, since the target is Plus-gated). It
+  // reflects what's SAVED, not the in-progress draft — edits land here when saved.
+  // Empty markup when there's nothing to show, so the sidebar collapses to just
+  // the identity card.
+  function renderTargetReadout() {
+    var slot = $("#kit-target-readout");
+    if (!slot) return;
+    var saved = MiseSub.isPlus() ? MiseStore.nutrition(me()) : null;
+    var calc = saved ? targetCalc(saved) : null;
+    slot.innerHTML = calc
+      ? '<div class="kit-card kit-card--readout">' + targetOutputHTML(saved) + "</div>"
+      : "";
+  }
+
+  // A quiet, self-dismissing "Target Saved!" — a confirmation, not a celebration
+  // (this page's tone). Lives in the actions row and fades after a couple seconds.
+  function flashSaved() {
+    var actions = $("#kit-target .nut-actions");
+    if (!actions) return;
+    var old = actions.querySelector(".nut-saved");
+    if (old) old.parentNode.removeChild(old);
+    var msg = document.createElement("p");
+    msg.className = "nut-saved mono";
+    msg.setAttribute("role", "status");
+    msg.textContent = "Target Saved!";
+    actions.appendChild(msg);
+    setTimeout(function () {
+      msg.classList.add("nut-saved--out");
+      setTimeout(function () { if (msg.parentNode) msg.parentNode.removeChild(msg); }, 400);
+    }, 2600);
+  }
+
   function renderTarget() {
     var el = $("#kit-target");
 
@@ -276,9 +327,18 @@
     var d = draft;
     var imperial = d.units === "imperial";
     var calc = targetCalc(d);
+    // A target is "saved" once a stored profile produces a valid result — the
+    // same condition the sidebar readout uses. Drives the button label and
+    // whether the inline result box shows (it doesn't, once saved: it's up top).
+    var savedProfile = MiseStore.nutrition(me());
+    var hasSaved = !!(savedProfile && targetCalc(savedProfile));
 
-    var ft = d.heightCm ? Math.floor(MiseNutrition.cmToIn(d.heightCm) / 12) : "";
-    var inch = d.heightCm ? Math.round(MiseNutrition.cmToIn(d.heightCm) % 12) : "";
+    // Round total inches ONCE, then split — rounding feet and inches
+    // separately produced "5 ft 12 in" (12 > the input's max=11) for heights
+    // near a foot boundary, e.g. 182cm.
+    var totalIn = d.heightCm ? Math.round(MiseNutrition.cmToIn(d.heightCm)) : null;
+    var ft = totalIn !== null ? Math.floor(totalIn / 12) : "";
+    var inch = totalIn !== null ? totalIn % 12 : "";
     var lb = d.weightKg ? Math.round(MiseNutrition.kgToLb(d.weightKg)) : "";
 
     el.innerHTML =
@@ -345,11 +405,15 @@
           "</div>" +
         "</div>" +
 
-        '<div id="nut-output">' + targetOutputHTML(d) + "</div>" +
+        // Before the first save the result previews inline; afterwards it lives
+        // in the sidebar readout above the identity card, so the section is just
+        // the form again.
+        (hasSaved ? "" : '<div id="nut-output">' + targetOutputHTML(d) + "</div>") +
 
         '<div class="nut-actions">' +
-          '<button class="sub-buy" id="nut-save"' + (calc ? "" : " disabled") + ">Save my target</button>" +
-          (MiseStore.nutrition(me()) ? '<button class="review-signin mono" id="nut-clear">CLEAR MY PROFILE</button>' : "") +
+          '<button class="sub-buy" id="nut-save"' + (calc ? "" : " disabled") + ">" +
+            (hasSaved ? "Update my target" : "Save my target") + "</button>" +
+          (savedProfile ? '<button class="review-signin mono" id="nut-clear">CLEAR MY PROFILE</button>' : "") +
         "</div>" +
         '<p class="nut-disclaimer">Myse isn&rsquo;t a doctor or a dietitian. This is a population-average ' +
           "estimate; if you have a health condition, are pregnant, or are treating an eating disorder, " +
@@ -413,7 +477,9 @@
       syncDraftFromForm();
       if (!MiseNutrition.valid(draft)) return;
       MiseStore.setNutrition(me(), draft);
-      renderTarget();
+      renderTarget();          // section reverts to the form; button now "Update"
+      renderTargetReadout();   // surface the saved target above the identity card
+      flashSaved();            // "Target Saved!"
     });
 
     var clear = el.querySelector("#nut-clear");
@@ -421,6 +487,7 @@
       MiseStore.clearNutrition(me());
       draft = blankDraft();
       renderTarget();
+      renderTargetReadout();   // nothing saved now, so the sidebar readout clears
     });
   }
 
@@ -469,6 +536,103 @@
             "</ul>"
           : '<p class="kit-none">Nothing saved yet. Tap the &hearts; on any recipe ticket and it lands here.</p>') +
       "</div>";
+  }
+
+  /* ---------- what you've shared ---------- */
+
+  // Community recipes you've posted. Fetched async from Supabase (myRecipes),
+  // cached so a re-render doesn't flash "Loading"; null means not-yet-fetched.
+  var myRecipesCache = null;
+
+  function loadMyRecipes() {
+    MiseStore.myRecipes(me(), function (list) {
+      myRecipesCache = list || [];
+      renderMyRecipes();
+    });
+  }
+
+  function renderMyRecipes() {
+    var el = $("#kit-recipes");
+    if (!el) return;
+    var list = myRecipesCache;
+
+    var inner;
+    if (list === null) {
+      inner = '<p class="kit-none">Loading&hellip;</p>';
+    } else if (!list.length) {
+      inner = '<p class="kit-none">You haven&rsquo;t shared any recipes yet. Post one and it joins ' +
+        "the Community board for everyone to cook, review, and plan.</p>" +
+        '<button class="sub-buy kit-share-btn" type="button" data-share-recipe>Share a recipe</button>';
+    } else {
+      inner = '<p class="kit-lede">' + list.length + (list.length === 1 ? " recipe" : " recipes") +
+          " you&rsquo;ve shared to the Community board.</p>" +
+        '<ul class="kit-list">' +
+          list.map(function (r) {
+            return "<li><div class=\"kit-review\">" +
+              '<a class="kit-row kit-row--flush" href="index.html#' + esc(r.id) + '">' +
+                '<span class="kit-row-name">' + esc(r.name) + "</span>" +
+                '<span class="kit-row-meta mono">' +
+                  esc(String(r.protein).toUpperCase()) + " · " + (r.prepMinutes + r.cookMinutes) + " MIN · " +
+                  r.caloriesPerServing + " CAL" +
+                "</span>" +
+              "</a>" +
+              '<div class="kit-recipe-actions">' +
+                '<button class="kit-review-del mono" data-edit="' + esc(r.id) + '" type="button">EDIT</button>' +
+                '<button class="kit-review-del mono" data-del-recipe="' + esc(r.id) + '" type="button">DELETE</button>' +
+              "</div>" +
+            "</div></li>";
+          }).join("") +
+        "</ul>" +
+        '<button class="sub-buy kit-share-btn" type="button" data-share-recipe>Share another recipe</button>';
+    }
+
+    el.innerHTML =
+      '<div class="kit-card">' +
+        '<span class="tape mono" aria-hidden="true">YOUR RECIPES</span>' +
+        "<h2>What you&rsquo;ve shared</h2>" +
+        inner +
+      "</div>";
+
+    if (list === null) { loadMyRecipes(); return; }   // first paint kicks the fetch
+
+    el.querySelectorAll("[data-edit]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var id = this.getAttribute("data-edit");
+        var r = (myRecipesCache || []).filter(function (x) { return x.id === id; })[0];
+        if (r && typeof MiseCommunityUI !== "undefined") MiseCommunityUI.open(r);
+      });
+    });
+
+    /* Two presses to delete: the recipe is public and shared, so removal is
+       everywhere — one stray tap shouldn't do it. Same arm pattern as reviews. */
+    el.querySelectorAll("[data-del-recipe]").forEach(function (b) {
+      var armTimer;
+      function disarm() {
+        clearTimeout(armTimer);
+        b.setAttribute("data-armed", "no");
+        b.classList.remove("kit-review-del--arm");
+        b.textContent = "DELETE";
+      }
+      b.addEventListener("click", function () {
+        if (this.getAttribute("data-armed") !== "yes") {
+          this.setAttribute("data-armed", "yes");
+          this.classList.add("kit-review-del--arm");
+          this.textContent = "TAP AGAIN TO DELETE";
+          clearTimeout(armTimer);
+          armTimer = setTimeout(disarm, 4000);
+          return;
+        }
+        clearTimeout(armTimer);
+        var id = this.getAttribute("data-del-recipe");
+        this.disabled = true;
+        MiseStore.deleteRecipe(me(), id, function (err) {
+          if (err) { disarm(); b.disabled = false; return; }
+          myRecipesCache = (myRecipesCache || []).filter(function (x) { return x.id !== id; });
+          renderMyRecipes();
+        });
+      });
+      b.addEventListener("blur", disarm);
+    });
   }
 
   /* ---------- what you've cooked ---------- */
@@ -525,27 +689,34 @@
             "about what you&rsquo;d change.</p>") +
       "</div>";
 
-    /* Two presses to delete. Nothing here is recoverable — there's no server
-       holding a copy — so one stray tap shouldn't take away something someone
-       wrote. The button says what the next press does. */
+    /* Two presses to delete. A review lives on the server and is public, so a
+       deletion removes it everywhere — one stray tap shouldn't do that. The
+       button says what the next press does, and re-locks itself if left alone. */
     $("#kit-activity").querySelectorAll("[data-del]").forEach(function (b) {
+      var armTimer;
+      function disarm() {
+        clearTimeout(armTimer);
+        b.setAttribute("data-armed", "no");
+        b.classList.remove("kit-review-del--arm");
+        b.textContent = "DELETE REVIEW";
+      }
       b.addEventListener("click", function () {
         if (this.getAttribute("data-armed") !== "yes") {
           this.setAttribute("data-armed", "yes");
           this.classList.add("kit-review-del--arm");
           this.textContent = "TAP AGAIN TO DELETE";
+          // Blur doesn't fire on iOS (a tap doesn't focus a button), so also
+          // re-lock on a timer — otherwise it can sit primed indefinitely.
+          clearTimeout(armTimer);
+          armTimer = setTimeout(disarm, 4000);
           return;
         }
+        clearTimeout(armTimer);
         MiseStore.removeReview(me(), this.getAttribute("data-del"));
         renderActivity();
         renderIdentity();   // the stats line counts reviews
       });
-      // Moving away disarms it, so it can't sit primed indefinitely.
-      b.addEventListener("blur", function () {
-        this.setAttribute("data-armed", "no");
-        this.classList.remove("kit-review-del--arm");
-        this.textContent = "DELETE REVIEW";
-      });
+      b.addEventListener("blur", disarm);
     });
   }
 
@@ -644,16 +815,46 @@
     renderIdentity();
   });
 
+  // "Share a recipe" buttons on this page (no app.js here to catch them). Already
+  // signed in on the profile page, so open the form straight away.
+  document.addEventListener("click", function (e) {
+    var t = e.target.closest && e.target.closest("[data-share-recipe]");
+    if (!t) return;
+    e.preventDefault();
+    if (account && typeof MiseCommunityUI !== "undefined") MiseCommunityUI.open();
+  });
+
+  // A publish/edit from the dialog refreshes the "your recipes" list.
+  document.addEventListener("mise:recipe-published", function () {
+    myRecipesCache = null;
+    renderMyRecipes();
+  });
+
   if (realAuth) {
     MiseAuth.onChange(function (user) {
       account = user ? { id: user.id, name: user.name, email: user.email } : null;
       ready = true;
+      unreachable = false;   // auth answered after all — clear a fired timeout
       draft = null;        // a different person gets a different form
+      myRecipesCache = null;   // and a different person's shared recipes
       render();
     });
     // Sign-in renders from cache first; hydrate() then loads this account's rows
     // from Supabase and fires onSync, so redraw the whole page with real data.
-    MiseStore.onSync(function () { draft = null; render(); });
+    // hydrate only runs for a signed-in user, so if onChange was missed or
+    // delayed (a cold CDN can drop the event, stranding the 8s "can't reach"
+    // state), adopt the resolved account here.
+    MiseStore.onSync(function () {
+      var u = MiseAuth.user && MiseAuth.user();
+      if (u && u.id && !account) {
+        account = { id: u.id, name: u.name, email: u.email };
+        ready = true;
+        unreachable = false;
+      }
+      draft = null;
+      myRecipesCache = null;   // hydrate landed — refetch this account's shared recipes
+      render();
+    });
     /* auth.js pulls the Supabase SDK off jsDelivr, so with no connection
        onChange never fires and this page would spin forever. Give up after a
        few seconds and say which of the two things went wrong. */

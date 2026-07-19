@@ -1,4 +1,4 @@
-/* Mise — the Mise Plus upgrade dialog.
+/* Myse — the Myse Plus upgrade dialog.
  *
  * Lifted out of app.js when the profile page arrived: the board and
  * profile.html both have to be able to offer the upgrade, and two copies of a

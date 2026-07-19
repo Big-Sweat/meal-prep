@@ -20,11 +20,13 @@ const FILES = [
   "products.html",
   "profile.html",
   "log.html",
+  "forum.html",
   "legal.html",
   "styles.css",
   "app.js",
   "profile.js",
   "log.js",
+  "forum.js",
   "recipe-sync.js",
   "recipes.js",
   "products.js",
@@ -37,6 +39,8 @@ const FILES = [
   "store.js",
   "plus-ui.js",
   "auth.js",
+  "moderation.js",
+  "community-ui.js",
   "pdf.js",
   "native.js"
 ];

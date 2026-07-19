@@ -44,8 +44,8 @@ var MiseGrocery = (function () {
   // Blank => plain Walmart search (works, but no commission).
   var WALMART_IMPACT = "";
 
-  // Amazon Associates tag; keep in step with products.js. Placeholder earns nothing.
-  var AMAZON_TAG = "YOUR-AFFILIATE-TAG-20";
+  // Amazon Associates tag; keep in step with products.js (blank = no tag).
+  var AMAZON_TAG = "";
 
   /* ---- Instacart ---- */
 

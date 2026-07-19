@@ -1,4 +1,4 @@
-/* Mise — native (iOS + Android) adaptations.
+/* Myse — native (iOS + Android) adaptations.
    Loads on the website too, where every branch below is skipped: on the web
    `window.MiseNative.isNative` is false and nothing else runs. */
 (function () {
@@ -20,13 +20,20 @@
      open. Close what's on top instead; exit only from the bare board. */
   if (platform === "android" && P.App) {
     P.App.addListener("backButton", function () {
-      // Close whatever is on top. Pages carry different subsets of these — a
+      // Close whatever is on top. Overlay-most first: the Plus dialog stacks
+      // over the others (REMOVE ADS opens it above the ad interstitial), so
+      // it goes ahead of them. Pages carry different subsets of these — a
       // missing id just means that dialog isn't on this page.
-      var dialogs = ["sub-modal", "auth-modal", "recipe-modal", "plan-modal"];
+      var dialogs = ["sub-modal", "auth-modal", "ad-interstitial", "recipe-modal", "plan-modal"];
       for (var i = 0; i < dialogs.length; i++) {
         var d = document.getElementById(dialogs[i]);
         if (d && d.open) { d.close(); return; }
       }
+      // Sweep for anything the list doesn't know. A hardcoded list is exactly
+      // how the ad interstitial shipped with the back button exiting the app
+      // from inside an ad — a future dialog must not repeat that.
+      var other = document.querySelector("dialog[open]");
+      if (other) { other.close(); return; }
       var rail = document.getElementById("filter-rail");
       if (rail && rail.classList.contains("open")) {
         var closeBtn = document.getElementById("close-filters");

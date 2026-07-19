@@ -154,9 +154,11 @@ lives once in `MiseStore.calorieTarget()`, so the board and profile page follow
 it automatically. A weigh-in in the log updates the stored weight for free, so
 "your target follows your body" costs no new gate.
 
-The old pre-print ad interstitial was **deleted** — print is Plus-only and Plus
+The old *pre-print* ad interstitial was **deleted** — print is Plus-only and Plus
 removes ads, so only people exempt from it could reach it. Don't reintroduce it.
-The in-feed `SPONSORED` ticket (every 12 recipes) is the sole ad slot.
+Two ad slots ship now (both suppressed for Plus): the in-feed `SPONSORED` ticket
+every 12 recipes, and a separate page-turn interstitial on "Next". (Superseded
+note — see AUDIT.md / CLAUDE.md for the current ad policy.)
 
 ---
 

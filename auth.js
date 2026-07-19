@@ -1,4 +1,4 @@
-/* Mise auth - Supabase integration.
+/* Myse auth - Supabase integration.
 
    SETUP (one time, ~10 minutes):
    1. Create a free project at https://supabase.com
@@ -71,7 +71,8 @@ var MiseAuth = (function () {
     recoveryListeners.forEach(function (fn) { fn(); });
   }
 
-  // Android only: Supabase sends the browser to com.deadliftdigital.mise://auth?code=…
+  // Native (Android AND iOS — both need it, since detectSessionInUrl is off on
+  // native): Supabase sends the browser to com.deadliftdigital.mise://auth?code=…
   // once the provider is done. Trade that code for a session and close the tab.
   function listenForDeepLink() {
     var P = (window.Capacitor && window.Capacitor.Plugins) || {};
@@ -90,7 +91,19 @@ var MiseAuth = (function () {
   function init() {
     if (!enabled) return;
     var s = document.createElement("script");
-    s.src = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
+    // Pinned + integrity-checked. The old bare "@2" floated to whatever the
+    // CDN had at load time, so a bad release or a CDN compromise would have
+    // executed inside every visitor's session. To upgrade: change the version
+    // AND the hash together (hash = base64 sha384 of the exact file bytes).
+    s.src = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.7/dist/umd/supabase.js";
+    s.integrity = "sha384-hazsLVND17GNLVdtV19te6qbFT2YuLgl8SamcF+QR5eIOC+W4dGKrUNMxU1jH1zD";
+    s.crossOrigin = "anonymous";
+    s.onerror = function () {
+      // CDN unreachable or integrity mismatch: settle the pages signed-out
+      // instead of leaving them waiting on a client that will never come.
+      try { console.warn("[mise-auth] Supabase SDK failed to load — sign-in unavailable"); } catch (e) {}
+      notify();
+    };
     s.onload = function () {
       client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
         auth: {

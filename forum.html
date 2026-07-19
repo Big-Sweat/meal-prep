@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Your kitchen — Myse</title>
-  <meta name="description" content="Your standing allergies, your daily calorie target, and every recipe you've saved, rated, or reviewed.">
+  <title>The forum — Myse</title>
+  <meta name="description" content="Talk meal prep and training with other cooks — swap wins, ask questions, and share where you're at on the journey.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500;700&family=Permanent+Marker&display=swap" rel="stylesheet">
@@ -17,8 +17,8 @@
     <div class="mast-inner">
       <div class="mast-brand">
         <h1 class="wordmark"><a class="wordmark-link" href="index.html">Myse<span class="wordmark-dot">.</span></a></h1>
-        <p class="mast-line">Your kitchen. What you can’t eat, what you’re aiming for, and
-        every recipe you’ve saved, rated, or written up.</p>
+        <p class="mast-line">The forum. Trade meal-prep wins, training questions, and where you’re
+        at on the journey — with other people cooking and lifting alongside you.</p>
       </div>
     </div>
   </header>
@@ -33,37 +33,29 @@
     <div class="mainnav-inner">
       <div class="nav-sections">
         <a class="nav-link" href="index.html"><span>THE RECIPES</span></a>
-        <a class="nav-link" href="forum.html"><span>THE FORUM</span></a>
+        <a class="nav-link" href="forum.html" aria-current="page"><span>THE FORUM</span></a>
         <a class="nav-link" href="log.html"><span>THE LOG</span></a>
-        <a class="nav-link" href="profile.html" aria-current="page"><span>YOUR KITCHEN</span></a>
+        <a class="nav-link" href="profile.html"><span>YOUR KITCHEN</span></a>
         <a class="nav-link" href="products.html"><span>PREP GEAR</span></a>
       </div>
     </div>
   </nav>
 
-  <!-- profile.js renders everything below: the account arrives asynchronously
-       from Supabase, so there is nothing honest to put here at parse time. -->
-  <main class="kitchen" id="kitchen">
-    <p class="kit-loading mono">LOADING YOUR KITCHEN&hellip;</p>
+  <!-- forum.js renders everything below: the thread list and any account arrive
+       asynchronously from Supabase, so there's nothing honest to put here yet. -->
+  <main class="kitchen" id="forum">
+    <p class="kit-loading mono">LOADING THE FORUM&hellip;</p>
   </main>
 
   <footer class="footer">
-    <p class="mono">MYSE — PREVIEW · BILLING NOT YET LIVE · RECIPE DATA IS ILLUSTRATIVE.
-    IF AN ALLERGY IS SEVERE, ALWAYS VERIFY EVERY LABEL YOURSELF.</p>
+    <p class="mono">MYSE — PREVIEW · POSTS ARE PUBLIC · BE KIND. NOTHING HERE IS MEDICAL ADVICE.</p>
     <p class="mono"><a href="legal.html">PRIVACY &amp; AFFILIATE DISCLOSURE &rarr;</a></p>
   </footer>
 
-  <script src="recipes.js?v=9"></script>
-  <script src="subscription.js?v=7"></script>
-  <script src="nutrition.js?v=3"></script>
   <script src="store.js?v=7"></script>
-  <script src="plus-ui.js?v=5"></script>
   <script src="auth.js?v=9"></script>
-  <script src="moderation.js?v=3"></script>
-  <script src="community-ui.js?v=2"></script>
   <script src="native.js?v=4"></script>
-  <!-- See index.html's comment — same reasoning, same ordering requirement. -->
-  <script src="recipe-sync.js?v=2"></script>
-  <script src="profile.js?v=13"></script>
+  <script src="moderation.js?v=3"></script>
+  <script src="forum.js?v=2"></script>
 </body>
 </html>

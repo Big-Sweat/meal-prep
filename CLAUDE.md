@@ -22,13 +22,24 @@ in rough sync when you change the workflow described here.
 
 **The site**
 - `index.html` — the recipe library (the home page). Wires up the filter rail,
-  results grid, search box, and three `<dialog>` modals (recipe, weekly plan,
-  sign-in). The Plus dialog is NOT here — `plus-ui.js` builds it on first open;
-  the old pre-print ad interstitial was deleted (see below).
+  results grid, search box, and four `<dialog>` modals (recipe, weekly plan,
+  sign-in, and the page-turn `ad-interstitial`). The Plus dialog is NOT here —
+  `plus-ui.js` builds it on first open. (The *old pre-print* interstitial was
+  deleted; the page-turn one that ships now is a different slot — see **Ads**.)
+  Carries the only `.mast-meta` colophon left (VOL. 02 / count / allergen tags)
+  and the nav's two action buttons — see **Navigation** below.
 - `styles.css` — all styling. Editorial "prep board" look (see the design doc).
-- `app.js` — all **board** behavior (~1200 lines, one IIFE, `"use strict"`):
+- `app.js` — all **board** behavior (~2300 lines, one IIFE, `"use strict"`):
   filtering, rendering, serving-scale math with proper fractions, the recipe
-  modal, the persisted weekly plan + combined shopping list, and live search.
+  modal, the persisted weekly plan + combined shopping list, live search, and
+  **community recipes** (user-submitted, fetched by `store.js` and merged into
+  `RECIPES` on `onCommunity`). They're **mixed into the board** alongside house
+  recipes and flagged with a `.card-flag` COMMUNITY stamp (`state.communityOnly`
+  is an optional filter, like favOnly, to show just them). Because they live in
+  `RECIPES`, the modal/plan/reviews/PDF all work on them unchanged — the merge
+  rebuilds `HAYSTACKS` and, unlike a house-only board, `loadPlan()` no longer
+  prunes unknown ids (a community recipe planned before the async fetch lands
+  must survive, not be erased).
   Constants at the top (`PROTEINS`, `MEALS`, `SUGGEST_CANDIDATES`) define the
   filter chips; `ALLERGENS` comes from `store.js` because the profile page needs
   the same list. The recipe modal's **"Substitute protein?"** picker doesn't just
@@ -60,7 +71,14 @@ in rough sync when you change the workflow described here.
   devices and survives a cache wipe — same shape as `isPlus()`, a sync cache
   reconciled against an async authority. Public rating aggregates load for
   signed-out visitors too (`loadSummaries`); reviews are fetched per recipe on
-  modal open (`fetchRecipeSocial`). Tables + RLS live in `supabase/migrations/`
+  modal open (`fetchRecipeSocial`). **Community recipes** ride the same rails:
+  `loadCommunity` fetches the world-readable list (auto-hidden past a report
+  threshold) and fires `onCommunity`; `publishRecipe`/`updateRecipe`/
+  `deleteRecipe`/`reportRecipe`/`myRecipes` are the author-scoped writes (photo
+  uploads go to a Supabase Storage bucket). **The forum** rides the same rails:
+  `loadForumThreads` (list + reply-count meta, fires `onForum`), `fetchThread`
+  (a thread's replies), and `createThread`/`createReply`/`deleteThread`/
+  `deleteReply`/`reportForum`. Tables + RLS live in `supabase/migrations/`
   (see **Profile backend** below). With `SUPABASE_URL` empty it falls back to
   the old browser-only demo layer, unchanged.
 - `plus-ui.js` — `MisePlusUI`: the upgrade dialog, **shared by every page** so
@@ -70,13 +88,39 @@ in rough sync when you change the workflow described here.
   after a purchase. It subscribes to `MiseSub.onChange`, so an entitlement change
   from *anywhere* redraws — including, once step 4 of `subscription.js` is done,
   a real billing SDK's callback or a store-side refund.
+- `community-ui.js` — `MiseCommunityUI`: the **community-recipe** submit/edit
+  form and the report dialog — a self-building `<dialog>` shared by the board and
+  the profile page (same lazy-build pattern as `plus-ui.js`). Downscales an
+  uploaded photo to WebP in-browser (canvas, ≤1280px longest side, which also
+  strips EXIF) before upload. On a successful publish it fires a
+  `mise:recipe-published` DOM event so the open page switches to the Community
+  view. Posting is free but needs an account; it no-ops without a signed-in
+  Supabase backend. Must be in `sync-web.js`'s FILES list to ship in the apps.
+- `moderation.js` — `MiseModeration`: the shared banned-word check (hate slurs +
+  profanity) that **blocks** on match in recipe text, forum posts, and display
+  names. `check(text)`/`checkAll(...)` return the offending match or null;
+  whole-word + a light leetspeak fold (a$$/sh1t/f4g). **This is only the client
+  UX gate** — the real fence is the `has_banned_word()` DB trigger (anon key is
+  public, so a raw POST bypasses the client). **Its `BODY` word list is
+  duplicated in `supabase/migrations/20260719000002_content_moderation.sql` —
+  keep the two in sync** (SQL uses `\y` for `\b`, otherwise identical). Loaded on
+  index/profile/forum before community-ui.js/forum.js; in `sync-web.js` FILES.
 - `profile.html` / `profile.js` — **"your kitchen": the per-account page.**
   Standing allergies, the calorie target, favorites, and your ratings/reviews.
-  The masthead's "HI, NAME →" goes here when signed in. See the profile-page
-  section below.
+  Reached from the nav's YOUR KITCHEN on any page, or the board's "HI, NAME →"
+  when signed in. See the profile-page section below.
 - `log.html` / `log.js` — **"the log": weight, lifts and runs.** Free. Does not
   load `recipes.js` (no use for 448KB of recipe data here). See the log section
   below.
+- `forum.html` / `forum.js` — **the forum: discuss meal prep + the fitness
+  journey.** A standalone page like the log — renders into `#forum`, loads
+  `store.js`+`auth.js` (no `recipes.js`, no `app.js`). Threads + flat replies from
+  Supabase via `MiseStore` (`loadForumThreads`/`fetchThread`/`createThread`/
+  `createReply`/…), navigated by hash (`forum.html#t-<id>` opens a thread).
+  **Reading is public; posting needs an account, and the first sign-in is on the
+  board** (auth.js's OAuth redirect is the site root — same constraint as
+  profile.html), so a signed-out visitor gets a "sign in from the board" prompt.
+  Instant post + report + auto-hide moderation, same as community recipes.
 - `progress.js` — `MiseProgress`: the log's maths. Pure, no DOM, no storage —
   same deal as `nutrition.js`, and for the same reason. **Checked by
   `node tools/test-progress.js` (37 assertions, no dependencies) — run it if you
@@ -118,17 +162,35 @@ in rough sync when you change the workflow described here.
   (−92%, no visible loss since cards render ~400px and the modal ~810px).
   Run it on any photo you add.
 
+- `legal.html` — standalone "Privacy & Disclosures" page, linked from every
+  footer. Static content (no app.js): privacy (what Supabase stores when signed
+  in, that ratings/reviews are public, the account-deletion right), the
+  affiliate/FTC disclosures, a Myse Plus terms section, and a not-medical-advice
+  section. **Keep it in step with what actually ships** — it's the site's only
+  privacy statement.
+
 **Prep-gear page (affiliate)**
-- `products.html` — standalone "Prep Gear" page (linked from the masthead).
+- `products.html` — standalone "Prep Gear" page (a nav section).
   Renders `PRODUCTS` inline; no app.js needed.
 - `products.js` — `PRODUCTS` (gear grouped by category) plus `productUrl()`.
   Links are Amazon searches tagged with `AFFILIATE_TAG`. **Monetization:**
-  replace `AFFILIATE_TAG` with a real Amazon Associates tag to activate.
+  replace `AFFILIATE_TAG` with a real Amazon Associates tag to activate. While
+  it's the placeholder, `productUrl()` omits the `tag=` param rather than ship a
+  dead affiliate id.
+
+**Grocery hand-off (from the weekly plan)**
+- `grocery.js` — `MiseGrocery`: turns the plan's combined shopping list into a
+  store hand-off three ways — Instacart (POSTs the line-items to the proxy
+  below, gets a pre-filled-cart URL back), Walmart (per-item search links,
+  optionally wrapped in an Impact affiliate template), and Amazon Fresh (tagged
+  per-item searches). All three are empty-constant/demo until their id is set
+  (`INSTACART_ENDPOINT`, `WALMART_IMPACT`, `AMAZON_TAG`); with none set it falls
+  back to copy-the-list. Reached from inside the plan modal, so it's Plus-gated.
 
 **Ads**
-- `ads.js` — config for the "before you print" interstitial. While
-  `NETWORK_AD_HTML` is empty, the slot shows *house ads* (two random picks from
-  `PRODUCTS`). Paste an ad-network embed into `NETWORK_AD_HTML` to run real ads.
+- `ads.js` — `NETWORK_AD_HTML`, the shared embed for **both** ad placements.
+  While it's empty they show *house ads* (a pick from `PRODUCTS`); paste an
+  ad-network embed to run real ads in both. See **Ads (two placements)** below.
 
 **Subscription (Mise Plus) — the paid tier**
 - `subscription.js` — `MiseSub`, the entitlement authority. **`isPlus()` is the
@@ -159,10 +221,12 @@ in rough sync when you change the workflow described here.
   products + a RevenueCat project whose entitlement id is `plus`; the
   `subscription.js` header is the runbook. Billing can be tested on a sideloaded
   debug APK once those exist — license testers bypass the install-source check.
-- **One ad slot only:** the in-feed `SPONSORED` ticket every `AD_EVERY` (12)
-  recipes in `render()`, honouring `NETWORK_AD_HTML`. The old pre-print
-  interstitial was deleted — print is Plus-only and Plus removes ads, so it was
-  unreachable. Don't reintroduce it without changing that logic.
+- **Ads (two placements), both suppressed for Plus and both honouring
+  `NETWORK_AD_HTML`:** (1) the in-feed `SPONSORED` ticket every `AD_EVERY` (12)
+  recipes in `render()`, and (2) the page-turn `ad-interstitial` a free reader
+  meets on "Next" (fires every turn, by product decision — Jul 2026). *Separate
+  from* the old **pre-print** interstitial, which was deleted and must not come
+  back (print is Plus-only and Plus removes ads, so it was unreachable).
 
 **App download links**
 - `apps.js` — `IOS_APP_URL` / `ANDROID_APP_URL`. Both empty as of Jul 2026
@@ -196,18 +260,39 @@ in rough sync when you change the workflow described here.
   many words. Never delete it on lapse — nobody should have to retype their body.
 
 **The profile page ("your kitchen") — `profile.html` + `profile.js`**
-- Four sections plus an identity card: **standing allergies**, the **calorie
-  target**, **favorites**, and **your ratings & reviews**. Reached from the
-  masthead ("HI, NAME →") when signed in.
+- Five sections plus an identity card: **standing allergies**, the **calorie
+  target**, **favorites**, **your recipes** (the community recipes you've posted,
+  with edit/delete — real-auth only, via `MiseStore.myRecipes`), and **your
+  ratings & reviews**. Reached from the nav (YOUR KITCHEN) on every page, and
+  from the board's "HI, NAME →" when signed in.
 - **The page is free and needs only an account** — only the calorie card is
   gated. Do not wall the page: favorites, reviews and accounts are free forever,
   and an account is what a purchase restores into, so a wall here would strand
   the purchase it exists to recover.
-- **Sign-in deliberately stays on the board.** `auth.js` sends OAuth back to
-  `window.location.pathname`, and Supabase's redirect allowlist is configured
-  for the site root — a sign-in button here would bounce off it. Signed out, the
-  page just points at the board; **sign-out redirects there** rather than
-  leaving a dead page.
+- **The sign-in dialog deliberately stays on the board.** `auth.js` sends OAuth
+  back to `window.location.pathname`, and Supabase's redirect allowlist is
+  configured for the site root — a *dialog* here would bounce off it. **Sign-out
+  redirects there** rather than leaving a dead page.
+- **Signed out, the page still offers a "Sign in" button — it hands off.** It
+  links to `index.html?signin=1&next=profile.html`; `app.js` opens the dialog on
+  arrival and sends them back here once they're in. (`log.html` does the same
+  with `next=log.html`.) The hand-off lives in **`app.js`, outside the
+  `if (realAuth)` gate** so it works in demo mode too, and:
+  - `next` is parked in **sessionStorage**, not carried in the URL, because the
+    OAuth round-trip drops the query string entirely (`redirectTo` is
+    `origin + pathname`) — this is what makes Google and email land in the same
+    place.
+  - It is matched against a **fixed list of the site's own pages**. A raw
+    `?next=` would be an open redirect; a hostile one is dropped while
+    `signin=1` is still honoured, so the worst a crafted link does is open the
+    real sign-in dialog.
+  - It is **stamped and expires after 10 minutes**, and is cleared when the
+    dialog closes unused. The clock is not belt-and-braces: abandoning at
+    Google's consent screen navigates the page away so **no `close` event ever
+    fires**, and without it that destination would hijack an unrelated sign-in
+    later in the same tab.
+  - The button is **not shown when auth is unreachable** — the `unreachable`
+    branch already says so, and a sign-in button there would just fail.
 - Supabase resolves **asynchronously**, so the page renders a loading state
   first and `MiseAuth.onChange` drives the real render. There's an 8s timeout
   that says "can't reach the sign-in service" rather than spinning forever —
@@ -294,8 +379,9 @@ in rough sync when you change the workflow described here.
   the error variant uses an amber accent, **not `--chile`** (reserved for
   allergens).
   **Account deletion** lives here too: `deleteAccount()` invokes the
-  `delete-account` Edge Function (see below) — the only server-side code in the
-  project, because removing a Supabase auth user needs the admin key, which must
+  `delete-account` Edge Function (see below) — one of the project's two
+  server-side pieces (the other is `instacart-proxy/`), because removing a
+  Supabase auth user needs the admin key, which must
   never reach the browser. The profile page's danger zone deletes the auth user
   FIRST (that call is authorized by the live session), then wipes local data via
   `MiseStore.deleteUserData(who)` and signs out; a failed server call deletes
@@ -312,6 +398,15 @@ in rough sync when you change the workflow described here.
   `verify_jwt = false` for this function is deliberate (lets the CORS preflight
   through; the function verifies the token itself). If the project migrates off
   legacy keys later, see the README's note about setting the admin key explicitly.
+- `instacart-proxy/` — the project's **second** server-side piece: a small
+  Cloudflare Worker (`worker.js` + `wrangler.toml` + `README.md`), deployed with
+  `wrangler`, **not** part of the static bundle. It exists only to hold the
+  secret Instacart API key server-side: `grocery.js` POSTs it a shopping list,
+  it forwards to Instacart with the key and returns the cart URL, storing
+  nothing. Security is an origin allowlist that **rejects** unknown origins (a
+  browser-only CORS header doesn't stop `curl`), plus body/item/name caps and
+  per-field sanitization; add a Cloudflare rate-limiting rule before wiring
+  `INSTACART_ENDPOINT` in `grocery.js`. Inert until that endpoint is set.
 
 **Profile backend (Supabase Postgres) — `supabase/migrations/`**
 - `20260718000000_profile_backend.sql` — 6 tables + a public aggregate view that
@@ -321,6 +416,30 @@ in rough sync when you change the workflow described here.
   for cheap board aggregates). Applied to the live project via the SQL editor;
   the file is the checked-in record. **Idempotent** (drops each policy before
   recreating) — safe to re-run.
+- `20260719000000_community_recipes.sql` — **community recipes.** `user_recipes`
+  (world-readable via an RLS policy that auto-hides a recipe once 3 distinct users
+  report it, owner-writable), `recipe_reports` (author-private; reporter identity
+  never leaks — the count is read through a `security definer`
+  `community_report_count(id)` so the read policy can consult it without granting
+  anyone `select` on the table), and the **`recipe-photos` Storage bucket** +
+  policies (public read; a user writes only under their own `<uid>/` folder).
+  Same idempotent, run-in-the-SQL-editor deal. **The bucket must exist for photo
+  uploads** — the migration creates it. Until this is applied, `loadCommunity`
+  gets a "table not found" error, swallows it, and the board runs house-only.
+- `20260719000001_forum.sql` — **the forum.** `forum_threads` + `forum_replies`
+  (flat; both world-readable with the same auto-hide-past-3-reports RLS,
+  author-writable), `forum_reports` (author-private; count read via
+  `security definer` `forum_report_count(kind, id)`), and `forum_thread_meta`
+  (a `security_invoker` view: reply count + last activity per thread, for the
+  list). Same idempotent SQL-editor deal. Until applied, `loadForumThreads` gets
+  a "table not found" error, swallows it, and the forum shows empty.
+- `20260719000002_content_moderation.sql` — **content moderation.** The
+  `has_banned_word()` function (whole-word + leetspeak match against a slur/
+  profanity pattern) plus BEFORE INSERT/UPDATE triggers on `user_recipes`,
+  `forum_threads`, `forum_replies` that reject (SQLSTATE 23514) banned content in
+  the author name, recipe object, or thread/reply text. **The real enforcement**
+  (the client `moderation.js` check is bypassable). **Its pattern is duplicated in
+  `moderation.js`'s `BODY` — keep in sync.** Idempotent SQL-editor deal.
 - **Security is RLS-only** — the anon key is public, so the policies are the
   whole fence. Private tables: owner-only (`auth.uid() = user_id`), and the anon
   role's default grants are **revoked** so a signed-out request hard-denies
@@ -343,7 +462,8 @@ in rough sync when you change the workflow described here.
   copies the web files into `app/www/` (gitignored) and `npm run sync` then runs
   `cap sync` for both. **If you add a new top-level web file, add it to that
   script's `FILES` allowlist or it won't ship in the apps.**
-  - `app/android/` — **built and verified** on Android 16. Build output is
+  - `app/android/` — **built and verified** on Android 15 (API 35, a TCL
+    T513V). Build output is
     redirected outside OneDrive (see `app/README.md`; OneDrive locks `build/`
     and breaks rebuilds).
   - `app/ios/` — **scaffolded but never compiled**: Apple only allows iOS builds
@@ -362,18 +482,82 @@ in rough sync when you change the workflow described here.
 
 **Docs / meta**
 - `README.md` — public-facing readme (recipe count is patched by the tool).
+- `AGENTS.md` — short mirror of this file for other agent tools; keep in sync.
+- `HANDOFF.md` — running session-to-session status note (what's live vs
+  demo/empty-constant, accounts Jake has, traps). **CLAUDE.md is the authority**;
+  HANDOFF is a snapshot and goes stale — re-fetch git before trusting it.
+- `AUDIT.md` — the 18 Jul 2026 whole-site audit checklist (findings + which
+  waves fixed what).
 - `recipe-inbox/links.md` — drop-box for recipe URLs (see below).
 - `tools/add-recipes.js` — the recipe-ingest tool (see below).
 
+## Navigation — one band, all six pages
+
+`<nav class="mainnav">` sits directly under the masthead on **every** HTML file
+and is **plain static markup — no JS, no shared module**. Five sections, always
+in this order: THE RECIPES · THE FORUM · THE LOG · YOUR KITCHEN · PREP GEAR.
+`legal.html` is reachable from the footer only, so it carries the band with no
+item marked.
+
+- **Adding or renaming a section means editing all six files.** There is no
+  `nav.js` on purpose: gating would drag `auth.js` onto `products.html` and
+  `legal.html`, which load no JS at all today. Keep the block identical.
+- **Mark the current page with `aria-current="page"`** — that attribute *is* the
+  styling hook, so a missing one is both an a11y and a visual bug. Subpages no
+  longer carry a `.mast-meta` page-name chip; the marker says it instead.
+- **The current page wears the card tape** — manila, Permanent Marker, the same
+  −1.6deg tilt as the protein flag on a recipe ticket, and it shrinks with them
+  under 768px so both read as one roll of tape. Every nav label is therefore
+  wrapped in a `<span>`: the tape styles the span so the strip hugs the words
+  instead of filling the 44px touch target. **Keep the span** — without it the
+  tape becomes a 44px manila slab, and `display: inline-block` on it is what
+  makes the tilt and vertical padding apply at all.
+- **Hover is bold + ink** (`font-weight: 700`), and `:focus-visible` gets the
+  identical treatment — the affordance shouldn't depend on owning a mouse. The
+  current page is excluded: it's a marker, not a target, and its tape is
+  Permanent Marker, which has no bold but would happily be faked into a smear.
+- **Weight 700 is in every page's IBM Plex Mono request for that hover alone.**
+  The sheet otherwise tops out at 500, and a synthesised bold smears at 11px.
+  **If the hover style ever changes, drop `;700` from the font URL in all six
+  files** rather than shipping a font nobody renders. Plex Mono is monospaced,
+  so 400 → 700 holds the same advance width and the links either side don't
+  shift — a proportional face here would reflow the row on every hover.
+- Known, measured, and deliberately not fixed: the 700 face **lazy-loads**, so
+  the first nav hover of a first-ever visit briefly renders the Courier New
+  fallback (different metrics, so it shifts) until the woff2 lands. After that
+  it's an HTTP-cache read and imperceptible. The fixes are worse than the bug —
+  a `<link rel="preload">` needs a hardcoded gstatic URL that Google rotates
+  (stale = a 404 plus the flash back), and warming it with a hidden glyph
+  injects a stray character into the a11y tree.
+- **Nothing in the nav is gated.** The log, the forum and your kitchen each
+  render their own signed-out state — the log and your kitchen with a **Sign in**
+  button that hands off to the board and comes back (see the profile-page
+  section) — so a signed-out visitor sees what's there. THE LOG used to be
+  hidden until sign-in — that made a *free* feature invisible to exactly the
+  people who hadn't signed up. Don't re-hide it.
+- **Sections are plain text; only actions are boxed** (`.mast-link`). That split
+  is the whole point: eight look-alike bordered chips in `.mast-meta` were what
+  made the top right unreadable. Don't put a link back in the colophon.
+- **The two action buttons live only on `index.html`** — SHARE A RECIPE
+  (`app.js` unhides it once signed in) and `#auth-btn`, because the sign-in
+  dialog is on the board (`auth.js` redirects OAuth to the site root).
+- Mobile: `.nav-sections` is `display: contents` so links and actions wrap as
+  one flow; it becomes a real flex row at 768px. Don't give the actions their
+  own row back — that cost 127px of nav above the first recipe.
+
 ## Cache-busting — do not skip this
 
-Asset links in `index.html`, `products.html`, `profile.html` and `log.html`
-carry `?v=N` query strings, e.g. `app.js?v=22`, `styles.css?v=19`. GitHub Pages sets long
+Asset links in `index.html`, `products.html`, `profile.html`, `log.html`,
+`forum.html` and `legal.html` carry `?v=N` query strings (e.g. `app.js?v=37`,
+`styles.css?v=35`).
+GitHub Pages sets long
 cache headers, so **if you change a file, bump its `?v=N` everywhere it's
 referenced**, or returning visitors get a stale cache (this has caused real
 breakage — a stale `recipes.js` against fresh HTML). Note `styles.css` is
-referenced from **all four** HTML files — keep the versions in step. The
-recipe tool bumps `recipes.js?v=` for you; everything else is manual.
+referenced from **all six** HTML files (index, profile, log, products, legal,
+forum) — keep the versions in step. The recipe tool bumps `recipes.js?v=` for you (in
+both `index.html` and `profile.html`, which both load it); everything else is
+manual.
 
 This bites *during local testing too*, not just in production: a plain reload
 will happily re-run a cached `.js` while the server has your new one, so a fix
@@ -440,8 +624,10 @@ it:
    re-interleaves the library by protein, rewrites `recipes.js` **and
    `recipes.json`** (same data, so they can't drift — the JSON file is what
    lets an already-installed app pick up the new recipes; see `recipe-sync.js`),
-   and patches the counts + bumps `recipes.js?v=` in `index.html` and the
-   counts in `README.md`. **Fix anything it rejects rather than forcing it** —
+   and patches the counts + bumps `recipes.js?v=` in **`index.html` and
+   `profile.html`** (both load it) and the counts in `README.md`. It also
+   enforces a unit whitelist and per-batch id/name uniqueness, and type-checks
+   the numeric fields. **Fix anything it rejects rather than forcing it** —
    it writes nothing if any check fails.
 6. Verify in a browser (count went up, the new recipes open, filters catch their
    allergens), then move the processed links in `links.md` from **To add** to

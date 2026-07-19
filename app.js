@@ -1,4 +1,4 @@
-/* Mise — meal-prep recipe library */
+/* Myse — meal-prep recipe library */
 (function () {
   "use strict";
 
@@ -238,6 +238,9 @@
     maxDifficulty: 3,
     query: "",
     favOnly: false,
+    // Community recipes are mixed into the board by default (flagged on the card).
+    // This optional filter, like favOnly, narrows to just the user-submitted ones.
+    communityOnly: false,
     // The board paginates by default; `paged: false` is the "show everything on
     // one long scroll" view. `page` is 1-based and only meaningful when paged.
     paged: true,
@@ -268,7 +271,8 @@
       t: state.terms.slice().sort(),
       d: state.maxDifficulty,
       q: state.query,
-      f: state.favOnly
+      f: state.favOnly,
+      c: state.communityOnly
     });
   }
 
@@ -303,15 +307,27 @@
     MiseStore.upsertReview(who(), profile.name, id, text, myRating(id) || null);
   }
 
-  // one lowercase haystack per recipe: name, description, cuisine, tags, ingredients
+  // The built-in library, captured before any community recipe is merged in.
+  // applyCommunity rebuilds RECIPES = HOUSE_RECIPES.concat(community), so a
+  // recipe deleted or auto-hidden on Supabase drops cleanly back out on the
+  // next sync rather than sticking around from an incremental append.
+  var HOUSE_RECIPES = RECIPES.slice();
+
+  // one lowercase haystack per recipe: name, description, cuisine, tags,
+  // ingredients. Rebuilt (not just appended to) after a community merge, or a
+  // recipe added to RECIPES afterward has no entry and matches() throws on it.
   var HAYSTACKS = {};
-  RECIPES.forEach(function (r) {
-    HAYSTACKS[r.id] = (
-      r.name + " " + r.description + " " + r.cuisine + " " +
-      (r.tags || []).join(" ") + " " +
-      r.ingredients.map(function (i) { return i.item; }).join(" ")
-    ).toLowerCase();
-  });
+  function buildHaystacks() {
+    HAYSTACKS = {};
+    RECIPES.forEach(function (r) {
+      HAYSTACKS[r.id] = (
+        r.name + " " + r.description + " " + r.cuisine + " " +
+        (r.tags || []).join(" ") + " " +
+        r.ingredients.map(function (i) { return i.item; }).join(" ")
+      ).toLowerCase();
+    });
+  }
+  buildHaystacks();
 
   var DIFF_WORDS = { 1: "easy", 2: "moderate", 3: "involved" };
   var DIFF_OUT = { 1: "easy only", 2: "up to moderate", 3: "any effort" };
@@ -326,9 +342,11 @@
     var m = new Map();
     try {
       JSON.parse(localStorage.getItem(PLAN_KEY) || "[]").forEach(function (e) {
-        if (RECIPES.some(function (r) { return r.id === e.id; })) {
-          m.set(e.id, Math.max(1, Math.min(12, parseInt(e.servings, 10) || 4)));
-        }
+        // Keep every stored id, even one not (yet) in RECIPES — a community
+        // recipe planned last visit may not have arrived from Supabase yet.
+        // planEntries() filters unresolved ids at render time, so nothing shows
+        // before it loads; pruning here (then re-saving) would erase it for good.
+        if (e && e.id) m.set(String(e.id), Math.max(1, Math.min(12, parseInt(e.servings, 10) || 4)));
       });
     } catch (e) { /* private mode etc. — plan just won't persist */ }
     return m;
@@ -348,6 +366,7 @@
   var countEl = $("#count");
   var mobileCountEl = $("#mobile-count");
   var emptyEl = $("#empty");
+  var EMPTY_HTML = emptyEl ? emptyEl.innerHTML : "";   // house empty state, restored after a community view
   var pagerEl = $("#pager");
   var railEl = $("#filter-rail");
   var modalEl = $("#recipe-modal");
@@ -355,6 +374,7 @@
   var badgeEl = $("#filter-count-badge");
   var clearBtn = $("#clear-all");
   var openerBtn = null; // element to restore focus to after modal closes
+  var openRecipe = null; // recipe shown in the modal right now (null when closed)
   var firstRender = true;
 
   /* ---------- quantity formatting ---------- */
@@ -401,6 +421,9 @@
   }
 
   function matches(r) {
+    // Community recipes are mixed in with house recipes by default; the optional
+    // "community only" filter narrows to just them.
+    if (state.communityOnly && r.source !== "community") return false;
     if (state.favOnly && !favs.has(r.id)) return false;
     if (state.goals.size && !Array.from(state.goals).some(function (goal) {
       return matchesGoal(r, goal);
@@ -442,7 +465,7 @@
       if (standingAllergies.indexOf(id) === -1) extraAllergies++;
     });
     return state.goals.size + state.meals.size + extraAllergies + state.proteins.size + state.terms.length +
-      (state.maxDifficulty < 3 ? 1 : 0) + (state.favOnly ? 1 : 0);
+      (state.maxDifficulty < 3 ? 1 : 0) + (state.favOnly ? 1 : 0) + (state.communityOnly ? 1 : 0);
   }
 
   /* ---------- rendering ---------- */
@@ -459,9 +482,10 @@
   }
 
   function recipeImageSrc(r) {
-    // WebP, not PNG: same pixels, ~92% smaller. Cards/modal hide the frame via
-    // the img onerror handler for recipes with no photo.
-    return "assets/recipes/" + r.id + ".webp";
+    // A community recipe carries its own uploaded photo URL; house recipes derive
+    // the path from the id. WebP either way (same pixels, ~92% smaller); cards
+    // and the modal hide the frame via the img onerror handler when there's none.
+    return r.photoUrl || "assets/recipes/" + r.id + ".webp";
   }
 
   function macroSummaryHTML(r, className, estimated) {
@@ -492,13 +516,15 @@
       ? "<span>&#9733; " + rating.avg + "</span><span class=\"sep\">/</span>"
       : "";
     var isFav = favs.has(r.id);
+    var community = r.source === "community";
     return (
-      '<li class="card">' +
+      '<li class="card' + (community ? " card--community" : "") + '">' +
         '<span class="tape mono" aria-hidden="true">' + esc(proteinLabel(r.protein)).toUpperCase() + "</span>" +
         '<div class="card-photo">' +
           '<img src="' + esc(recipeImageSrc(r)) + '" alt="' + esc(r.name) + '" loading="lazy" onerror="this.parentElement.hidden=true">' +
         "</div>" +
         '<h3><button class="card-btn" data-id="' + esc(r.id) + '">' + esc(r.name) + "</button></h3>" +
+        (community ? '<p class="card-byline mono"><span class="card-flag">COMMUNITY</span> BY ' + esc(String(r.author || "A COOK")).toUpperCase() + "</p>" : "") +
         '<p class="card-desc">' + esc(r.description) + "</p>" +
         macroSummaryHTML(r, "card-nutrition") +
         '<p class="card-meta">' +
@@ -526,9 +552,9 @@
   // get none of these; see subscription.js.
   var AD_EVERY = 12;
 
-  // This is now the only ad slot on the site, so it is also where a real ad
-  // network lands: set NETWORK_AD_HTML in ads.js and it renders that embed
-  // instead of a house ad.
+  // One of the two ad slots (the other is the page-turn interstitial below);
+  // both render a real network embed when NETWORK_AD_HTML is set in ads.js,
+  // otherwise a house ad.
   function adCardHTML() {
     if (typeof NETWORK_AD_HTML !== "undefined" && NETWORK_AD_HTML) {
       return (
@@ -603,6 +629,21 @@
       ? (startIdx + 1) + "–" + (startIdx + pageItems.length) + " of " + visible.length
       : visible.length + " of " + RECIPES.length;
     emptyEl.hidden = visible.length !== 0;
+    if (visible.length === 0) {
+      // The "community only" filter with nothing in it invites sharing rather
+      // than showing the "your allergy filters stay put" copy, which doesn't apply.
+      if (state.communityOnly) {
+        emptyEl.innerHTML =
+          '<span class="tape tape-empty mono">NO COMMUNITY RECIPES YET</span>' +
+          "<p>Be the first to share one. " +
+          (profile
+            ? '<button type="button" class="empty-share-btn" data-share-recipe>Post a recipe &rarr;</button>'
+            : "Sign in from the header, then look for &ldquo;Share a recipe&rdquo;.") +
+          "</p>";
+      } else {
+        emptyEl.innerHTML = EMPTY_HTML;
+      }
+    }
 
     renderPager(totalPages, visible.length);
 
@@ -1334,9 +1375,22 @@
   function openModal(r, servingsOverride) {
     var servings = servingsOverride || state.servings;
     var currentRecipe = r;
+    openRecipe = r;
     var contains = r.allergens.length
       ? "CONTAINS: " + r.allergens.join(" · ").toUpperCase()
       : "NO MAJOR ALLERGENS";
+
+    // Community recipes get author controls (edit/delete) or, for everyone else
+    // signed in, a Report button. All no-ops for house recipes.
+    var isAuthor = r.source === "community" && !!(profile && profile.id) && r.userId === profile.id;
+    var canReport = r.source === "community" && !!(profile && profile.id) && !isAuthor;
+    var communityActionsHTML =
+      (isAuthor
+        ? '<button class="plan-tool" id="modal-edit" type="button">EDIT</button>' +
+          '<button class="plan-tool plan-tool--danger" id="modal-delete" type="button">DELETE</button>'
+        : canReport
+          ? '<button class="plan-tool plan-tool--report" id="modal-report" type="button">&#9873; REPORT</button>'
+          : "");
 
     modalBody.innerHTML =
       '<div class="modal-top">' +
@@ -1362,6 +1416,7 @@
               '<path d="M6 14h12v7H6z" />' +
             "</svg>" +
           "</button>" +
+          communityActionsHTML +
           '<button class="modal-close" id="modal-close" aria-label="Close recipe">&times;</button>' +
         "</div>" +
       "</div>" +
@@ -1369,10 +1424,18 @@
         '<img src="' + esc(recipeImageSrc(r)) + '" alt="' + esc(r.name) + '" onerror="this.parentElement.hidden=true">' +
       "</div>" +
       '<h2 id="modal-title">' + esc(r.name) + "</h2>" +
+      (r.source === "community"
+        ? '<p class="modal-byline mono"><span class="card-flag">COMMUNITY</span> SHARED BY ' + esc(String(r.author || "A COOK")).toUpperCase() + "</p>"
+        : "") +
       '<p class="modal-desc" id="m-description">' + esc(r.description) + "</p>" +
       '<div id="m-macros">' + macroSummaryHTML(r, "modal-nutrition") + "</div>" +
       '<p class="modal-stats" id="m-stats">' + statsHTML(r) + "</p>" +
       '<p id="m-contains" class="modal-contains' + (r.allergens.length ? "" : " none") + '">' + esc(contains) + "</p>" +
+      (r.source === "community"
+        ? '<p class="community-note">Community recipe — nutrition and allergen info are ' +
+          'self-declared by the author and <strong>not verified</strong>. If an allergy is ' +
+          'severe, check every ingredient yourself.</p>'
+        : "") +
       '<div class="protein-swap">' +
         '<label for="protein-swap">Substitute protein?</label>' +
         '<select id="protein-swap">' +
@@ -1462,6 +1525,9 @@
        recipe and redraw the modal when they land. Works signed out too (the
        ratings/reviews tables are world-readable). */
     MiseStore.fetchRecipeSocial(r.id, function () {
+      // The response can land after this modal closed or a different recipe
+      // opened — never paint recipe A's reviews into recipe B.
+      if (!modalEl.open || !openRecipe || openRecipe.id !== r.id) return;
       renderModalRating(r.id);
       renderReviews(r.id);
     });
@@ -1514,6 +1580,34 @@
       if (requirePlus()) return;
       MisePDF.download(recipeToPDFModel(currentRecipe, mServings), r.id + ".pdf");
     });
+
+    // Community: report someone else's recipe, or edit/delete your own.
+    if (canReport) {
+      var reportBtn = $("#modal-report");
+      if (reportBtn) reportBtn.addEventListener("click", function () {
+        if (typeof MiseCommunityUI !== "undefined") MiseCommunityUI.openReport(r.id);
+      });
+    }
+    if (isAuthor) {
+      var editBtn = $("#modal-edit");
+      if (editBtn) editBtn.addEventListener("click", function () {
+        if (typeof MiseCommunityUI === "undefined") return;
+        modalEl.close();
+        MiseCommunityUI.open(r);
+      });
+      var deleteBtn = $("#modal-delete");
+      if (deleteBtn) deleteBtn.addEventListener("click", function () {
+        if (!window.confirm("Delete this recipe? It's removed for everyone, and can't be undone.")) return;
+        deleteBtn.disabled = true;
+        MiseStore.deleteRecipe(who(), r.id, function (err) {
+          if (err) { deleteBtn.disabled = false; showToast("Couldn't delete that", "Try again in a moment.", "error"); return; }
+          modalEl.close();
+          showToast("Recipe deleted", "It's gone from the board.");
+          // deleteRecipe refreshes the community list, which re-renders the board.
+        });
+      });
+    }
+
     modalEl.showModal();
     modalEl.scrollTop = 0;
   }
@@ -1525,6 +1619,7 @@
 
   modalEl.addEventListener("close", function () {
     modalBody.innerHTML = "";
+    openRecipe = null;
     if (openerBtn && document.contains(openerBtn)) openerBtn.focus();
     openerBtn = null;
   });
@@ -1577,17 +1672,43 @@
       host.innerHTML = list.map(function (rv) {
         var n = Math.max(0, Math.min(5, parseInt(rv.stars, 10) || 0));
         var stars = n ? "&#9733;".repeat(n) + '<span class="review-stars-off">' + "&#9734;".repeat(5 - n) + "</span>" : "";
+        // Length caps mirror the DB constraints — a hostile row PATCHed past
+        // the form's maxlength must not flood every visitor's modal.
         return '<div class="review">' +
           '<p class="review-head mono">' +
             (stars ? '<span class="review-stars">' + stars + "</span> " : "") +
-            esc(rv.author.toUpperCase()) + " &middot; " + esc(rv.date) +
+            esc(String(rv.author).slice(0, 80).toUpperCase()) + " &middot; " + esc(rv.date) +
           "</p>" +
-          '<p class="review-text">' + esc(rv.text) + "</p>" +
+          '<p class="review-text">' + esc(String(rv.text).slice(0, 1000)) + "</p>" +
         "</div>";
       }).join("");
     }
     $("#review-form").hidden = !profile;
     $("#review-signin").hidden = !!profile;
+  }
+
+  /* Sign-in resolves AFTER a hash-opened modal is already up (the Supabase SDK
+     loads async and always loses that race), so auth state has to reach INTO
+     the open modal — the grid re-render can't. Repaints the social section
+     (stars, reviews, fav state) and re-issues the shared-social fetch, which
+     no-oped pre-auth because the client didn't exist yet. Called from the
+     auth/onSync handlers below; harmless when no modal is open. */
+  function refreshModalSocial() {
+    if (!modalEl.open || !openRecipe) return;
+    var id = openRecipe.id;
+    renderModalRating(id);
+    renderReviews(id);
+    var fav = $("#modal-fav");
+    if (fav) {
+      var on = favs.has(id);
+      fav.innerHTML = on ? "&#9829; SAVED" : "&#9825; SAVE";
+      fav.setAttribute("aria-pressed", String(on));
+    }
+    MiseStore.fetchRecipeSocial(id, function () {
+      if (!modalEl.open || !openRecipe || openRecipe.id !== id) return;
+      renderModalRating(id);
+      renderReviews(id);
+    });
   }
 
   /* ---------- auth + favorites UI ---------- */
@@ -1609,11 +1730,19 @@
     var reset = $("#auth-reset"), newpass = $("#auth-newpass");
     if (reset) reset.hidden = view !== "reset";
     if (newpass) newpass.hidden = view !== "newpass";
-    var logLink = $("#log-link");
-    if (logLink) logLink.hidden = !profile;   // no account, nothing to log against
+    // The log is no longer hidden when signed out: it's a nav section now, and
+    // log.html renders its own "sign in from the board" state. Hiding it made
+    // a free feature invisible to exactly the people who hadn't signed up.
+    // Every "share a recipe" entry (nav + rail) — posting needs an account.
+    var shareEls = document.querySelectorAll(".js-share-entry");
+    for (var i = 0; i < shareEls.length; i++) shareEls[i].hidden = !profile;
   }
 
   function openAuth() {
+    // Already signed in: every view in this dialog hides itself, so opening it
+    // would show an empty shell (the pre-auth "sign in to review" button used
+    // to dead-end here when clicked after auth had resolved).
+    if (profile) return;
     // Always open on the main sign-in view with no stale messages, even if the
     // dialog was last closed on the reset or new-password step.
     ["#auth-error", "#reset-msg", "#newpass-msg"].forEach(function (id) {
@@ -1698,6 +1827,84 @@
     if (e.target === authModal) authModal.close();
   });
 
+  /* ---------- "sign in" arriving from another page ----------
+     The sign-in dialog only exists on the board: auth.js sends OAuth back to
+     window.location.pathname and Supabase's redirect allowlist is the site
+     root, so a dialog on profile.html/log.html would bounce off it. Those pages
+     link here with ?signin=1&next=<page> instead, and this opens the dialog and
+     sends the visitor back where they came from once they're in.
+
+     `next` is parked in sessionStorage because the OAuth round-trip drops the
+     query string entirely (redirectTo is origin + pathname), so email and
+     Google sign-in both return to the same place. It's matched against a fixed
+     list of the site's own pages — a raw ?next= would otherwise be an open
+     redirect. Lives outside the realAuth gate below so it works in demo mode
+     too, where the same dialog asks for a name. */
+  var NEXT_PAGES = ["profile.html", "log.html", "forum.html", "products.html", "legal.html"];
+  var NEXT_KEY = "mise-signin-next";
+
+  /* Stamped, because the close handler below can't be the only thing that
+     expires this. Abandoning at the Google consent screen navigates the page
+     away, so no close event ever fires — without a clock, that destination
+     would sit here and hijack some unrelated sign-in an hour later. Ten minutes
+     is far longer than an OAuth round-trip and far shorter than a browsing
+     session. */
+  var NEXT_TTL_MS = 10 * 60 * 1000;
+
+  function stashNext(page) {
+    if (NEXT_PAGES.indexOf(page) === -1) return;      // not one of ours: ignore
+    try {
+      sessionStorage.setItem(NEXT_KEY, JSON.stringify({ page: page, at: Date.now() }));
+    } catch (e) {}
+  }
+
+  /* Reads and clears in one go — a destination must never survive to fire on
+     some unrelated sign-in later in this tab. */
+  function takeNext() {
+    var raw = null;
+    try {
+      raw = sessionStorage.getItem(NEXT_KEY);
+      sessionStorage.removeItem(NEXT_KEY);
+    } catch (e) {}
+    if (!raw) return null;
+    var v;
+    try { v = JSON.parse(raw); } catch (e) { return null; }
+    if (!v || NEXT_PAGES.indexOf(v.page) === -1) return null;
+    if (!v.at || Date.now() - v.at > NEXT_TTL_MS) return null;
+    return v.page;
+  }
+
+  function goToPendingNext() {
+    var n = takeNext();
+    if (!n) return false;
+    // replace(), not href: the board was a waypoint, not somewhere they chose
+    // to be, so it shouldn't sit in history between their page and itself.
+    window.location.replace(n);
+    return true;
+  }
+
+  (function () {
+    // MiseAuth snapshots the URL before Supabase's init strips it; in demo mode
+    // there's no SDK to strip anything, so the live URL is fine.
+    var search = (typeof MiseAuth !== "undefined" && MiseAuth.landingSearch)
+      ? MiseAuth.landingSearch() : window.location.search;
+    var q = new URLSearchParams(search);
+    if (q.get("signin") !== "1") return;
+    stashNext(q.get("next"));
+    if (window.history && window.history.replaceState) {
+      window.history.replaceState(null, document.title, window.location.pathname);
+    }
+    // Opens on whatever profile is known right now (null this early). If auth
+    // then resolves to a real session, onChange closes it and redirects.
+    openAuth();
+  })();
+
+  authModal.addEventListener("close", function () {
+    // Closed without signing in — they changed their mind, so drop the
+    // destination rather than springing it on them later.
+    if (!profile) takeNext();
+  });
+
   $("#auth-form").addEventListener("submit", function (e) {
     e.preventDefault();
     var name = $("#auth-name").value.trim();
@@ -1709,6 +1916,8 @@
     updateAuthUI();
     render();
     authModal.close();
+    // Came from "sign in" on another page: take them back to it.
+    goToPendingNext();
   });
 
   /* ---------- real auth (Supabase) wiring ---------- */
@@ -1763,16 +1972,27 @@
         "error");
     }
 
+    var lastAuthUid; // undefined until the first auth event lands
     MiseAuth.onChange(function (user) {
       profile = user ? { id: user.id, name: user.name, email: user.email } : null;
-      if (!profile) {
-        state.favOnly = false;
-        favChip.setAttribute("aria-pressed", "false");
-      }
-      loadFavs();
-      applyStandingAllergies();  // per-account, so they arrive with the session
+      var uid = profile ? profile.id : null;
+      var uidChanged = uid !== lastAuthUid;
+      lastAuthUid = uid;
       updateAuthUI();
-      render();
+      if (uidChanged) {
+        // An actual sign-in or sign-out. Everything below is per-account
+        // state; same-uid events (hourly TOKEN_REFRESHED, SIGNED_IN on tab
+        // refocus) must not reach it — they used to wipe session filter chips
+        // and re-deal the board mid-browse.
+        if (!profile) {
+          state.favOnly = false;
+          favChip.setAttribute("aria-pressed", "false");
+        }
+        loadFavs();
+        applyStandingAllergies();  // per-account, so they arrive with the session
+        render();
+        refreshModalSocial();      // a hash-opened modal predates this sign-in
+      }
       if (profile && authModal.open) authModal.close();
       // The code exchange that signs them in is the confirmation completing.
       if (confirmPending && profile) {
@@ -1780,15 +2000,32 @@
         cleanUrl();
         showToast("Email confirmed!", "You're signed in as " + profile.name + ".");
       }
+      // Signed in after arriving from another page's "sign in" — go back to it.
+      // Gated on uidChanged so a token refresh can't bounce someone off the
+      // board mid-browse, and left until after the toast above so an email
+      // confirmation still gets to say so before we navigate.
+      if (profile && uidChanged) goToPendingNext();
     });
 
     /* Sign-in renders immediately from whatever's cached; hydrate() then pulls
        this account's rows from Supabase and fires onSync, so re-load favorites
-       and standing allergies and redraw with the real data. */
+       and standing allergies and redraw with the real data. (Signed-out, the
+       only onSync is the public rating summaries landing — that must not touch
+       the session's allergy chips, so the baseline reset is gated on who().) */
     MiseStore.onSync(function () {
+      // hydrate() only runs for a signed-in user, so if the MiseAuth.onChange
+      // event was missed or delayed (a cold CDN can drop it), adopt the account
+      // here — otherwise a signed-in visitor keeps the SIGN IN masthead AND,
+      // more importantly, their standing allergies never get applied.
+      var u = MiseAuth.user && MiseAuth.user();
+      if (u && u.id && !profile) {
+        profile = { id: u.id, name: u.name, email: u.email };
+        updateAuthUI();
+      }
       loadFavs();
-      applyStandingAllergies();
+      if (who()) applyStandingAllergies();
       render();
+      refreshModalSocial();
     });
 
     $("#auth-mode-toggle").addEventListener("click", function () {
@@ -1928,6 +2165,40 @@
     state.favOnly = !state.favOnly;
     favChip.setAttribute("aria-pressed", String(state.favOnly));
     render();
+  });
+
+  /* The "community only" filter toggle. Browsing community recipes is free and
+     needs no account, so no sign-in gate here (posting one does — see below). */
+  var communityChip = $("#community-chip");
+  function syncCommunityChip() {
+    if (!communityChip) return;
+    communityChip.setAttribute("aria-pressed", String(state.communityOnly));
+  }
+  if (communityChip) {
+    communityChip.addEventListener("click", function () {
+      state.communityOnly = !state.communityOnly;
+      syncCommunityChip();
+      render();
+    });
+  }
+
+  /* "Share a recipe" entry points (masthead link, empty-state button) all carry
+     data-share-recipe. Posting needs an account, so a signed-out click routes to
+     sign-in — where a new poster restores to anyway. */
+  document.addEventListener("click", function (e) {
+    var t = e.target.closest && e.target.closest("[data-share-recipe]");
+    if (!t) return;
+    e.preventDefault();
+    if (!profile) { openAuth(); return; }
+    if (typeof MiseCommunityUI !== "undefined") MiseCommunityUI.open();
+  });
+
+  /* community-ui.js fires this after a successful publish/edit. store.js has
+     already refreshed the public list (onCommunity redraws the board once it
+     lands, with the new recipe mixed in and flagged); just confirm with a toast. */
+  document.addEventListener("mise:recipe-published", function (e) {
+    var edited = e.detail && e.detail.editing;
+    showToast(edited ? "Recipe updated" : "Recipe shared", "It's live on the board, flagged as a community recipe.");
   });
 
   /* ---------- standing allergies ---------- */
@@ -2121,7 +2392,7 @@
       btn.disabled = true;
       btn.textContent = "Building your cart…";
       setStoreStatus("Sending your list to Instacart…");
-      MiseGrocery.buildInstacartCart("Mise — your week’s groceries", list.lineItems)
+      MiseGrocery.buildInstacartCart("Myse — your week’s groceries", list.lineItems)
         .then(function (url) {
           window.open(url, "_blank", "noopener");
           setStoreStatus("Your Instacart cart is ready — opened in a new tab.");
@@ -2219,7 +2490,7 @@
       // only reachable behind the plan gate, but belt and braces
       if (requirePlus()) return;
       if (window.MiseNative && MiseNative.isNative) {
-        MiseNative.shareText("Mise — the week's plan", planAsText());
+        MiseNative.shareText("Myse — the week's plan", planAsText());
       } else {
         window.print();
       }
@@ -2352,6 +2623,7 @@
     state.proteins.clear();
     state.terms = [];
     state.favOnly = false;
+    state.communityOnly = false;
     state.query = "";
     searchInput.value = "";
     searchClear.hidden = true;
@@ -2366,6 +2638,7 @@
     // survive "clear all filters". Clearing the board should never be the thing
     // that serves someone the food they can't eat.
     applyStandingAllergies();
+    syncCommunityChip();
     renderTermChips();
     render();
   });
@@ -2504,20 +2777,72 @@
      the real ticket here. Inbound only — no pushState on every modal open,
      which would put a history entry between the board and the back button that
      native.js relies on. */
+  // Set once we've actually OPENED the modal for the current hash, so a later
+  // applyCommunity() re-run (community list landing, or a publish/edit/delete)
+  // can't reopen a modal the user has since closed. It stays null while the hash
+  // id is present but unresolved — the community-deep-link case — so the retry
+  // after the async merge still fires exactly once, when the recipe finally loads.
+  var hashOpened = null;
   function openFromHash() {
     var id = (window.location.hash || "").replace(/^#/, "");
-    if (!id) return;
+    if (!id || id === hashOpened) return;
     var r = RECIPES.find(function (x) { return x.id === id; });
-    if (r) openModal(r);
+    if (r) { hashOpened = id; openModal(r); }
   }
 
+  /* ---------- community recipes: merge into the board ----------
+     store.js loads the world-readable list (signed in or out) and fires
+     onCommunity. We rebuild RECIPES as HOUSE_RECIPES + the validated, de-duped
+     community set — a wholesale rebuild, so a recipe deleted or auto-hidden on
+     the server drops out on the next sync instead of lingering — then bring the
+     search index, board, any open modal and the plan back into step. */
+  function applyCommunity(list, networkLoaded) {
+    if (!Array.isArray(list)) list = [];
+    var taken = {};
+    HOUSE_RECIPES.forEach(function (r) { taken[r.id] = 1; });
+    var extra = [];
+    list.forEach(function (r) {
+      if (!r || !r.id) return;
+      if (!/^[a-z0-9-]+$/.test(r.id)) return;   // ids flow into URLs, data-attrs and storage keys
+      if (taken[r.id]) return;                  // house wins a collision; no duplicate ids
+      taken[r.id] = 1;
+      extra.push(r);
+    });
+    RECIPES = HOUSE_RECIPES.concat(extra);
+    buildHaystacks();
+
+    // Only after a real server load do we know an unresolved plan id is gone for
+    // good (deleted / auto-hidden) rather than just not-fetched-yet — reconcile
+    // then, so the plan bar count and shopping list can't stick on a ghost.
+    if (networkLoaded) {
+      var changed = false;
+      Array.from(plan.keys()).forEach(function (id) {
+        if (!RECIPES.some(function (x) { return x.id === id; })) { plan.delete(id); changed = true; }
+      });
+      if (changed) savePlan();
+    }
+
+    render();
+    updatePlanUI();
+    if (modalEl.open && openRecipe) refreshModalSocial();
+    if (planModal && planModal.open) renderPlanBody();
+    if (!modalEl.open) openFromHash();   // a #community-id link that no-oped before can open now
+  }
+
+  MiseStore.onCommunity(function () { applyCommunity(MiseStore.community(), true); });
+
   applyStandingAllergies();
+  syncCommunityChip();
   render();
   updatePlanUI();
   updateAuthUI();
   renderAppLinks();
   renderAppBanner();
   openFromHash();
+
+  // Instant paint from a prior session's cache, before the network load lands.
+  var cachedCommunity = MiseStore.community();
+  if (cachedCommunity.length) applyCommunity(cachedCommunity, false);
 
   /* Just deleted an account? The profile page sends us back here with a marker,
      in either auth mode. Say goodbye once, then strip it so a refresh (or a

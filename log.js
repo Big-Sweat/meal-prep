@@ -1,4 +1,4 @@
-/* Mise — the log page.
+/* Myse — the log page.
  *
  * Weight, lifts and runs. Shares its data through store.js, its maths through
  * progress.js, and its paywall through plus-ui.js. app.js is not loaded here
@@ -219,8 +219,13 @@
               "you may be offline. The recipes themselves work without a connection.</p>"
           : "<h2>You&rsquo;re not signed in</h2>" +
             '<p class="kit-empty-line">The log keeps your weigh-ins, lifts and runs, and it&rsquo;s free. ' +
-              "Sign in from the board to start one.</p>") +
-        '<a class="kit-cta" href="index.html">&larr; Back to the recipes</a>' +
+              "Sign in to start one.</p>") +
+        '<div class="kit-ctas">' +
+          // Same hand-off as the profile page — see the note there.
+          (unreachable ? "" :
+            '<a class="kit-cta" href="index.html?signin=1&amp;next=log.html">Sign in</a>') +
+          '<a class="kit-cta kit-cta--ghost" href="index.html">&larr; Back to the recipes</a>' +
+        "</div>" +
       "</div>";
   }
 
@@ -279,9 +284,11 @@
      on a plain page load. Without that, this card can show a target computed
      from a weight someone typed into their profile weeks ago while claiming
      the target follows their weigh-ins — the page would be contradicting
-     itself. Once you're logging, the log is what you weigh; type a different
-     number in the profile and the next weigh-in wins, which is the promise.
-     Idempotent, so calling it on every render costs a no-op write at worst. */
+     itself. Once you're logging, the log is what you weigh: opening this page
+     re-points the profile weight at your newest weigh-in (so a number typed
+     straight into the profile is superseded the next time the log renders).
+     syncNutritionWeight now early-returns when the weight already matches, so
+     this is genuinely a no-op when nothing changed. */
   function maybeSyncWeight() {
     var ws = MiseStore.logOfType(me(), "weight");
     if (!ws.length) return;
@@ -584,24 +591,32 @@
       "</ul>";
   }
 
-  // Two presses, same as the review delete: nothing here is recoverable.
+  // Two presses, same as the review delete: a deletion syncs to the server, so
+  // it can't be undone. Re-locks on blur AND on a timer (blur never fires for a
+  // tapped button on iOS, which would leave it primed indefinitely).
   function wireDelete(sectionSel, after) {
     host.querySelectorAll(sectionSel + " [data-del]").forEach(function (b) {
+      var armTimer;
+      function disarm() {
+        clearTimeout(armTimer);
+        b.setAttribute("data-armed", "no");
+        b.classList.remove("kit-review-del--arm");
+        b.textContent = "DELETE";
+      }
       b.addEventListener("click", function () {
         if (this.getAttribute("data-armed") !== "yes") {
           this.setAttribute("data-armed", "yes");
           this.classList.add("kit-review-del--arm");
           this.textContent = "SURE?";
+          clearTimeout(armTimer);
+          armTimer = setTimeout(disarm, 4000);
           return;
         }
+        clearTimeout(armTimer);
         MiseStore.removeLogEntry(me(), this.getAttribute("data-del"));
         after();
       });
-      b.addEventListener("blur", function () {
-        this.setAttribute("data-armed", "no");
-        this.classList.remove("kit-review-del--arm");
-        this.textContent = "DELETE";
-      });
+      b.addEventListener("blur", disarm);
     });
   }
 
@@ -615,10 +630,22 @@
     MiseAuth.onChange(function (user) {
       account = user ? { id: user.id, name: user.name, email: user.email } : null;
       ready = true;
+      unreachable = false;   // auth answered after all — clear a fired timeout
       render();
     });
-    // hydrate() pulls the log from Supabase after sign-in and fires onSync — redraw.
-    MiseStore.onSync(function () { render(); });
+    // hydrate() pulls the log from Supabase after sign-in and fires onSync —
+    // redraw. hydrate only runs for a signed-in user, so if onChange was missed
+    // or delayed (a cold CDN can drop the event, leaving this stuck on the 8s
+    // "can't reach" state), adopt the resolved account here.
+    MiseStore.onSync(function () {
+      var u = MiseAuth.user && MiseAuth.user();
+      if (u && u.id && !account) {
+        account = { id: u.id, name: u.name, email: u.email };
+        ready = true;
+        unreachable = false;
+      }
+      render();
+    });
     setTimeout(function () {
       if (ready) return;
       ready = true;

@@ -7,8 +7,8 @@
   <meta name="description" content="How Myse handles your data, and how its affiliate links work.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&family=Permanent+Marker&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=35">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500;700&family=Permanent+Marker&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=47">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='2' y='11' width='28' height='10' rx='1' fill='%23EAD9A8' transform='rotate(-6 16 16)'/%3E%3C/svg%3E">
 </head>
 <body>
@@ -20,21 +20,35 @@
         <p class="mast-line">Privacy &amp; disclosures. What Myse stores, what it sends where, and
         how the links that keep it free actually work &mdash; in plain language.</p>
       </div>
-      <div class="mast-meta mono">
-        <span>PRIVACY &amp; DISCLOSURES</span>
-        <a class="mast-link" href="index.html">&larr; BACK TO THE RECIPES</a>
-      </div>
     </div>
   </header>
 
+  <!-- Every section, on every page, in this order. Nothing here is gated:
+       the log, the forum and your kitchen each render their own signed-out
+       state (the log and your kitchen offer a Sign in button that hands off to
+       the board and comes back), so a visitor can see what's there instead
+       of the section being invisible to exactly the people who haven't
+       signed up yet. Keep this block in step across all six HTML files. -->
+  <nav class="mainnav" aria-label="Sections">
+    <div class="mainnav-inner">
+      <div class="nav-sections">
+        <a class="nav-link" href="index.html"><span>THE RECIPES</span></a>
+        <a class="nav-link" href="forum.html"><span>THE FORUM</span></a>
+        <a class="nav-link" href="log.html"><span>THE LOG</span></a>
+        <a class="nav-link" href="profile.html"><span>YOUR KITCHEN</span></a>
+        <a class="nav-link" href="products.html"><span>PREP GEAR</span></a>
+      </div>
+    </div>
+  </nav>
+
   <main class="legal-main">
-    <p class="legal-updated">Last updated: 17 July 2026</p>
+    <p class="legal-updated">Last updated: 19 July 2026</p>
 
     <h2>Affiliate disclosure</h2>
     <p>Myse is free. Some links to grocery stores and prep gear are <strong>affiliate
     links</strong>: if you buy through one, Myse may earn a small commission, at
     <strong>no extra cost to you</strong>. It never changes your price, and it never
-    changes which recipes or products we show you &mdash; we only link the stores and
+    changes which recipes or products appear &mdash; Myse only links the stores and
     gear a meal-prep kitchen genuinely uses.</p>
     <p class="legal-amazon">As an Amazon Associate, I earn from qualifying purchases.</p>
     <p>Myse also participates in the Walmart affiliate program (through the Impact
@@ -43,26 +57,36 @@
     Myse.</p>
 
     <h2>What Myse stores about you</h2>
-    <p>Myse is a static website with no server of its own for your recipe activity.
-    Almost everything you do stays <strong>in your own browser</strong>, in local
-    storage on your device:</p>
+    <p><strong>Signed out</strong>, everything you do stays in your own browser, in
+    local storage on your device. It is not sent to Myse, and clearing your
+    browser's site data removes it.</p>
+    <p><strong>Signed in</strong>, the things that belong to your account are also
+    stored in Myse's database (hosted by Supabase), so they can follow you across
+    devices and survive a cleared browser:</p>
     <ul>
-      <li>your favorites, ratings, and reviews;</li>
-      <li>your weekly plan and its shopping list;</li>
-      <li>your standing allergies;</li>
+      <li>your favorites and standing allergies;</li>
       <li>your nutrition profile (the height, weight, age, sex, and goal used to
       estimate a calorie target) and your log of weight, lifts, and runs;</li>
-      <li>your display name and whether Myse Plus is active on this device.</li>
+      <li>your ratings and reviews;</li>
+      <li>any recipes you post to the Community board, and their photos;</li>
+      <li>any threads and replies you post to the forum.</li>
     </ul>
-    <p>This information is not sent to Myse, and clearing your browser's site data
-    removes it.</p>
+    <p><strong>Ratings, reviews, Community recipes, and forum posts are public:</strong>
+    the star average is shown to every visitor, and a review, a recipe, or a forum
+    post you write appears under the display name on your account, along with any
+    photo you add. Everything else in the list is private to you — the database only
+    ever answers for the signed-in account that owns the rows.</p>
+    <p>Two things stay in the browser only, even signed in: your weekly plan (and
+    its shopping list) and whether Myse Plus is active on this device.</p>
+    <p>Clearing your browser does <strong>not</strong> remove what's stored with
+    your account — deleting the account does (see &ldquo;Your choices&rdquo;).</p>
 
     <h2>When data does leave your device</h2>
     <ul>
-      <li><strong>Signing in.</strong> Myse offers an optional account. If email or
-      social (Google/Apple) sign-in is enabled, it is handled by a third-party
-      authentication provider, Supabase, which processes your email address to sign
-      you in. If you never sign in, this doesn't apply.</li>
+      <li><strong>Signing in.</strong> Accounts are handled by Supabase, which
+      processes your email address (and, for Google or Apple sign-in, the name and
+      email those providers share) to sign you in, and hosts the account data
+      listed above. If you never sign in, none of this applies.</li>
       <li><strong>Building an Instacart cart.</strong> If you use &ldquo;Build my
       Instacart cart,&rdquo; the ingredient names from your shopping list are sent to
       Instacart (through a small proxy service) so it can create the cart. Nothing
@@ -75,13 +99,63 @@
     <p>Myse does not serve third-party advertising networks, and it does not sell your
     personal information.</p>
 
+    <h2>Community recipes</h2>
+    <p>Signed in, you can post your own recipes to the Community board. Anything you
+    post is <strong>public</strong>: the recipe, its photo, and your account's
+    display name are shown to every visitor, and other people can review, favorite,
+    and plan it. Its nutrition and allergen information is <strong>self-declared by
+    whoever posted it, and is not verified by Myse</strong> &mdash; treat community
+    recipes accordingly, and if an allergy is severe, check every ingredient
+    yourself.</p>
+    <p>Only post recipes and photos you have the right to share, and nothing
+    unlawful, offensive, or infringing someone else's copyright. Recipe text and
+    display names are automatically screened, and anything containing hate speech
+    or profanity is rejected before it's posted. You can delete a recipe you posted
+    at any time from your profile, which removes it and its photo for everyone. Any
+    signed-in visitor can report a recipe, and one that draws enough reports is
+    automatically hidden from the board pending review; Myse may also remove a
+    recipe that breaks these rules. Photos are stored in Supabase Storage and are
+    resized in your browser before upload, which also strips location and other
+    embedded metadata.</p>
+
+    <h2>Community forum</h2>
+    <p>The forum is public. Threads and replies you post are shown to every visitor
+    under your account's display name, and reading them needs no account. The same
+    rules apply as for community recipes: don't post anything unlawful, offensive,
+    or infringing; you can delete your own posts at any time; any signed-in visitor
+    can report a thread or reply, and one that draws enough reports is automatically
+    hidden pending review; and Myse may remove anything that breaks these rules. The
+    forum is for support and discussion, not medical advice &mdash; be kind, and see
+    a professional for guidance on your health.</p>
+
+    <h2>Myse Plus</h2>
+    <p>Myse Plus is an optional paid tier ($2.99/month with a 14-day free trial, or
+    $29.99 once) that unlocks printing, PDF export, the weekly plan view, and the
+    calorie target, and removes sponsored tickets. In the mobile apps, billing is
+    handled by the app store you subscribed through &mdash; cancellation and
+    refunds follow that store's rules, and cancelling stops future charges without
+    deleting your account or anything you've saved. In the current demo build no
+    real payment is taken.</p>
+
+    <h2>Not medical advice</h2>
+    <p>The calorie target is an estimate from a population equation, and the log is
+    a notebook, not a coach. Nothing on Myse is medical advice, and none of it
+    replaces a clinician or a registered dietitian &mdash; especially around weight
+    loss. Recipe and allergen data are illustrative: if an allergy is severe,
+    always verify every label yourself.</p>
+
     <h2>Children</h2>
     <p>Myse isn't directed to children, and its calorie-target tool deliberately
     refuses to compute a target for anyone under 18.</p>
 
     <h2>Your choices</h2>
     <p>You can use the whole site without an account, skip the store links entirely,
-    and clear your saved data at any time through your browser's settings. Blocking
+    and clear your browser-only data at any time through your browser's settings.
+    Signed in, <strong>Delete my account</strong> on the profile page permanently
+    removes the account and every server-side row that belongs to it &mdash;
+    favorites, allergies, nutrition profile, log, ratings, reviews, any Community
+    recipes you posted (and their photos), and your forum threads and replies.
+    Blocking
     cookies or third-party requests will still leave the recipes fully usable.</p>
 
     <h2>Changes &amp; contact</h2>
@@ -91,7 +165,7 @@
   </main>
 
   <footer class="footer">
-    <p class="mono">MYSE — DEMO BUILD · RECIPE DATA IS ILLUSTRATIVE.
+    <p class="mono">MYSE — PREVIEW · BILLING NOT YET LIVE · RECIPE DATA IS ILLUSTRATIVE.
     IF AN ALLERGY IS SEVERE, ALWAYS VERIFY EVERY LABEL YOURSELF.</p>
     <p class="mono"><a href="legal.html">PRIVACY &amp; AFFILIATE DISCLOSURE &rarr;</a></p>
   </footer>

@@ -7,8 +7,8 @@
   <meta name="description" content="Batch-cook recipes you can filter by allergy, protein, and ingredient, then scale to the servings you need.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&family=Permanent+Marker&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=35">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500;700&family=Permanent+Marker&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=47">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='2' y='11' width='28' height='10' rx='1' fill='%23EAD9A8' transform='rotate(-6 16 16)'/%3E%3C/svg%3E">
 </head>
 <body>
@@ -20,18 +20,40 @@
         <p class="mast-line">A meal-prep recipe library. Filter out what you can’t eat, filter in
         what you like, and scale every recipe to the week you’re cooking for.</p>
       </div>
+      <!-- Colophon only. Navigation lives in .mainnav below — mixing the two
+           here is what made the top right unreadable. -->
       <div class="mast-meta mono">
         <span>VOL. 02</span>
         <span>131 RECIPES</span>
         <span>BIG-9 ALLERGEN TAGS</span>
-        <a class="mast-link" href="products.html">PREP GEAR &rarr;</a>
-        <!-- Unhidden by app.js only when signed in: the log needs an account to
-             hang off, so pointing a signed-out visitor at it is a dead end. -->
-        <a id="log-link" class="mast-link" href="log.html" hidden>THE LOG &rarr;</a>
-        <button id="auth-btn" class="mast-link" type="button">SIGN IN</button>
       </div>
     </div>
   </header>
+
+  <!-- Every section, on every page, in this order. Nothing here is gated:
+       the log, the forum and your kitchen each render their own signed-out
+       state (the log and your kitchen offer a Sign in button that hands off to
+       the board and comes back), so a visitor can see what's there instead
+       of the section being invisible to exactly the people who haven't
+       signed up yet. Keep this block in step across all six HTML files. -->
+  <nav class="mainnav" aria-label="Sections">
+    <div class="mainnav-inner">
+      <div class="nav-sections">
+        <a class="nav-link" href="index.html" aria-current="page"><span>THE RECIPES</span></a>
+        <a class="nav-link" href="forum.html"><span>THE FORUM</span></a>
+        <a class="nav-link" href="log.html"><span>THE LOG</span></a>
+        <a class="nav-link" href="profile.html"><span>YOUR KITCHEN</span></a>
+        <a class="nav-link" href="products.html"><span>PREP GEAR</span></a>
+      </div>
+      <!-- Actions, not sections. Both live only on the board: the sign-in
+           dialog is here (auth.js redirects OAuth to the site root), and
+           app.js unhides SHARE A RECIPE once there's an account to post as. -->
+      <div class="nav-actions mono">
+        <button id="share-recipe-link" class="mast-link js-share-entry" type="button" data-share-recipe hidden>SHARE A RECIPE</button>
+        <button id="auth-btn" class="mast-link" type="button">SIGN IN</button>
+      </div>
+    </div>
+  </nav>
 
   <div class="mobile-bar">
     <button id="open-filters" class="mobile-filter-btn" aria-expanded="false" aria-controls="filter-rail">
@@ -62,6 +84,15 @@
         <legend class="mono">Favorites</legend>
         <p class="rail-hint">Recipes you've saved:</p>
         <button id="fav-chip" class="chip" type="button" aria-pressed="false">&hearts; Favorites only</button>
+      </fieldset>
+
+      <fieldset class="rail-group rail-group--community">
+        <legend class="mono">Community</legend>
+        <p class="rail-hint">Recipes shared by other cooks appear on the board, flagged.
+        Show only those:</p>
+        <button id="community-chip" class="chip chip--community" type="button" aria-pressed="false">&#9873; Community only</button>
+        <!-- Unhidden by app.js only when signed in. -->
+        <button class="community-share-link mono js-share-entry" type="button" data-share-recipe hidden>+ Share your own &rarr;</button>
       </fieldset>
 
       <fieldset class="rail-group rail-group--allergy">
@@ -148,7 +179,7 @@
     <!-- Rendered by app.js only when apps.js has a store URL. Stays out of the
          DOM entirely while nothing is published — no dead links. -->
     <section id="app-links" class="app-links" hidden aria-labelledby="app-links-title"></section>
-    <p class="mono">MYSE — DEMO BUILD · RECIPE DATA IS ILLUSTRATIVE.
+    <p class="mono">MYSE — PREVIEW · BILLING NOT YET LIVE · RECIPE DATA IS ILLUSTRATIVE.
     IF AN ALLERGY IS SEVERE, ALWAYS VERIFY EVERY LABEL YOURSELF.</p>
     <p class="mono"><a href="legal.html">PRIVACY &amp; AFFILIATE DISCLOSURE &rarr;</a></p>
   </footer>
@@ -248,24 +279,26 @@
     </div>
   </dialog>
 
-  <script src="recipes.js?v=8"></script>
-  <script src="products.js?v=1"></script>
-  <script src="grocery.js?v=1"></script>
+  <script src="recipes.js?v=9"></script>
+  <script src="products.js?v=2"></script>
+  <script src="grocery.js?v=2"></script>
   <script src="ads.js?v=2"></script>
-  <script src="apps.js?v=2"></script>
+  <script src="apps.js?v=3"></script>
   <script src="subscription.js?v=7"></script>
   <script src="nutrition.js?v=3"></script>
-  <script src="store.js?v=4"></script>
+  <script src="store.js?v=7"></script>
   <script src="plus-ui.js?v=5"></script>
-  <script src="auth.js?v=7"></script>
-  <script src="pdf.js?v=5"></script>
-  <script src="native.js?v=3"></script>
+  <script src="auth.js?v=9"></script>
+  <script src="moderation.js?v=3"></script>
+  <script src="community-ui.js?v=2"></script>
+  <script src="pdf.js?v=6"></script>
+  <script src="native.js?v=4"></script>
   <!-- Native apps only: quietly picks up recipes added to the site since this
        app was last built/reinstalled, applied on the NEXT open — never
        mid-session. See recipe-sync.js. Must load after native.js (needs
        MiseNative.isNative) and before app.js (swaps RECIPES before app.js
        reads it to build its search index). -->
-  <script src="recipe-sync.js?v=1"></script>
-  <script src="app.js?v=36"></script>
+  <script src="recipe-sync.js?v=2"></script>
+  <script src="app.js?v=44"></script>
 </body>
 </html>

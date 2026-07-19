@@ -9,15 +9,16 @@ var RECIPES = [
     "tags": [
       "gluten-free",
       "high-protein",
-      "mediterranean"
+      "mediterranean",
+      "freezer-friendly"
     ],
     "baseServings": 4,
     "prepMinutes": 25,
     "cookMinutes": 25,
-    "caloriesPerServing": 560,
-    "proteinGrams": 50,
-    "carbsGrams": 56,
-    "fatGrams": 15,
+    "caloriesPerServing": 650,
+    "proteinGrams": 54,
+    "carbsGrams": 60,
+    "fatGrams": 18,
     "fridgeDays": 4,
     "freezerFriendly": true,
     "allergens": [
@@ -135,7 +136,7 @@ var RECIPES = [
     "name": "Korean-Inspired Ground Beef Bowls with Quick-Pickled Cucumber",
     "description": "Sweet-savory ground beef seasoned with ginger, garlic, and sesame, served over short-grain rice with sharp quick-pickled cucumbers. The beef and rice reheat evenly while the cucumbers stay cold and crisp packed on the side.",
     "protein": "beef",
-    "cuisine": "Korean-inspired",
+    "cuisine": "Korean",
     "tags": [
       "gluten-free",
       "dairy-free",
@@ -278,7 +279,7 @@ var RECIPES = [
     "name": "Crispy Baked Tofu Peanut Noodle Bowls",
     "description": "Cornstarch-crusted tofu bakes up crisp while lo mein noodles and crunchy vegetables wait on the counter. The peanut-lime sauce is packed separately so the noodles stay springy and the tofu keeps its texture through the week.",
     "protein": "tofu",
-    "cuisine": "Thai-inspired",
+    "cuisine": "Thai",
     "tags": [
       "vegan",
       "dairy-free",
@@ -569,7 +570,7 @@ var RECIPES = [
     "tags": [
       "high-protein",
       "freezer-friendly",
-      "family-friendly"
+      "kid-friendly"
     ],
     "baseServings": 4,
     "prepMinutes": 20,
@@ -947,7 +948,8 @@ var RECIPES = [
       "vegan",
       "gluten-free",
       "dairy-free",
-      "high-protein"
+      "high-protein",
+      "freezer-friendly"
     ],
     "baseServings": 4,
     "prepMinutes": 25,
@@ -1447,7 +1449,7 @@ var RECIPES = [
     "name": "Sesame-Ginger Tofu with Soba Noodles and Edamame",
     "description": "Baked tofu glazed in a sesame-ginger dressing, tossed with cold soba noodles, edamame, and shredded cabbage. It is built to be eaten cold or at room temperature, so nothing suffers from a few days in the fridge.",
     "protein": "tofu",
-    "cuisine": "Japanese-inspired",
+    "cuisine": "Japanese",
     "tags": [
       "vegan",
       "dairy-free",
@@ -2368,7 +2370,8 @@ var RECIPES = [
       "dairy-free",
       "high-protein",
       "spicy",
-      "stir-fry"
+      "stir-fry",
+      "freezer-friendly"
     ],
     "baseServings": 4,
     "prepMinutes": 15,
@@ -3113,7 +3116,7 @@ var RECIPES = [
     "tags": [
       "high-protein",
       "one-pan",
-      "under-30-min",
+      "under-40-min",
       "dairy-free",
       "freezer-friendly"
     ],
@@ -3374,7 +3377,8 @@ var RECIPES = [
       "breakfast",
       "vegetarian",
       "gluten-free",
-      "low-carb"
+      "low-carb",
+      "freezer-friendly"
     ],
     "baseServings": 6,
     "prepMinutes": 15,
@@ -4382,7 +4386,8 @@ var RECIPES = [
       "vegetarian",
       "gluten-free",
       "dairy-free",
-      "high-fiber"
+      "high-fiber",
+      "freezer-friendly"
     ],
     "baseServings": 4,
     "prepMinutes": 20,
@@ -5059,7 +5064,8 @@ var RECIPES = [
       "dairy-free",
       "spicy",
       "high-protein",
-      "under-30-min"
+      "under-40-min",
+      "freezer-friendly"
     ],
     "baseServings": 4,
     "prepMinutes": 20,
@@ -5194,8 +5200,6 @@ var RECIPES = [
     "protein": "turkey",
     "cuisine": "Italian-American",
     "tags": [
-      "gluten-free",
-      "dairy-free",
       "one-pan",
       "freezer-friendly"
     ],
@@ -5208,14 +5212,20 @@ var RECIPES = [
     "fatGrams": 24,
     "fridgeDays": 4,
     "freezerFriendly": true,
-    "allergens": [],
+    "allergens": [
+      "dairy",
+      "wheat"
+    ],
     "ingredients": [
       {
         "qty": 1.5,
         "unit": "lb",
         "item": "italian turkey sausage links",
         "note": "sliced into rounds; check the label to confirm no wheat or dairy fillers",
-        "allergens": []
+        "allergens": [
+          "wheat",
+          "dairy"
+        ]
       },
       {
         "qty": 3,
@@ -5324,7 +5334,8 @@ var RECIPES = [
       "gluten-free",
       "dairy-free",
       "one-pan",
-      "high-protein"
+      "high-protein",
+      "freezer-friendly"
     ],
     "baseServings": 4,
     "prepMinutes": 20,
@@ -5432,7 +5443,7 @@ var RECIPES = [
     "name": "Coconut-Lime Shrimp with Jasmine Rice",
     "description": "Shrimp simmered briefly in a ginger-lime coconut sauce, portioned over jasmine rice with crisp snap peas. The generous sauce keeps the shrimp and rice from drying out on reheating.",
     "protein": "shrimp",
-    "cuisine": "Thai-inspired",
+    "cuisine": "Thai",
     "tags": [
       "gluten-free",
       "dairy-free",
@@ -5557,7 +5568,7 @@ var RECIPES = [
     "name": "Three-Bean Vegan Chili",
     "description": "A thick chili built on black, kidney, and pinto beans with smoked paprika and cumin. The flavor deepens after a day in the fridge, and it freezes without any change in texture.",
     "protein": "beans",
-    "cuisine": "tex-mex",
+    "cuisine": "Tex-Mex",
     "tags": [
       "vegan",
       "gluten-free",
@@ -5697,7 +5708,8 @@ var RECIPES = [
       "breakfast",
       "vegetarian",
       "dairy-free",
-      "one-pan"
+      "one-pan",
+      "freezer-friendly"
     ],
     "baseServings": 6,
     "prepMinutes": 15,
@@ -6047,7 +6059,8 @@ var RECIPES = [
     "tags": [
       "vegan",
       "gluten-free",
-      "dairy-free"
+      "dairy-free",
+      "freezer-friendly"
     ],
     "baseServings": 4,
     "prepMinutes": 25,
@@ -6580,7 +6593,7 @@ var RECIPES = [
     "name": "Lentil Bolognese with Spaghetti",
     "description": "Brown lentils simmered with a classic soffritto, tomato paste, and crushed tomatoes until the texture is close to a meat ragu. The sauce holds up well over several days and only gets better as it sits.",
     "protein": "beans",
-    "cuisine": "italian",
+    "cuisine": "Italian",
     "tags": [
       "vegan",
       "vegetarian",
@@ -6829,11 +6842,12 @@ var RECIPES = [
     "name": "Buffalo Chicken Bowls",
     "description": "Seared chicken tossed in buttery buffalo sauce over jasmine rice, with crunchy celery and carrots and a greek-yogurt ranch drizzle. The components hold up separately all week, and the sauce keeps the chicken moist through reheating.",
     "protein": "chicken",
-    "cuisine": "american",
+    "cuisine": "American",
     "tags": [
       "high-protein",
       "gluten-free",
-      "spicy"
+      "spicy",
+      "freezer-friendly"
     ],
     "baseServings": 4,
     "prepMinutes": 15,
@@ -7084,7 +7098,8 @@ var RECIPES = [
       "vegan",
       "gluten-free",
       "dairy-free",
-      "high-protein"
+      "high-protein",
+      "freezer-friendly"
     ],
     "baseServings": 4,
     "prepMinutes": 15,
@@ -7557,7 +7572,7 @@ var RECIPES = [
     "name": "Chana Masala with Basmati Rice",
     "description": "Chickpeas simmered in a spiced onion and tomato gravy, served over plain basmati rice. The gravy clings to the chickpeas after refrigeration and reheats evenly in the microwave.",
     "protein": "beans",
-    "cuisine": "indian",
+    "cuisine": "Indian",
     "tags": [
       "vegan",
       "gluten-free",
@@ -7801,7 +7816,7 @@ var RECIPES = [
     "name": "Chicken Tikka Masala with Basmati Rice",
     "description": "Yogurt-marinated chicken thighs simmered in a spiced tomato-cream sauce, served over basmati rice. Like most curries it tastes better on day two, and the sauce keeps the chicken from drying out in the microwave.",
     "protein": "chicken",
-    "cuisine": "indian",
+    "cuisine": "Indian",
     "tags": [
       "gluten-free",
       "high-protein",
@@ -7954,7 +7969,8 @@ var RECIPES = [
     "tags": [
       "dairy-free",
       "spicy",
-      "high-protein"
+      "high-protein",
+      "freezer-friendly"
     ],
     "baseServings": 4,
     "prepMinutes": 15,
@@ -8176,11 +8192,12 @@ var RECIPES = [
     "name": "Honey-Sriracha Salmon Bowls with Rice and Cucumber",
     "description": "Cubed salmon roasted in a sticky honey-sriracha-soy glaze, served over jasmine rice with quick-pickled cucumber and shredded carrot. The sauce clings to the salmon bites, so they reheat without drying out while the cucumber stays cold and crunchy on the side.",
     "protein": "fish",
-    "cuisine": "Asian-inspired",
+    "cuisine": "Asian",
     "tags": [
       "dairy-free",
       "high-protein",
-      "spicy"
+      "spicy",
+      "freezer-friendly"
     ],
     "baseServings": 4,
     "prepMinutes": 15,
@@ -8438,7 +8455,7 @@ var RECIPES = [
     "name": "Pork Egg-Roll-in-a-Bowl with Cabbage and Rice",
     "description": "Ground pork and shredded cabbage stir-fried with ginger, garlic, and sesame — the filling of an egg roll without the wrapper, served over rice. The cabbage stays pleasantly crisp-tender in the fridge rather than turning soggy.",
     "protein": "pork",
-    "cuisine": "chinese-american",
+    "cuisine": "Chinese-American",
     "tags": [
       "high-protein",
       "dairy-free",
@@ -8568,7 +8585,7 @@ var RECIPES = [
     "name": "Black Bean Enchilada Casserole",
     "description": "Layers of corn tortillas, spiced black beans, corn, enchilada sauce, and monterey jack baked in one dish. It cuts into neat squares once cooled, making it easy to portion and freeze.",
     "protein": "beans",
-    "cuisine": "mexican",
+    "cuisine": "Mexican",
     "tags": [
       "vegetarian",
       "gluten-free",
@@ -8795,12 +8812,13 @@ var RECIPES = [
     "name": "Chicken Fajita Bowls with Cilantro-Lime Rice",
     "description": "Sheet-pan chicken, bell peppers, and red onion in a smoky fajita spice blend, served over cilantro-lime rice. Everything roasts on one pan while the rice cooks, and it contains none of the big-9 allergens.",
     "protein": "chicken",
-    "cuisine": "tex-mex",
+    "cuisine": "Tex-Mex",
     "tags": [
       "gluten-free",
       "dairy-free",
       "high-protein",
-      "one-pan"
+      "one-pan",
+      "freezer-friendly"
     ],
     "baseServings": 4,
     "prepMinutes": 15,
@@ -9294,8 +9312,6 @@ var RECIPES = [
     "meal": "breakfast",
     "tags": [
       "breakfast",
-      "gluten-free",
-      "dairy-free",
       "high-protein"
     ],
     "baseServings": 4,
@@ -9308,15 +9324,20 @@ var RECIPES = [
     "fridgeDays": 4,
     "freezerFriendly": false,
     "allergens": [
-      "eggs"
+      "dairy",
+      "eggs",
+      "wheat"
     ],
     "ingredients": [
       {
         "qty": 1,
         "unit": "lb",
         "item": "pork breakfast sausage",
-        "note": null,
-        "allergens": []
+        "note": "check the label to confirm no wheat or dairy fillers",
+        "allergens": [
+          "wheat",
+          "dairy"
+        ]
       },
       {
         "qty": 1.5,
@@ -9385,7 +9406,7 @@ var RECIPES = [
     "name": "Tuscan White Bean and Kale Soup",
     "description": "Cannellini beans, tomatoes, and lacinato kale in a rosemary broth, partly mashed for body. Like most bean soups it tastes better on day two and freezes cleanly.",
     "protein": "beans",
-    "cuisine": "italian",
+    "cuisine": "Italian",
     "tags": [
       "vegan",
       "gluten-free",
@@ -9620,7 +9641,7 @@ var RECIPES = [
     "name": "Chicken Teriyaki with Broccoli and Rice",
     "description": "Chicken thighs glazed in a from-scratch teriyaki sauce with steamed broccoli and jasmine rice. Thigh meat and a cornstarch-thickened glaze both survive the microwave far better than a stir-fry with delicate vegetables.",
     "protein": "chicken",
-    "cuisine": "japanese",
+    "cuisine": "Japanese",
     "tags": [
       "high-protein",
       "dairy-free",
@@ -10137,10 +10158,9 @@ var RECIPES = [
     "meal": "breakfast",
     "tags": [
       "breakfast",
-      "gluten-free",
-      "dairy-free",
       "one-pan",
-      "spicy"
+      "spicy",
+      "freezer-friendly"
     ],
     "baseServings": 4,
     "prepMinutes": 15,
@@ -10151,14 +10171,20 @@ var RECIPES = [
     "fatGrams": 24,
     "fridgeDays": 4,
     "freezerFriendly": true,
-    "allergens": [],
+    "allergens": [
+      "dairy",
+      "wheat"
+    ],
     "ingredients": [
       {
         "qty": 12,
         "unit": "oz",
         "item": "fresh chorizo",
-        "note": "casings removed",
-        "allergens": []
+        "note": "casings removed; check the label to confirm no wheat or dairy fillers",
+        "allergens": [
+          "wheat",
+          "dairy"
+        ]
       },
       {
         "qty": 2,
@@ -10216,7 +10242,7 @@ var RECIPES = [
       "Stir in the poblano, onion, and garlic and cook 5 minutes more, then fold the chorizo back in.",
       "Season, scatter with cilantro, and portion into 4 containers."
     ],
-    "storageNote": "Keeps 4 days refrigerated; freezes up to 2 months.",
+    "storageNote": "Keeps 4 days refrigerated; freezes up to 2 months. Reheat in a skillet over medium heat to bring the crisp edges back — the microwave softens the chorizo.",
     "difficulty": 1
   },
   {
@@ -10361,7 +10387,8 @@ var RECIPES = [
       "breakfast",
       "gluten-free",
       "high-protein",
-      "under-40-min"
+      "under-40-min",
+      "freezer-friendly"
     ],
     "baseServings": 4,
     "prepMinutes": 10,
@@ -10447,7 +10474,7 @@ var RECIPES = [
     "name": "Pesto Chicken Pasta Salad",
     "description": "Cold fusilli tossed with seared chicken, basil pesto, mozzarella pearls, cherry tomatoes, and spinach. It is eaten straight from the fridge with no reheating, which makes it a reliable grab-and-go lunch.",
     "protein": "chicken",
-    "cuisine": "italian-american",
+    "cuisine": "Italian-American",
     "tags": [
       "high-protein",
       "cold-lunch",
@@ -10691,7 +10718,7 @@ var RECIPES = [
     "name": "Salmon Cakes with Lemon-Dill Yogurt over Quinoa",
     "description": "Pan-fried salmon cakes bound with panko and egg, packed over quinoa and cucumber with a lemon-dill yogurt sauce on the side. Keeping the sauce in a separate cup lets the cakes reheat crisp while the quinoa base holds up cold or hot.",
     "protein": "fish",
-    "cuisine": "american",
+    "cuisine": "American",
     "tags": [
       "high-protein",
       "pescatarian",
@@ -10823,7 +10850,7 @@ var RECIPES = [
     "name": "BBQ Turkey Sloppy-Joe Bowls with Potato Wedges",
     "description": "Ground turkey simmered in a tangy tomato-barbecue sauce, portioned over roasted potato wedges and green beans. The saucy meat only improves after a day, and it doubles as a filling for buns or baked potatoes later in the week.",
     "protein": "turkey",
-    "cuisine": "american",
+    "cuisine": "American",
     "tags": [
       "gluten-free",
       "dairy-free",
@@ -11088,10 +11115,10 @@ var RECIPES = [
     "meal": "breakfast",
     "tags": [
       "breakfast",
-      "no-cook",
       "dairy-free",
       "vegetarian",
-      "under-30-min"
+      "under-30-min",
+      "no-reheat"
     ],
     "baseServings": 4,
     "prepMinutes": 20,
@@ -11185,7 +11212,8 @@ var RECIPES = [
       "gluten-free",
       "high-protein",
       "comfort-food",
-      "kid-friendly"
+      "kid-friendly",
+      "freezer-friendly"
     ],
     "baseServings": 4,
     "prepMinutes": 20,
@@ -11304,7 +11332,7 @@ var RECIPES = [
     "tags": [
       "high-protein",
       "freezer-friendly",
-      "family-friendly"
+      "kid-friendly"
     ],
     "baseServings": 6,
     "prepMinutes": 15,
@@ -11439,9 +11467,9 @@ var RECIPES = [
     "meal": "breakfast",
     "tags": [
       "breakfast",
-      "no-cook",
       "high-protein",
-      "under-30-min"
+      "under-30-min",
+      "no-reheat"
     ],
     "baseServings": 4,
     "prepMinutes": 15,
@@ -11639,12 +11667,11 @@ var RECIPES = [
     "name": "Edamame Quinoa Power Bowls with Sesame-Ginger Dressing",
     "description": "Cold quinoa bowls layered with edamame, shredded cabbage, carrots, and bell pepper under a tamari sesame-ginger dressing. Because the bowls are eaten cold, nothing degrades on reheating, and the sturdy raw vegetables stay crisp for days.",
     "protein": "beans",
-    "cuisine": "Asian-inspired",
+    "cuisine": "Asian",
     "tags": [
       "vegan",
       "gluten-free",
-      "dairy-free",
-      "high-protein"
+      "dairy-free"
     ],
     "baseServings": 4,
     "prepMinutes": 25,
@@ -11775,7 +11802,7 @@ var RECIPES = [
       "gluten-free",
       "dairy-free",
       "high-protein",
-      "no-cook"
+      "no-reheat"
     ],
     "baseServings": 4,
     "prepMinutes": 25,
@@ -12021,7 +12048,8 @@ var RECIPES = [
       "breakfast",
       "gluten-free",
       "dairy-free",
-      "high-protein"
+      "high-protein",
+      "freezer-friendly"
     ],
     "baseServings": 4,
     "prepMinutes": 15,
@@ -12232,12 +12260,13 @@ var RECIPES = [
     "name": "Cashew Chicken Stir-Fry with Rice",
     "description": "Bite-size chicken and crisp vegetables in a glossy soy-honey sauce, finished with toasted cashews over jasmine rice. The sauce keeps the chicken moist through reheating, and the flavors deepen after a day in the fridge.",
     "protein": "chicken",
-    "cuisine": "chinese-american",
+    "cuisine": "Chinese-American",
     "tags": [
       "high-protein",
       "dairy-free",
       "stir-fry",
-      "takeout-style"
+      "takeout-style",
+      "freezer-friendly"
     ],
     "baseServings": 4,
     "prepMinutes": 20,
@@ -12369,7 +12398,7 @@ var RECIPES = [
     "name": "Beef Picadillo with Rice and Olives",
     "description": "Cuban-style ground beef simmered with tomatoes, briny green olives, and raisins, served over white rice. Like most braised ground-meat dishes it reheats without drying out and freezes cleanly.",
     "protein": "beef",
-    "cuisine": "cuban",
+    "cuisine": "Cuban",
     "tags": [
       "gluten-free",
       "dairy-free",
@@ -12496,12 +12525,13 @@ var RECIPES = [
     "name": "Peanut Tempeh Stir-Fry with Rice",
     "description": "Seared tempeh, green beans, and bell pepper tossed in a garlic-ginger peanut sauce over jasmine rice. Tempeh keeps its firm bite through reheating, and the peanut sauce clings to the vegetables instead of watering out.",
     "protein": "beans",
-    "cuisine": "Thai-inspired",
+    "cuisine": "Thai",
     "tags": [
       "vegan",
       "gluten-free",
       "dairy-free",
-      "high-protein"
+      "high-protein",
+      "freezer-friendly"
     ],
     "baseServings": 4,
     "prepMinutes": 20,
@@ -12632,11 +12662,12 @@ var RECIPES = [
     "name": "Chicken Satay Bowls with Peanut Sauce",
     "description": "Tamari-marinated chicken thighs over jasmine rice with a coconut-peanut sauce and crunchy cucumber and carrot. The sauce packs separately and loosens with a splash of warm water, so the bowls hold up all week.",
     "protein": "chicken",
-    "cuisine": "thai",
+    "cuisine": "Thai",
     "tags": [
       "gluten-free",
       "dairy-free",
-      "high-protein"
+      "high-protein",
+      "freezer-friendly"
     ],
     "baseServings": 4,
     "prepMinutes": 25,
@@ -12769,7 +12800,8 @@ var RECIPES = [
     "tags": [
       "slow-cooker",
       "gluten-free",
-      "dairy-free"
+      "dairy-free",
+      "freezer-friendly"
     ],
     "baseServings": 6,
     "prepMinutes": 15,
@@ -12845,7 +12877,7 @@ var RECIPES = [
       "Cook on low for 8 hours, until the beef shreds with a fork.",
       "Break the beef into chunks and portion with the vegetables and a spoonful of cooking liquid into 6 containers."
     ],
-    "storageNote": "Keeps 4 days refrigerated in airtight containers; freezes up to 3 months.",
+    "storageNote": "Keeps 4 days refrigerated in airtight containers; freezes up to 3 months. Store the beef in its cooking juices — it reheats without drying out.",
     "difficulty": 1,
     "meal": "main"
   },
@@ -12865,10 +12897,10 @@ var RECIPES = [
     "baseServings": 4,
     "prepMinutes": 10,
     "cookMinutes": 0,
-    "caloriesPerServing": 410,
-    "proteinGrams": 14,
-    "carbsGrams": 52,
-    "fatGrams": 16,
+    "caloriesPerServing": 520,
+    "proteinGrams": 16,
+    "carbsGrams": 64,
+    "fatGrams": 23,
     "fridgeDays": 4,
     "freezerFriendly": false,
     "allergens": [
@@ -12948,7 +12980,7 @@ var RECIPES = [
     "name": "Lemongrass Chicken Vermicelli Bowls",
     "description": "Seared lemongrass chicken over rice vermicelli with quick-pickled carrots, cucumber, fresh herbs, and a nuoc cham dressing. The bowls are eaten cold or at room temperature, so nothing degrades from reheating.",
     "protein": "chicken",
-    "cuisine": "vietnamese",
+    "cuisine": "Vietnamese",
     "tags": [
       "gluten-free",
       "dairy-free",
@@ -13176,7 +13208,8 @@ var RECIPES = [
       "breakfast",
       "vegan",
       "gluten-free",
-      "dairy-free"
+      "dairy-free",
+      "freezer-friendly"
     ],
     "baseServings": 4,
     "prepMinutes": 10,
@@ -13260,7 +13293,7 @@ var RECIPES = [
     "name": "Chicken and Wild Rice Soup",
     "description": "A creamy one-pot soup of shredded chicken breast, wild rice blend, and aromatic vegetables, thickened with cornstarch rather than flour. Like most brothy dishes it improves on day two, and the wild rice keeps its chew through reheating.",
     "protein": "chicken",
-    "cuisine": "american",
+    "cuisine": "American",
     "tags": [
       "gluten-free",
       "high-protein",
@@ -13388,7 +13421,8 @@ var RECIPES = [
     "cuisine": "American",
     "tags": [
       "one-pot",
-      "kid-friendly"
+      "kid-friendly",
+      "freezer-friendly"
     ],
     "baseServings": 6,
     "prepMinutes": 10,
@@ -13480,7 +13514,7 @@ var RECIPES = [
     "name": "Chicken Enchilada Bake",
     "description": "Layers of corn tortillas, shredded chicken, black beans, and red enchilada sauce baked under melted cheese, casserole-style rather than rolled. It reheats evenly and freezes well as individual portions.",
     "protein": "chicken",
-    "cuisine": "mexican",
+    "cuisine": "Mexican",
     "tags": [
       "gluten-free",
       "high-protein",
@@ -13593,7 +13627,8 @@ var RECIPES = [
       "sheet-pan",
       "gluten-free",
       "dairy-free",
-      "high-protein"
+      "high-protein",
+      "freezer-friendly"
     ],
     "baseServings": 4,
     "prepMinutes": 15,
@@ -13671,7 +13706,7 @@ var RECIPES = [
     "name": "Tuscan Chicken and Rice with Sun-Dried Tomatoes",
     "description": "Seared chicken cutlets finished over rice that cooks in the same skillet, bound in a parmesan cream sauce with sun-dried tomatoes and spinach. The sauce soaks into the rice as it sits, so reheated portions stay moist instead of drying out.",
     "protein": "chicken",
-    "cuisine": "italian",
+    "cuisine": "Italian",
     "tags": [
       "gluten-free",
       "high-protein",
@@ -13792,7 +13827,8 @@ var RECIPES = [
     "tags": [
       "slow-cooker",
       "gluten-free",
-      "dairy-free"
+      "dairy-free",
+      "freezer-friendly"
     ],
     "baseServings": 6,
     "prepMinutes": 10,
@@ -13881,7 +13917,8 @@ var RECIPES = [
     "tags": [
       "gluten-free",
       "dairy-free",
-      "high-protein"
+      "high-protein",
+      "freezer-friendly"
     ],
     "baseServings": 4,
     "prepMinutes": 25,
@@ -14010,7 +14047,8 @@ var RECIPES = [
     "cuisine": "American",
     "tags": [
       "gluten-free",
-      "kid-friendly"
+      "kid-friendly",
+      "freezer-friendly"
     ],
     "baseServings": 4,
     "prepMinutes": 15,
@@ -14099,7 +14137,7 @@ var RECIPES = [
       "Cook the mushrooms and onion in the same skillet until soft, then add the cornstarch-broth mixture and simmer until it thickens into gravy.",
       "Return the patties to the gravy for 2 minutes, then portion the mash and patties into 4 containers with gravy spooned over."
     ],
-    "storageNote": "Keeps 4 days refrigerated in airtight containers; freezes up to 2 months.",
+    "storageNote": "Keeps 4 days refrigerated in airtight containers; freezes up to 2 months. Store the patties in the gravy and the mash alongside; reheat gently so the gravy doesn't split.",
     "difficulty": 1,
     "meal": "main"
   },
@@ -14241,7 +14279,7 @@ var RECIPES = [
     "name": "Beef and Cabbage Stir-Fry",
     "description": "Ground beef and half a head of cabbage stir-fried with garlic, ginger, and soy over rice. Cabbage keeps its bite through a week of reheats better than most vegetables.",
     "protein": "beef",
-    "cuisine": "Chinese-inspired",
+    "cuisine": "Chinese",
     "tags": [
       "under-30-min",
       "dairy-free",
@@ -14344,7 +14382,8 @@ var RECIPES = [
       "gluten-free",
       "dairy-free",
       "spicy",
-      "freezer-friendly"
+      "freezer-friendly",
+      "high-protein"
     ],
     "baseServings": 4,
     "prepMinutes": 15,
@@ -14609,7 +14648,8 @@ var RECIPES = [
       "gluten-free",
       "dairy-free",
       "spicy",
-      "high-protein"
+      "high-protein",
+      "freezer-friendly"
     ],
     "baseServings": 4,
     "prepMinutes": 20,
@@ -14743,7 +14783,8 @@ var RECIPES = [
       "slow-cooker",
       "gluten-free",
       "dairy-free",
-      "high-protein"
+      "high-protein",
+      "freezer-friendly"
     ],
     "baseServings": 6,
     "prepMinutes": 10,
@@ -14819,7 +14860,7 @@ var RECIPES = [
       "Shred the chicken right in the sauce with two forks, then stir in the beans and corn to warm through.",
       "Portion the rice and salsa chicken into 6 containers and top with cilantro."
     ],
-    "storageNote": "Keeps 4 days refrigerated in airtight containers; freezes up to 3 months.",
+    "storageNote": "Keeps 4 days refrigerated in airtight containers; freezes up to 3 months. The salsa keeps the chicken moist through reheating; pack any fresh toppings separately.",
     "difficulty": 1,
     "meal": "main"
   },
@@ -14832,7 +14873,8 @@ var RECIPES = [
     "tags": [
       "sheet-pan",
       "gluten-free",
-      "dairy-free"
+      "dairy-free",
+      "freezer-friendly"
     ],
     "baseServings": 4,
     "prepMinutes": 15,
@@ -14914,7 +14956,8 @@ var RECIPES = [
     "tags": [
       "sheet-pan",
       "gluten-free",
-      "dairy-free"
+      "dairy-free",
+      "freezer-friendly"
     ],
     "baseServings": 4,
     "prepMinutes": 10,
@@ -14997,7 +15040,8 @@ var RECIPES = [
       "under-30-min",
       "gluten-free",
       "dairy-free",
-      "no-cook"
+      "no-cook",
+      "high-protein"
     ],
     "baseServings": 4,
     "prepMinutes": 15,
@@ -15078,7 +15122,6 @@ var RECIPES = [
     "cuisine": "Italian",
     "tags": [
       "high-protein",
-      "vegetarian-adjacent",
       "under-40-min"
     ],
     "baseServings": 4,
@@ -15174,8 +15217,7 @@ var RECIPES = [
     "cuisine": "American",
     "tags": [
       "sheet-pan",
-      "gluten-free",
-      "dairy-free"
+      "freezer-friendly"
     ],
     "baseServings": 4,
     "prepMinutes": 10,
@@ -15186,14 +15228,20 @@ var RECIPES = [
     "fatGrams": 24,
     "fridgeDays": 4,
     "freezerFriendly": true,
-    "allergens": [],
+    "allergens": [
+      "dairy",
+      "wheat"
+    ],
     "ingredients": [
       {
         "qty": 1.5,
         "unit": "lb",
         "item": "pre-cooked chicken sausage links",
-        "note": "sliced into coins",
-        "allergens": []
+        "note": "sliced into coins; check the label to confirm no wheat or dairy fillers",
+        "allergens": [
+          "wheat",
+          "dairy"
+        ]
       },
       {
         "qty": 2,
@@ -15244,7 +15292,7 @@ var RECIPES = [
       "Roast 15 minutes more, until the vegetables brown at the edges.",
       "Portion into 4 containers and refrigerate."
     ],
-    "storageNote": "Keeps 4 days refrigerated in airtight containers; freezes up to 2 months.",
+    "storageNote": "Keeps 4 days refrigerated in airtight containers; freezes up to 2 months. Everything reheats together on a tray or in the microwave straight from the container.",
     "difficulty": 1,
     "meal": "main"
   },
@@ -15350,7 +15398,8 @@ var RECIPES = [
     "cuisine": "Mexican",
     "tags": [
       "freezer-friendly",
-      "kid-friendly"
+      "kid-friendly",
+      "high-protein"
     ],
     "baseServings": 4,
     "prepMinutes": 15,
@@ -15534,8 +15583,7 @@ var RECIPES = [
     "tags": [
       "breakfast",
       "one-pan",
-      "gluten-free",
-      "dairy-free"
+      "freezer-friendly"
     ],
     "baseServings": 4,
     "prepMinutes": 10,
@@ -15546,14 +15594,20 @@ var RECIPES = [
     "fatGrams": 16,
     "fridgeDays": 4,
     "freezerFriendly": true,
-    "allergens": [],
+    "allergens": [
+      "dairy",
+      "wheat"
+    ],
     "ingredients": [
       {
         "qty": 12,
         "unit": "oz",
         "item": "pre-cooked chicken sausage links",
-        "note": "sliced into coins",
-        "allergens": []
+        "note": "sliced into coins; check the label to confirm no wheat or dairy fillers",
+        "allergens": [
+          "wheat",
+          "dairy"
+        ]
       },
       {
         "qty": 1.5,
@@ -15611,7 +15665,7 @@ var RECIPES = [
       "Stir in the kale for the final 3 minutes so it wilts and crisps at the edges.",
       "Portion into 4 containers and refrigerate."
     ],
-    "storageNote": "Keeps 4 days refrigerated; freezes up to 2 months.",
+    "storageNote": "Keeps 4 days refrigerated; freezes up to 2 months. The potatoes reheat best uncovered so they don't steam soft.",
     "difficulty": 1
   },
   {
@@ -15676,7 +15730,7 @@ var RECIPES = [
       },
       {
         "qty": 1,
-        "unit": "c",
+        "unit": "cup",
         "item": "roasted red peppers",
         "note": "drained and sliced",
         "allergens": []
@@ -15708,7 +15762,7 @@ var RECIPES = [
       },
       {
         "qty": 2,
-        "unit": "c",
+        "unit": "cup",
         "item": "whole milk",
         "note": null,
         "allergens": [
@@ -15717,7 +15771,7 @@ var RECIPES = [
       },
       {
         "qty": 1,
-        "unit": "c",
+        "unit": "cup",
         "item": "heavy cream",
         "note": null,
         "allergens": [
@@ -15726,7 +15780,7 @@ var RECIPES = [
       },
       {
         "qty": 1,
-        "unit": "c",
+        "unit": "cup",
         "item": "grated parmesan",
         "note": null,
         "allergens": [
@@ -15735,7 +15789,7 @@ var RECIPES = [
       },
       {
         "qty": 0.5,
-        "unit": "c",
+        "unit": "cup",
         "item": "grated romano cheese",
         "note": null,
         "allergens": [
@@ -15789,7 +15843,7 @@ var RECIPES = [
       "Portion into containers, top with the remaining bacon and the parsley, and cool before sealing. Reheat with a splash of milk to bring the sauce back."
     ],
     "storageNote": "The sauce firms up cold and can break if blasted with heat — reheat gently with a splash of milk or a spoon of pasta water and stir. Best within 3 days because of the shrimp; add the shrimp fresh on later days if you want to stretch it. Not recommended for the freezer.",
-    "sourceUrl": "https://realhousemoms.com/wprm_print/copycat-olive-garden-chicken-and-shrimp-carbonara",
+    "sourceUrl": "https://realhousemoms.com/copycat-olive-garden-chicken-and-shrimp-carbonara/",
     "difficulty": 3
   }
 ];
