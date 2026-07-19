@@ -210,33 +210,33 @@ by a second pass or a runtime repro before landing here.
 
 ## 5. Recipe data + tools
 
-- [ ] **5.1 P1 — Sausage hidden-filler policy applied inconsistently** (5
+- [x] **5.1 P1 — Sausage hidden-filler policy applied inconsistently** *(done: wheat+dairy tagged on all 5 via a new permanent tool rule, label-check note normalized onto each, contradicted gluten-free/dairy-free tags dropped)* (5
   recipes): turkey-sausage-and-peppers has the label-check note but no tags;
   country-breakfast-bowls, chicken-sausage-and-veggie-sheet-pan,
   chicken-sausage-breakfast-hash, chorizo-sweet-potato-breakfast-skillet have
   neither. Per the over-tag mandate: tag wheat+dairy or at minimum copy the
   note to all five.
-- [ ] **5.2 P1 — Tag errors that mislead filters:** `vegetarian-adjacent` on
+- [x] **5.2 P1 — Tag errors that mislead filters:** *(done — all three classes)* `vegetarian-adjacent` on
   chicken-caprese-orzo-bowls (search "vegetarian" surfaces a chicken recipe);
   `no-cook` on 3 recipes that cook (mediterranean-breakfast-boxes,
   smoked-salmon-breakfast-boxes, harvest-chicken-salad → `no-reheat`);
   `under-30-min` false on shrimp-fried-rice + blackened-tilapia (35 min →
   `under-40-min`).
-- [ ] **5.3 P2 — Unit "c" on 5 carbonara ingredients** splits the shopping
+- [x] **5.3 P2 — Unit "c" on 5 carbonara ingredients** *(done: normalized + a unit whitelist now hard-fails in the tool)* splits the shopping
   list ("1 cup + 1 c grated parmesan" — runtime-verified). Normalize to
   "cup"; add a unit whitelist to the tool.
-- [ ] **5.4 P2 — Macros:** peanut-butter-banana-overnight-oats understated
+- [x] **5.4 P2 — Macros:** *(done: PB-oats 520/16/64/23, souvlaki 650/54/60/18 — both self-consistent)* peanut-butter-banana-overnight-oats understated
   ~20-25% (≈520/P16/C64/F23 vs stated 410/14/52/16);
   greek-chicken-souvlaki-bowls ~15% light (≈650-700 vs 560) — recompute both.
-- [ ] **5.5 P2 — `freezer-friendly` tag missing on 34 of 91
+- [x] **5.5 P2 — `freezer-friendly` tag missing on 34 of 91** *(done: backfilled)*
   `freezerFriendly:true`** (searching "freezer" misses them; storageNote isn't
   in the search haystack). Backfill from the field, or append the field to the
   haystack in app.js.
-- [ ] **5.6 P2 — Taxonomy hygiene:** 20 lowercase cuisines (full list in the
+- [x] **5.6 P2 — Taxonomy hygiene:** *(done: 20 recased + 8 "-inspired" merged; family→kid-friendly; high-protein fixed both directions; 3 storage-note pairs differentiated)* 20 lowercase cuisines (full list in the
   recipe report); "-inspired" duplicates (Thai/Thai-inspired etc.);
   kid-friendly (11) vs family-friendly (2) merge; high-protein missing on 3
   ≥40 g mains; 3 duplicated boilerplate storageNote pairs.
-- [ ] **5.7 P2 — add-recipes.js gaps:** duplicate ids *within one batch* pass
+- [x] **5.7 P2 — add-recipes.js gaps:** *(done: in-batch dup guard, numeric/boolean checks, extended allergen rules incl. sausage/pesto/tortilla/shellfish/fish/bread classes, unit whitelist, profile.html ?v bump; rejection smoke-tested)* duplicate ids *within one batch* pass
   (:109-114); numeric fields never type/range-checked (`"15"` passes and
   renders "1530 MIN"; qty ≤ 0 passes; baseServings 0 divides); hidden-allergen
   backstop misses lobster/scallop/clam/mussel, trout/sardine/mackerel,
@@ -244,7 +244,7 @@ by a second pass or a runtime repro before landing here.
   (pine nuts + parmesan); no unit whitelist; bumps `recipes.js?v=` in
   index.html only while **profile.html also loads recipes.js** — next ingest
   skews the two pages (the exact stale-cache class CLAUDE.md warns about).
-- [ ] **5.8 P3 — optimize-images.js:** one corrupt PNG aborts the batch (no
+- [x] **5.8 P3 — optimize-images.js:** *(done: per-file try/catch + JPEG/case-insensitive; test-progress 37→46 assertions incl. `at`, windowDays, 1%-boundary both sides, same-day dupes, zero-span; pdf.js qty column capped; carbonara sourceUrl canonical)* one corrupt PNG aborts the batch (no
   per-file try/catch); only lowercase `.png`; JPEGs silently ignored.
   test-progress.js gaps: `at` never asserted directly, no 1%-boundary case,
   no `windowDays` override, no same-day duplicates. pdf.js: qty column >16
