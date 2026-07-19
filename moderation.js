@@ -37,7 +37,6 @@ var MiseModeration = (function () {
     "ass(?:hole|holes|hat|wipe|es|clown)?",
     "(?:dumb|jack|bad|smart|fat|hard)ass(?:es)?",
     "bastard(?:s)?",
-    "damn(?:ed)?",
     "goddamn(?:ed)?",
     "crap(?:py|s|ping)?",
     "piss(?:ing|ed|es|er)?",
@@ -49,7 +48,6 @@ var MiseModeration = (function () {
     "twat(?:s)?",
     "bollock(?:s)?",
     "bugger",
-    "hell",
     // slurs (hate speech) — always blocked
     "nigg(?:er|ers|a|as|ah|ahs)",
     "fag(?:got|gots|gy|s)?",
