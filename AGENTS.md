@@ -88,8 +88,13 @@ Hover and `:focus-visible` turn a section **bold + ink** (`font-weight: 700`);
 the current page is excluded. Weight 700 is in the IBM Plex Mono request for
 that hover alone — **change the hover, drop `;700` from all six files.** Plex
 Mono is monospaced, so bolding doesn't reflow the row.
-Nothing is gated: each destination renders its own "sign in from the
-board" state, so don't re-hide THE LOG. Sections are plain text; only actions
+Nothing is gated: each destination renders its own signed-out state, so don't
+re-hide THE LOG. **profile.html and log.html offer a "Sign in" button that hands
+off** to `index.html?signin=1&next=<page>` — the dialog only exists on the board
+(OAuth redirect = site root), so `app.js` opens it on arrival and returns them.
+`next` rides in sessionStorage (the OAuth round-trip drops the query string),
+is checked against a fixed page list (open redirect), and expires after 10 min.
+Sections are plain text; only actions
 (SHARE A RECIPE, sign-in — `index.html` only) are boxed. Don't put links back
 in the `.mast-meta` colophon; eight look-alike chips there is what this replaced.
 
