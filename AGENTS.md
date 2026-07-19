@@ -2,9 +2,10 @@
 
 `CLAUDE.md` is the canonical guide — read it first. This is the short version.
 
-Static site, **no build step, no dependencies**. Five pages: `index.html` (the
+Static site, **no build step, no dependencies**. Six pages: `index.html` (the
 board — `app.js`), `profile.html` (**"your kitchen"**, the per-account page —
 `profile.js`), `log.html` (**"the log"** — weight/lifts/runs — `log.js`),
+`forum.html` (**the forum** — threads/replies, standalone — `forum.js`),
 `products.html` (affiliate prep gear — `products.js`), and `legal.html` (privacy
 & disclosures, static), over `styles.css` + `recipes.js` (the data).
 
@@ -15,7 +16,9 @@ sign-in and written through, so profile data — favorites, allergies, nutrition
 log, ratings, reviews — persists across devices and survives a cache wipe; RLS
 tables in `supabase/migrations/`),
 `plus-ui.js` (`MisePlusUI` — the one upgrade dialog, shared; `require()` is the
-gate, and it builds its own markup), `subscription.js` (`MiseSub` — the
+gate, and it builds its own markup), `community-ui.js` (`MiseCommunityUI` — the
+community-recipe submit/edit + report dialog, shared and self-building;
+downscales the photo to WebP in-browser), `subscription.js` (`MiseSub` — the
 entitlement; `isPlus()` is THE gate), `nutrition.js` (pure calorie maths),
 `progress.js` (pure trend/1RM/pace maths — **`node tools/test-progress.js`**),
 `auth.js` (Supabase sign-in — configured and live; `MiseAuth.client()` backs store.js),
@@ -38,6 +41,26 @@ the secret Instacart key for `grocery.js`).
 **`app.js` binds `index.html`'s DOM at module scope — never load it on another
 page.** That's why `profile.js` exists.
 
+**Community recipes** (user-submitted): `store.js` fetches the world-readable
+list and the board merges it into `RECIPES`, **mixed in** with house recipes and
+flagged with a COMMUNITY stamp (`state.communityOnly` is an optional "just
+community" filter), so the modal/plan/reviews/PDF work on them unchanged. Instant
+publish + report (a recipe auto-hides once 3 users report it); one uploaded
+photo, downscaled client-side and stored in a Supabase Storage bucket. Backend =
+`supabase/migrations/20260719000000_community_recipes.sql` (apply in the SQL
+editor; it also creates the `recipe-photos` bucket). Posting is **free**;
+until the migration is applied the board runs house-only.
+
+**Forum** (`forum.html` + `forum.js`): a standalone page (no `app.js`, no
+`recipes.js`) for meal-prep + fitness discussion. Threads + flat replies from
+Supabase via `MiseStore` (`loadForumThreads`/`fetchThread`/`createThread`/…),
+hash-routed (`#t-<id>`). Reading is public; posting needs an account and the
+**first sign-in happens on the board** (OAuth redirect = site root), so
+signed-out visitors get a "sign in from the board" prompt. Instant post + report
++ auto-hide, same as community recipes. Backend =
+`supabase/migrations/20260719000001_forum.sql` (SQL editor); until applied the
+forum shows empty.
+
 Also: `app/` (Capacitor project: `app/android/` builds and runs, `app/ios/` needs
 a Mac with Xcode — see `app/README.md`; **add any new top-level web file to
 `app/scripts/sync-web.js` or it won't ship in the apps**),
@@ -48,9 +71,9 @@ Design rules: `CLAUDEwebdesign copy (1).md`.
 
 Local preview: `python -m http.server 8347` (launch.json name `mise-static`).
 
-**Cache-busting:** asset links in all five HTML files carry `?v=N`. Bump the
+**Cache-busting:** asset links in all six HTML files carry `?v=N`. Bump the
 version anywhere a file you changed is referenced, or returning visitors get
-stale caches. `styles.css` is linked from **all five** HTML files — keep them in
+stale caches. `styles.css` is linked from **all six** HTML files — keep them in
 step (and `recipes.js` from `index.html` **and** `profile.html`). This bites
 during local testing too: a reload will re-run a cached `.js` while the server
 has the new one, so a fix looks like it failed.
@@ -62,8 +85,9 @@ treats that seriously. See CLAUDE.md before changing anything in `progress.js`.
 
 **Paid vs free:** Plus buys print, PDF, the weekly plan, the calorie target, and
 no ads. Free forever: browsing, filters, search, ratings, reviews, favorites,
-standing allergies, the whole profile page, **the log**, and accounts — **never
-paywall signup**, it's what a purchase restores into. The log being free costs
+standing allergies, the whole profile page, **the log**, **posting community
+recipes**, **the forum**, and accounts — **never paywall signup**, it's what a purchase restores
+into. The log being free costs
 nothing: a weigh-in updates the nutrition profile and `calorieTarget()` is
 already gated, so "your target follows your body" is a Plus benefit for free.
 

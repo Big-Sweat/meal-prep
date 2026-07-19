@@ -27,9 +27,17 @@ in rough sync when you change the workflow described here.
   `plus-ui.js` builds it on first open. (The *old pre-print* interstitial was
   deleted; the page-turn one that ships now is a different slot — see **Ads**.)
 - `styles.css` — all styling. Editorial "prep board" look (see the design doc).
-- `app.js` — all **board** behavior (~2070 lines, one IIFE, `"use strict"`):
+- `app.js` — all **board** behavior (~2300 lines, one IIFE, `"use strict"`):
   filtering, rendering, serving-scale math with proper fractions, the recipe
-  modal, the persisted weekly plan + combined shopping list, and live search.
+  modal, the persisted weekly plan + combined shopping list, live search, and
+  **community recipes** (user-submitted, fetched by `store.js` and merged into
+  `RECIPES` on `onCommunity`). They're **mixed into the board** alongside house
+  recipes and flagged with a `.card-flag` COMMUNITY stamp (`state.communityOnly`
+  is an optional filter, like favOnly, to show just them). Because they live in
+  `RECIPES`, the modal/plan/reviews/PDF all work on them unchanged — the merge
+  rebuilds `HAYSTACKS` and, unlike a house-only board, `loadPlan()` no longer
+  prunes unknown ids (a community recipe planned before the async fetch lands
+  must survive, not be erased).
   Constants at the top (`PROTEINS`, `MEALS`, `SUGGEST_CANDIDATES`) define the
   filter chips; `ALLERGENS` comes from `store.js` because the profile page needs
   the same list. **It grabs `index.html`'s DOM at module scope, so it cannot be
@@ -49,7 +57,14 @@ in rough sync when you change the workflow described here.
   devices and survives a cache wipe — same shape as `isPlus()`, a sync cache
   reconciled against an async authority. Public rating aggregates load for
   signed-out visitors too (`loadSummaries`); reviews are fetched per recipe on
-  modal open (`fetchRecipeSocial`). Tables + RLS live in `supabase/migrations/`
+  modal open (`fetchRecipeSocial`). **Community recipes** ride the same rails:
+  `loadCommunity` fetches the world-readable list (auto-hidden past a report
+  threshold) and fires `onCommunity`; `publishRecipe`/`updateRecipe`/
+  `deleteRecipe`/`reportRecipe`/`myRecipes` are the author-scoped writes (photo
+  uploads go to a Supabase Storage bucket). **The forum** rides the same rails:
+  `loadForumThreads` (list + reply-count meta, fires `onForum`), `fetchThread`
+  (a thread's replies), and `createThread`/`createReply`/`deleteThread`/
+  `deleteReply`/`reportForum`. Tables + RLS live in `supabase/migrations/`
   (see **Profile backend** below). With `SUPABASE_URL` empty it falls back to
   the old browser-only demo layer, unchanged.
 - `plus-ui.js` — `MisePlusUI`: the upgrade dialog, **shared by every page** so
@@ -59,6 +74,14 @@ in rough sync when you change the workflow described here.
   after a purchase. It subscribes to `MiseSub.onChange`, so an entitlement change
   from *anywhere* redraws — including, once step 4 of `subscription.js` is done,
   a real billing SDK's callback or a store-side refund.
+- `community-ui.js` — `MiseCommunityUI`: the **community-recipe** submit/edit
+  form and the report dialog — a self-building `<dialog>` shared by the board and
+  the profile page (same lazy-build pattern as `plus-ui.js`). Downscales an
+  uploaded photo to WebP in-browser (canvas, ≤1280px longest side, which also
+  strips EXIF) before upload. On a successful publish it fires a
+  `mise:recipe-published` DOM event so the open page switches to the Community
+  view. Posting is free but needs an account; it no-ops without a signed-in
+  Supabase backend. Must be in `sync-web.js`'s FILES list to ship in the apps.
 - `profile.html` / `profile.js` — **"your kitchen": the per-account page.**
   Standing allergies, the calorie target, favorites, and your ratings/reviews.
   The masthead's "HI, NAME →" goes here when signed in. See the profile-page
@@ -66,6 +89,15 @@ in rough sync when you change the workflow described here.
 - `log.html` / `log.js` — **"the log": weight, lifts and runs.** Free. Does not
   load `recipes.js` (no use for 448KB of recipe data here). See the log section
   below.
+- `forum.html` / `forum.js` — **the forum: discuss meal prep + the fitness
+  journey.** A standalone page like the log — renders into `#forum`, loads
+  `store.js`+`auth.js` (no `recipes.js`, no `app.js`). Threads + flat replies from
+  Supabase via `MiseStore` (`loadForumThreads`/`fetchThread`/`createThread`/
+  `createReply`/…), navigated by hash (`forum.html#t-<id>` opens a thread).
+  **Reading is public; posting needs an account, and the first sign-in is on the
+  board** (auth.js's OAuth redirect is the site root — same constraint as
+  profile.html), so a signed-out visitor gets a "sign in from the board" prompt.
+  Instant post + report + auto-hide moderation, same as community recipes.
 - `progress.js` — `MiseProgress`: the log's maths. Pure, no DOM, no storage —
   same deal as `nutrition.js`, and for the same reason. **Checked by
   `node tools/test-progress.js` (37 assertions, no dependencies) — run it if you
@@ -205,9 +237,10 @@ in rough sync when you change the workflow described here.
   many words. Never delete it on lapse — nobody should have to retype their body.
 
 **The profile page ("your kitchen") — `profile.html` + `profile.js`**
-- Four sections plus an identity card: **standing allergies**, the **calorie
-  target**, **favorites**, and **your ratings & reviews**. Reached from the
-  masthead ("HI, NAME →") when signed in.
+- Five sections plus an identity card: **standing allergies**, the **calorie
+  target**, **favorites**, **your recipes** (the community recipes you've posted,
+  with edit/delete — real-auth only, via `MiseStore.myRecipes`), and **your
+  ratings & reviews**. Reached from the masthead ("HI, NAME →") when signed in.
 - **The page is free and needs only an account** — only the calorie card is
   gated. Do not wall the page: favorites, reviews and accounts are free forever,
   and an account is what a purchase restores into, so a wall here would strand
@@ -340,6 +373,23 @@ in rough sync when you change the workflow described here.
   for cheap board aggregates). Applied to the live project via the SQL editor;
   the file is the checked-in record. **Idempotent** (drops each policy before
   recreating) — safe to re-run.
+- `20260719000000_community_recipes.sql` — **community recipes.** `user_recipes`
+  (world-readable via an RLS policy that auto-hides a recipe once 3 distinct users
+  report it, owner-writable), `recipe_reports` (author-private; reporter identity
+  never leaks — the count is read through a `security definer`
+  `community_report_count(id)` so the read policy can consult it without granting
+  anyone `select` on the table), and the **`recipe-photos` Storage bucket** +
+  policies (public read; a user writes only under their own `<uid>/` folder).
+  Same idempotent, run-in-the-SQL-editor deal. **The bucket must exist for photo
+  uploads** — the migration creates it. Until this is applied, `loadCommunity`
+  gets a "table not found" error, swallows it, and the board runs house-only.
+- `20260719000001_forum.sql` — **the forum.** `forum_threads` + `forum_replies`
+  (flat; both world-readable with the same auto-hide-past-3-reports RLS,
+  author-writable), `forum_reports` (author-private; count read via
+  `security definer` `forum_report_count(kind, id)`), and `forum_thread_meta`
+  (a `security_invoker` view: reply count + last activity per thread, for the
+  list). Same idempotent SQL-editor deal. Until applied, `loadForumThreads` gets
+  a "table not found" error, swallows it, and the forum shows empty.
 - **Security is RLS-only** — the anon key is public, so the policies are the
   whole fence. Private tables: owner-only (`auth.uid() = user_id`), and the anon
   role's default grants are **revoked** so a signed-out request hard-denies
@@ -393,14 +443,15 @@ in rough sync when you change the workflow described here.
 
 ## Cache-busting — do not skip this
 
-Asset links in `index.html`, `products.html`, `profile.html`, `log.html` and
-`legal.html` carry `?v=N` query strings (e.g. `app.js?v=37`, `styles.css?v=35`).
+Asset links in `index.html`, `products.html`, `profile.html`, `log.html`,
+`forum.html` and `legal.html` carry `?v=N` query strings (e.g. `app.js?v=37`,
+`styles.css?v=35`).
 GitHub Pages sets long
 cache headers, so **if you change a file, bump its `?v=N` everywhere it's
 referenced**, or returning visitors get a stale cache (this has caused real
 breakage — a stale `recipes.js` against fresh HTML). Note `styles.css` is
-referenced from **all five** HTML files (index, profile, log, products, legal)
-— keep the versions in step. The recipe tool bumps `recipes.js?v=` for you (in
+referenced from **all six** HTML files (index, profile, log, products, legal,
+forum) — keep the versions in step. The recipe tool bumps `recipes.js?v=` for you (in
 both `index.html` and `profile.html`, which both load it); everything else is
 manual.
 

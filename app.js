@@ -97,6 +97,9 @@
     maxDifficulty: 3,
     query: "",
     favOnly: false,
+    // Community recipes are mixed into the board by default (flagged on the card).
+    // This optional filter, like favOnly, narrows to just the user-submitted ones.
+    communityOnly: false,
     // The board paginates by default; `paged: false` is the "show everything on
     // one long scroll" view. `page` is 1-based and only meaningful when paged.
     paged: true,
@@ -127,7 +130,8 @@
       t: state.terms.slice().sort(),
       d: state.maxDifficulty,
       q: state.query,
-      f: state.favOnly
+      f: state.favOnly,
+      c: state.communityOnly
     });
   }
 
@@ -162,15 +166,27 @@
     MiseStore.upsertReview(who(), profile.name, id, text, myRating(id) || null);
   }
 
-  // one lowercase haystack per recipe: name, description, cuisine, tags, ingredients
+  // The built-in library, captured before any community recipe is merged in.
+  // applyCommunity rebuilds RECIPES = HOUSE_RECIPES.concat(community), so a
+  // recipe deleted or auto-hidden on Supabase drops cleanly back out on the
+  // next sync rather than sticking around from an incremental append.
+  var HOUSE_RECIPES = RECIPES.slice();
+
+  // one lowercase haystack per recipe: name, description, cuisine, tags,
+  // ingredients. Rebuilt (not just appended to) after a community merge, or a
+  // recipe added to RECIPES afterward has no entry and matches() throws on it.
   var HAYSTACKS = {};
-  RECIPES.forEach(function (r) {
-    HAYSTACKS[r.id] = (
-      r.name + " " + r.description + " " + r.cuisine + " " +
-      (r.tags || []).join(" ") + " " +
-      r.ingredients.map(function (i) { return i.item; }).join(" ")
-    ).toLowerCase();
-  });
+  function buildHaystacks() {
+    HAYSTACKS = {};
+    RECIPES.forEach(function (r) {
+      HAYSTACKS[r.id] = (
+        r.name + " " + r.description + " " + r.cuisine + " " +
+        (r.tags || []).join(" ") + " " +
+        r.ingredients.map(function (i) { return i.item; }).join(" ")
+      ).toLowerCase();
+    });
+  }
+  buildHaystacks();
 
   var DIFF_WORDS = { 1: "easy", 2: "moderate", 3: "involved" };
   var DIFF_OUT = { 1: "easy only", 2: "up to moderate", 3: "any effort" };
@@ -185,9 +201,11 @@
     var m = new Map();
     try {
       JSON.parse(localStorage.getItem(PLAN_KEY) || "[]").forEach(function (e) {
-        if (RECIPES.some(function (r) { return r.id === e.id; })) {
-          m.set(e.id, Math.max(1, Math.min(12, parseInt(e.servings, 10) || 4)));
-        }
+        // Keep every stored id, even one not (yet) in RECIPES — a community
+        // recipe planned last visit may not have arrived from Supabase yet.
+        // planEntries() filters unresolved ids at render time, so nothing shows
+        // before it loads; pruning here (then re-saving) would erase it for good.
+        if (e && e.id) m.set(String(e.id), Math.max(1, Math.min(12, parseInt(e.servings, 10) || 4)));
       });
     } catch (e) { /* private mode etc. — plan just won't persist */ }
     return m;
@@ -207,6 +225,7 @@
   var countEl = $("#count");
   var mobileCountEl = $("#mobile-count");
   var emptyEl = $("#empty");
+  var EMPTY_HTML = emptyEl ? emptyEl.innerHTML : "";   // house empty state, restored after a community view
   var pagerEl = $("#pager");
   var railEl = $("#filter-rail");
   var modalEl = $("#recipe-modal");
@@ -261,6 +280,9 @@
   }
 
   function matches(r) {
+    // Community recipes are mixed in with house recipes by default; the optional
+    // "community only" filter narrows to just them.
+    if (state.communityOnly && r.source !== "community") return false;
     if (state.favOnly && !favs.has(r.id)) return false;
     if (state.goals.size && !Array.from(state.goals).some(function (goal) {
       return matchesGoal(r, goal);
@@ -302,7 +324,7 @@
       if (standingAllergies.indexOf(id) === -1) extraAllergies++;
     });
     return state.goals.size + state.meals.size + extraAllergies + state.proteins.size + state.terms.length +
-      (state.maxDifficulty < 3 ? 1 : 0) + (state.favOnly ? 1 : 0);
+      (state.maxDifficulty < 3 ? 1 : 0) + (state.favOnly ? 1 : 0) + (state.communityOnly ? 1 : 0);
   }
 
   /* ---------- rendering ---------- */
@@ -319,9 +341,10 @@
   }
 
   function recipeImageSrc(r) {
-    // WebP, not PNG: same pixels, ~92% smaller. Cards/modal hide the frame via
-    // the img onerror handler for recipes with no photo.
-    return "assets/recipes/" + r.id + ".webp";
+    // A community recipe carries its own uploaded photo URL; house recipes derive
+    // the path from the id. WebP either way (same pixels, ~92% smaller); cards
+    // and the modal hide the frame via the img onerror handler when there's none.
+    return r.photoUrl || "assets/recipes/" + r.id + ".webp";
   }
 
   function macroSummaryHTML(r, className, estimated) {
@@ -352,13 +375,15 @@
       ? "<span>&#9733; " + rating.avg + "</span><span class=\"sep\">/</span>"
       : "";
     var isFav = favs.has(r.id);
+    var community = r.source === "community";
     return (
-      '<li class="card">' +
+      '<li class="card' + (community ? " card--community" : "") + '">' +
         '<span class="tape mono" aria-hidden="true">' + esc(proteinLabel(r.protein)).toUpperCase() + "</span>" +
         '<div class="card-photo">' +
           '<img src="' + esc(recipeImageSrc(r)) + '" alt="' + esc(r.name) + '" loading="lazy" onerror="this.parentElement.hidden=true">' +
         "</div>" +
         '<h3><button class="card-btn" data-id="' + esc(r.id) + '">' + esc(r.name) + "</button></h3>" +
+        (community ? '<p class="card-byline mono"><span class="card-flag">COMMUNITY</span> BY ' + esc(String(r.author || "A COOK")).toUpperCase() + "</p>" : "") +
         '<p class="card-desc">' + esc(r.description) + "</p>" +
         macroSummaryHTML(r, "card-nutrition") +
         '<p class="card-meta">' +
@@ -463,6 +488,21 @@
       ? (startIdx + 1) + "–" + (startIdx + pageItems.length) + " of " + visible.length
       : visible.length + " of " + RECIPES.length;
     emptyEl.hidden = visible.length !== 0;
+    if (visible.length === 0) {
+      // The "community only" filter with nothing in it invites sharing rather
+      // than showing the "your allergy filters stay put" copy, which doesn't apply.
+      if (state.communityOnly) {
+        emptyEl.innerHTML =
+          '<span class="tape tape-empty mono">NO COMMUNITY RECIPES YET</span>' +
+          "<p>Be the first to share one. " +
+          (profile
+            ? '<button type="button" class="empty-share-btn" data-share-recipe>Post a recipe &rarr;</button>'
+            : "Sign in from the header, then look for &ldquo;Share a recipe&rdquo;.") +
+          "</p>";
+      } else {
+        emptyEl.innerHTML = EMPTY_HTML;
+      }
+    }
 
     renderPager(totalPages, visible.length);
 
@@ -872,6 +912,18 @@
       ? "CONTAINS: " + r.allergens.join(" · ").toUpperCase()
       : "NO MAJOR ALLERGENS";
 
+    // Community recipes get author controls (edit/delete) or, for everyone else
+    // signed in, a Report button. All no-ops for house recipes.
+    var isAuthor = r.source === "community" && !!(profile && profile.id) && r.userId === profile.id;
+    var canReport = r.source === "community" && !!(profile && profile.id) && !isAuthor;
+    var communityActionsHTML =
+      (isAuthor
+        ? '<button class="plan-tool" id="modal-edit" type="button">EDIT</button>' +
+          '<button class="plan-tool plan-tool--danger" id="modal-delete" type="button">DELETE</button>'
+        : canReport
+          ? '<button class="plan-tool plan-tool--report" id="modal-report" type="button">&#9873; REPORT</button>'
+          : "");
+
     modalBody.innerHTML =
       '<div class="modal-top">' +
         '<span class="modal-tape" id="m-protein-tape">' + esc(proteinLabel(r.protein)).toUpperCase() + "</span>" +
@@ -896,6 +948,7 @@
               '<path d="M6 14h12v7H6z" />' +
             "</svg>" +
           "</button>" +
+          communityActionsHTML +
           '<button class="modal-close" id="modal-close" aria-label="Close recipe">&times;</button>' +
         "</div>" +
       "</div>" +
@@ -903,6 +956,9 @@
         '<img src="' + esc(recipeImageSrc(r)) + '" alt="' + esc(r.name) + '" onerror="this.parentElement.hidden=true">' +
       "</div>" +
       '<h2 id="modal-title">' + esc(r.name) + "</h2>" +
+      (r.source === "community"
+        ? '<p class="modal-byline mono"><span class="card-flag">COMMUNITY</span> SHARED BY ' + esc(String(r.author || "A COOK")).toUpperCase() + "</p>"
+        : "") +
       '<p class="modal-desc" id="m-description">' + esc(r.description) + "</p>" +
       '<div id="m-macros">' + macroSummaryHTML(r, "modal-nutrition") + "</div>" +
       '<p class="modal-stats">' +
@@ -912,6 +968,11 @@
         "<span>TOTAL " + total + " MIN</span>" +
       "</p>" +
       '<p id="m-contains" class="modal-contains' + (r.allergens.length ? "" : " none") + '">' + esc(contains) + "</p>" +
+      (r.source === "community"
+        ? '<p class="community-note">Community recipe — nutrition and allergen info are ' +
+          'self-declared by the author and <strong>not verified</strong>. If an allergy is ' +
+          'severe, check every ingredient yourself.</p>'
+        : "") +
       '<div class="protein-swap">' +
         '<label for="protein-swap">Substitute protein?</label>' +
         '<select id="protein-swap">' +
@@ -1058,6 +1119,34 @@
       if (requirePlus()) return;
       MisePDF.download(recipeToPDFModel(currentRecipe, mServings), r.id + ".pdf");
     });
+
+    // Community: report someone else's recipe, or edit/delete your own.
+    if (canReport) {
+      var reportBtn = $("#modal-report");
+      if (reportBtn) reportBtn.addEventListener("click", function () {
+        if (typeof MiseCommunityUI !== "undefined") MiseCommunityUI.openReport(r.id);
+      });
+    }
+    if (isAuthor) {
+      var editBtn = $("#modal-edit");
+      if (editBtn) editBtn.addEventListener("click", function () {
+        if (typeof MiseCommunityUI === "undefined") return;
+        modalEl.close();
+        MiseCommunityUI.open(r);
+      });
+      var deleteBtn = $("#modal-delete");
+      if (deleteBtn) deleteBtn.addEventListener("click", function () {
+        if (!window.confirm("Delete this recipe? It's removed for everyone, and can't be undone.")) return;
+        deleteBtn.disabled = true;
+        MiseStore.deleteRecipe(who(), r.id, function (err) {
+          if (err) { deleteBtn.disabled = false; showToast("Couldn't delete that", "Try again in a moment.", "error"); return; }
+          modalEl.close();
+          showToast("Recipe deleted", "It's gone from the board.");
+          // deleteRecipe refreshes the community list, which re-renders the board.
+        });
+      });
+    }
+
     modalEl.showModal();
     modalEl.scrollTop = 0;
   }
@@ -1182,6 +1271,9 @@
     if (newpass) newpass.hidden = view !== "newpass";
     var logLink = $("#log-link");
     if (logLink) logLink.hidden = !profile;   // no account, nothing to log against
+    // Every "share a recipe" entry (masthead + rail) — posting needs an account.
+    var shareEls = document.querySelectorAll(".js-share-entry");
+    for (var i = 0; i < shareEls.length; i++) shareEls[i].hidden = !profile;
   }
 
   function openAuth() {
@@ -1526,6 +1618,40 @@
     state.favOnly = !state.favOnly;
     favChip.setAttribute("aria-pressed", String(state.favOnly));
     render();
+  });
+
+  /* The "community only" filter toggle. Browsing community recipes is free and
+     needs no account, so no sign-in gate here (posting one does — see below). */
+  var communityChip = $("#community-chip");
+  function syncCommunityChip() {
+    if (!communityChip) return;
+    communityChip.setAttribute("aria-pressed", String(state.communityOnly));
+  }
+  if (communityChip) {
+    communityChip.addEventListener("click", function () {
+      state.communityOnly = !state.communityOnly;
+      syncCommunityChip();
+      render();
+    });
+  }
+
+  /* "Share a recipe" entry points (masthead link, empty-state button) all carry
+     data-share-recipe. Posting needs an account, so a signed-out click routes to
+     sign-in — where a new poster restores to anyway. */
+  document.addEventListener("click", function (e) {
+    var t = e.target.closest && e.target.closest("[data-share-recipe]");
+    if (!t) return;
+    e.preventDefault();
+    if (!profile) { openAuth(); return; }
+    if (typeof MiseCommunityUI !== "undefined") MiseCommunityUI.open();
+  });
+
+  /* community-ui.js fires this after a successful publish/edit. store.js has
+     already refreshed the public list (onCommunity redraws the board once it
+     lands, with the new recipe mixed in and flagged); just confirm with a toast. */
+  document.addEventListener("mise:recipe-published", function (e) {
+    var edited = e.detail && e.detail.editing;
+    showToast(edited ? "Recipe updated" : "Recipe shared", "It's live on the board, flagged as a community recipe.");
   });
 
   /* ---------- standing allergies ---------- */
@@ -1950,6 +2076,7 @@
     state.proteins.clear();
     state.terms = [];
     state.favOnly = false;
+    state.communityOnly = false;
     state.query = "";
     searchInput.value = "";
     searchClear.hidden = true;
@@ -1964,6 +2091,7 @@
     // survive "clear all filters". Clearing the board should never be the thing
     // that serves someone the food they can't eat.
     applyStandingAllergies();
+    syncCommunityChip();
     renderTermChips();
     render();
   });
@@ -2102,20 +2230,72 @@
      the real ticket here. Inbound only — no pushState on every modal open,
      which would put a history entry between the board and the back button that
      native.js relies on. */
+  // Set once we've actually OPENED the modal for the current hash, so a later
+  // applyCommunity() re-run (community list landing, or a publish/edit/delete)
+  // can't reopen a modal the user has since closed. It stays null while the hash
+  // id is present but unresolved — the community-deep-link case — so the retry
+  // after the async merge still fires exactly once, when the recipe finally loads.
+  var hashOpened = null;
   function openFromHash() {
     var id = (window.location.hash || "").replace(/^#/, "");
-    if (!id) return;
+    if (!id || id === hashOpened) return;
     var r = RECIPES.find(function (x) { return x.id === id; });
-    if (r) openModal(r);
+    if (r) { hashOpened = id; openModal(r); }
   }
 
+  /* ---------- community recipes: merge into the board ----------
+     store.js loads the world-readable list (signed in or out) and fires
+     onCommunity. We rebuild RECIPES as HOUSE_RECIPES + the validated, de-duped
+     community set — a wholesale rebuild, so a recipe deleted or auto-hidden on
+     the server drops out on the next sync instead of lingering — then bring the
+     search index, board, any open modal and the plan back into step. */
+  function applyCommunity(list, networkLoaded) {
+    if (!Array.isArray(list)) list = [];
+    var taken = {};
+    HOUSE_RECIPES.forEach(function (r) { taken[r.id] = 1; });
+    var extra = [];
+    list.forEach(function (r) {
+      if (!r || !r.id) return;
+      if (!/^[a-z0-9-]+$/.test(r.id)) return;   // ids flow into URLs, data-attrs and storage keys
+      if (taken[r.id]) return;                  // house wins a collision; no duplicate ids
+      taken[r.id] = 1;
+      extra.push(r);
+    });
+    RECIPES = HOUSE_RECIPES.concat(extra);
+    buildHaystacks();
+
+    // Only after a real server load do we know an unresolved plan id is gone for
+    // good (deleted / auto-hidden) rather than just not-fetched-yet — reconcile
+    // then, so the plan bar count and shopping list can't stick on a ghost.
+    if (networkLoaded) {
+      var changed = false;
+      Array.from(plan.keys()).forEach(function (id) {
+        if (!RECIPES.some(function (x) { return x.id === id; })) { plan.delete(id); changed = true; }
+      });
+      if (changed) savePlan();
+    }
+
+    render();
+    updatePlanUI();
+    if (modalEl.open && openRecipe) refreshModalSocial();
+    if (planModal && planModal.open) renderPlanBody();
+    if (!modalEl.open) openFromHash();   // a #community-id link that no-oped before can open now
+  }
+
+  MiseStore.onCommunity(function () { applyCommunity(MiseStore.community(), true); });
+
   applyStandingAllergies();
+  syncCommunityChip();
   render();
   updatePlanUI();
   updateAuthUI();
   renderAppLinks();
   renderAppBanner();
   openFromHash();
+
+  // Instant paint from a prior session's cache, before the network load lands.
+  var cachedCommunity = MiseStore.community();
+  if (cachedCommunity.length) applyCommunity(cachedCommunity, false);
 
   /* Just deleted an account? The profile page sends us back here with a marker,
      in either auth mode. Say goodbye once, then strip it so a refresh (or a
