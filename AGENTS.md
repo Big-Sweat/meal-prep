@@ -43,7 +43,10 @@ auth user via the admin key) and `instacart-proxy/` (Cloudflare Worker — holds
 the secret Instacart key for `grocery.js`).
 
 **`app.js` binds `index.html`'s DOM at module scope — never load it on another
-page.** That's why `profile.js` exists.
+page.** That's why `profile.js` exists. The modal's protein-substitution feature
+*adapts* the recipe (rewrites cook times/doneness/safe temp for the new protein,
+inserts needed prep, flags techniques that don't suit it) using the `PROTEIN_COOK`
+table — **its USDA temps and times are deliberate; don't "tidy" them.**
 
 **Community recipes** (user-submitted): `store.js` fetches the world-readable
 list and the board merges it into `RECIPES`, **mixed in** with house recipes and

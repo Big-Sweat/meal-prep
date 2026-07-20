@@ -77,6 +77,30 @@ button {
   box-shadow: 0 0 0 2px var(--paper);
 }
 
+/* ---------- form-control base ----------
+   The native number spinner and OS <select> arrow are the ugliest defaults on
+   the site (they don't match the flat prep-board look at any zoom). Kill the
+   spinner everywhere; the styled selects draw their own caret via the var
+   below. `inputmode` still gives phones the right keypad. */
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+/* Custom ink caret for the styled selects. Declared as a var so each select's
+   own rule can fold it into its `background` shorthand — a later shorthand that
+   only set a colour would otherwise wipe a separately-declared background-image. */
+:root {
+  --select-caret: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='none' stroke='%2326291F' stroke-width='1.5' d='M2.5 4.5 6 8l3.5-3.5'/%3E%3C/svg%3E") no-repeat right 12px center / 11px;
+}
+
 /* The browser's own [hidden]{display:none} is a UA-stylesheet rule, which
    loses to ANY author rule of equal specificity that sets display — including
    a plain class selector like .mast-link{display:inline-block}. That silently
@@ -1144,7 +1168,9 @@ button {
   padding: 8px 34px 8px 10px;
   border: 1px solid var(--ink);
   border-radius: 0;
-  background: var(--paper);
+  -webkit-appearance: none;
+  appearance: none;
+  background: var(--select-caret), var(--paper);
   color: var(--ink);
   font: 500 12px/1.2 var(--font-mono);
 }
@@ -1168,6 +1194,22 @@ button {
   color: var(--faded);
   font-size: 13px;
   line-height: 1.45;
+}
+
+.swap-method-note span { display: block; }
+.swap-method-note ul {
+  margin: 4px 0 8px;
+  padding-left: 18px;
+}
+.swap-method-note li { margin: 2px 0; }
+
+/* A swap that changes technique gets a stronger accent than the standing
+   estimate reminder — amber, matching the app's other advisory notices (never
+   --chile, which is reserved for allergens). */
+.swap-method-note:has(.swap-caution-head) { border-left-color: #c98a1b; }
+.swap-caution-head {
+  color: var(--ink);
+  font-weight: 500;
 }
 
 @media (max-width: 620px) {
@@ -2394,20 +2436,35 @@ button {
 
 .log-form input[type="date"],
 .log-form input[type="text"],
+.log-form input[type="number"],
 .log-form select {
   font-family: var(--font-mono);
   font-size: 13px;
-  background: var(--paper);
-  border: 1px solid var(--line);
+  background: var(--ticket);
+  border: 1px solid var(--ink);
   color: var(--ink);
   padding: 9px 10px;
   min-height: 40px;
   width: 100%;
   border-radius: 0;
+  transition: border-color 0.12s ease;
 }
+
+.log-form select {
+  padding-right: 30px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: var(--select-caret), var(--ticket);
+}
+
+.log-form input[type="date"]:hover,
+.log-form input[type="text"]:hover,
+.log-form input[type="number"]:hover,
+.log-form select:hover { border-color: var(--kale); }
 
 .log-form input[type="date"]:focus-visible,
 .log-form input[type="text"]:focus-visible,
+.log-form input[type="number"]:focus-visible,
 .log-form select:focus-visible { outline: 2px solid var(--kale); outline-offset: 1px; }
 
 .log-err {
