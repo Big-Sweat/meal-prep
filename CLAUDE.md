@@ -490,6 +490,31 @@ in rough sync when you change the workflow described here.
   page on any focused input under 16px — do not "tidy" this away. Fixed
   furniture pads by `env(safe-area-inset-*)` and the viewport carries
   `viewport-fit=cover`.
+- **The status bar (both platforms) — `--inset-top` in `styles.css`.** The apps
+  draw **edge-to-edge**, so the strip behind the status bar is the page's to
+  paint. Read the inset through `var(--inset-top)`, never `env()` directly:
+  Capacitor's built-in `SystemBars` plugin sets `--safe-area-inset-top` on
+  `<html>` for Android and `env()` is the iOS path, so the token is
+  `var(--safe-area-inset-top, env(safe-area-inset-top, 0px))` — 0 on the web,
+  where every rule below is a no-op. Three pieces work together; changing one
+  alone reintroduces a bug that was actually shipped:
+  - `body` pads by `--inset-top`, and the 5px rule lives on **`.masthead`, not
+    `body`** — on `body` its border painted a dark sliver behind the status bar
+    (the one strip that should read as page). This is what Jake reported.
+  - `body::before` is a fixed paper strip of `--inset-top` at `z-index: 38`
+    (over `.mobile-bar` 30 and `.plan-bar` 35, under the `.rail` drawer 40,
+    which pads its own top). body's padding scrolls away; this doesn't. Without
+    it the ink filter bar slides under the status bar and Android keeps drawing
+    its **dark** icons on near-black — measured, unreadable.
+  - `.mobile-bar` sticks at `top: var(--inset-top)` with **no** inset padding.
+    It used to be `top: 0` plus `padding-top: env(...)`, which put that padding
+    there at every scroll position — once Android reported a real inset the bar
+    carried 24px of dead space above "Filter recipes" while sitting mid-page.
+  - **Android only reports an inset at all on WebView ≥ 140** with
+    `viewport-fit=cover` (Capacitor passes insets through; below that it pads
+    the WebView itself and reports 0). Both paths are correct — don't "fix" the
+    zero case. Verify on a real device: `adb exec-out screencap` and read the
+    pixels, since the top few rows are exactly what's in question.
 
 **Docs / meta**
 - `README.md` — public-facing readme (recipe count is patched by the tool).
