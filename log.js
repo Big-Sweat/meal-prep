@@ -646,12 +646,14 @@
       }
       render();
     });
+    /* Slow on purpose, and "can't reach" only when the SDK never landed —
+       see the long note on the same timer in profile.js. */
     setTimeout(function () {
       if (ready) return;
       ready = true;
-      unreachable = true;
+      unreachable = !(MiseAuth.isReady && MiseAuth.isReady());
       render();
-    }, 8000);
+    }, 15000);
   }
 
   render();

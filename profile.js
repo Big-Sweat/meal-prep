@@ -855,15 +855,25 @@
       myRecipesCache = null;   // hydrate landed — refetch this account's shared recipes
       render();
     });
-    /* auth.js pulls the Supabase SDK off jsDelivr, so with no connection
-       onChange never fires and this page would spin forever. Give up after a
-       few seconds and say which of the two things went wrong. */
+    /* Last resort: auth.js pulls the Supabase SDK off jsDelivr, and if that
+       request stalls, onChange never fires and this page would spin forever.
+
+       Deliberately slow, because this only fires on a slow-but-alive network:
+       a device that's actually offline fails the script tag fast and auth.js's
+       onerror notifies us immediately, so waiting longer costs a genuinely
+       offline visitor nothing — while a cold jsDelivr fetch on a thin
+       connection routinely outran the 8s this used to be.
+
+       And "can't reach" is only honest if the SDK never landed. If the client
+       exists, getSession is merely slow: say "signed out" — which onChange
+       corrects a moment later — rather than a flat lie that ALSO hides the
+       Sign in button, at exactly the moment someone wants it. */
     setTimeout(function () {
       if (ready) return;
       ready = true;
-      unreachable = true;
+      unreachable = !(MiseAuth.isReady && MiseAuth.isReady());
       render();
-    }, 8000);
+    }, 15000);
   }
 
   render();
