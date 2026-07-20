@@ -100,6 +100,14 @@ is checked against a fixed page list (open redirect), and expires after 10 min.
 Sections are plain text; only actions
 (SHARE A RECIPE, sign-in — `index.html` only) are boxed. Don't put links back
 in the `.mast-meta` colophon; eight look-alike chips there is what this replaced.
+**In the apps the same nav becomes a bottom tab bar** (`.is-native`, end of
+`styles.css`; the web keeps the band). `.nav-sections` is what's fixed to the
+bottom — NOT `.mainnav` — so the action buttons stay in flow up top and the five
+pages without them collapse to nothing; that's what makes it need zero HTML. The
+lift putting SIGN IN on the wordmark's line is on `.nav-actions` for the same
+reason. Bar is z-36 (over `.plan-bar` 35, under `.rail` 40) and absorbs the
+bottom inset itself, so `.plan-bar`/`.apply-btn`/`.footer` clear `--tabbar-h`
+plus that inset and must not pad for it twice. See CLAUDE.md before touching it.
 
 **Cache-busting:** asset links in all six HTML files carry `?v=N`. Bump the
 version anywhere a file you changed is referenced, or returning visitors get
