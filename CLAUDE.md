@@ -596,10 +596,16 @@ item marked.
   - **The bar absorbs `env(safe-area-inset-bottom)` itself**, so `.plan-bar`,
     `.apply-btn` and `.footer` clear `--tabbar-h` *plus* that inset and must not
     pad for it a second time.
-  - Labels keep their web wording, so `THE RECIPES` and `YOUR KITCHEN` wrap to
-    two lines in a tab while `THE LOG` and `PREP GEAR` don't. Shortening them
-    would need either a text change (which hits the website) or duplicate
-    markup; left ragged on purpose.
+  - **Every link carries two labels**: `<span class="nav-full">THE RECIPES</span>`
+    for the web and `<span class="nav-tab">RECIPES</span>` for the tab bar — a
+    ~72px tab can't hold "YOUR KITCHEN" at a legible size. Exactly one is ever
+    rendered, and `display: none` keeps the other out of the **accessibility
+    tree** too, so a screen reader announces what's on screen rather than both.
+    Add a section and you write both labels.
+  - Because of that, **the tape rule sets no `display`**. An explicit one there
+    would out-specify the `.nav-full` / `.nav-tab` hiding and un-hide the wrong
+    label on the current tab. The span is a flex item, so it's blockified
+    anyway and the tilt still applies.
 
 ## Cache-busting — do not skip this
 

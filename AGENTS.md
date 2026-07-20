@@ -107,7 +107,11 @@ pages without them collapse to nothing; that's what makes it need zero HTML. The
 lift putting SIGN IN on the wordmark's line is on `.nav-actions` for the same
 reason. Bar is z-36 (over `.plan-bar` 35, under `.rail` 40) and absorbs the
 bottom inset itself, so `.plan-bar`/`.apply-btn`/`.footer` clear `--tabbar-h`
-plus that inset and must not pad for it twice. See CLAUDE.md before touching it.
+plus that inset and must not pad for it twice. **Every link carries two labels** —
+`.nav-full` ("THE RECIPES") for the web, `.nav-tab` ("RECIPES") for the tab bar —
+only one rendered, `display:none` keeping the other out of the a11y tree; add a
+section and you write both. The tape rule deliberately sets no `display`, or it
+would out-specify that hiding. See CLAUDE.md before touching it.
 
 **Cache-busting:** asset links in all six HTML files carry `?v=N`. Bump the
 version anywhere a file you changed is referenced, or returning visitors get
