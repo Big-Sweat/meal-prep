@@ -163,6 +163,19 @@ input[type="number"] {
   border-bottom: 1px solid var(--ink);
 }
 
+/* ...but not in the apps. On the web the rule sits directly under the browser
+   chrome and reads as the masthead's top edge. In an app the page IS the
+   screen, so there's nothing above it for the rule to sit against and it reads
+   as a black bar under the status bar — which is what Jake saw, first at the
+   very top and then again after it moved down. Paper now runs unbroken from the
+   status bar into the masthead.
+
+   Platform-scoped rather than width-scoped, unlike the two-column card rules
+   below: this is about there being no browser chrome above the page, which is a
+   property of being an app, not of being narrow. The mobile *website* still has
+   chrome above it, so it keeps the rule. */
+.is-native .masthead { border-top: none; }
+
 .mast-inner {
   padding: 28px var(--pad) 24px;
   display: flex;
@@ -3009,6 +3022,14 @@ input[type="number"] {
     z-index: 2;
   }
 
+  /* ...but the signed-out kitchen and log cards reuse .modal-tape outside any
+     modal, so there's no positioned ancestor to pin against and the label was
+     resolving to the document — the "YOUR KITCHEN" / "THE LOG" tape flew up and
+     landed on top of the masthead, half under the status bar. Pre-existing on
+     any screen under 768px, phone web included; found on the device. These two
+     aren't modals, so they stay in flow. */
+  .kit-empty-page .modal-tape { position: static; }
+
   .modal-close {
     position: absolute;
     top: 10px;
@@ -3587,3 +3608,105 @@ input[type="number"] {
 .forum-act[disabled] { opacity: 0.6; cursor: default; }
 
 .forum-compose { margin-top: 10px; }
+
+/* ============================================================
+   THE APPS: nav becomes a bottom tab bar
+   ------------------------------------------------------------
+   Scoped to .is-native (native.js sets it on <html>) — the website keeps the
+   masthead-and-band layout unchanged. Measured before this: on a 360x800 phone
+   the first recipe card started 620px down, 78% of the screen, behind a
+   wordmark, a four-line tagline, three colophon chips and a nav wrapped into
+   two ragged rows. An app opens on that every launch.
+
+   Two moves: the masthead sheds the copy a returning user has read a hundred
+   times, and the five sections lift out of the band to pin at the bottom,
+   where a thumb is and where they stay put instead of scrolling away.
+   ============================================================ */
+
+.is-native {
+  --tabbar-h: 54px;   /* the bar's own height; the gesture inset adds to it */
+}
+
+/* The masthead becomes an app bar: who you are, and the account button. The
+   tagline and colophon are for a stranger arriving cold on the web — in an app
+   you already know what you opened. */
+.is-native .mast-line,
+.is-native .mast-meta { display: none; }
+
+.is-native .mast-inner { padding: 10px var(--pad) 12px; gap: 0; }
+.is-native .wordmark { font-size: 34px; }
+
+/* Fixing .nav-sections rather than .mainnav is the trick that makes this work
+   without touching a single line of HTML: the action buttons are its sibling,
+   so they stay in flow up top instead of being dragged to the bottom with the
+   tabs. On the five pages that have no actions, .mainnav-inner is left with no
+   in-flow children and collapses to nothing on its own. */
+.is-native .mainnav { border-bottom: none; background: none; }
+
+/* Lifted onto the wordmark's line, so the account button shares the app bar
+   instead of sitting alone in a band of its own — which is what it did on the
+   first pass, and it cost 55px to say one word. The pull lives here rather than
+   on .mainnav on purpose: .nav-actions only exists on the board, so the five
+   pages without it are untouched and nothing gets dragged up into their
+   mastheads. */
+.is-native .nav-actions {
+  margin-left: auto;
+  margin-top: -50px;
+  padding: 0;
+}
+
+.is-native .nav-sections {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  /* Over .plan-bar (35), under the .rail drawer (40) — the rail is a
+     full-screen overlay and should cover the tabs, not fight them. */
+  z-index: 36;
+  display: flex;
+  gap: 0;
+  background: var(--ticket);
+  border-top: 1px solid var(--ink);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.is-native .nav-link {
+  flex: 1 1 0;
+  justify-content: center;
+  text-align: center;
+  min-height: var(--tabbar-h);
+  padding: 0 2px;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  line-height: 1.15;
+  /* 360px across five tabs is 72px each — "YOUR KITCHEN" doesn't fit on one
+     line at a legible size, so let the labels wrap and centre them. */
+  white-space: normal;
+}
+
+/* The tape still marks where you are, sized down to sit inside a tab. */
+.is-native .nav-link[aria-current="page"] > span {
+  font-size: 11px;
+  padding: 3px 7px;
+}
+
+/* Everything that used to sit on the bottom edge now sits on top of the bar.
+   The bar already absorbs the gesture inset, so these clear its content height
+   plus that inset, and must not pad for the inset a second time. */
+.is-native .plan-bar {
+  bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom, 0px));
+  padding-bottom: 0;
+}
+
+.is-native .apply-btn {
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+}
+
+.is-native .footer {
+  padding-bottom: calc(var(--tabbar-h) + 34px + env(safe-area-inset-bottom, 0px));
+}
+
+.is-native.has-plan .footer,
+.is-native .has-plan .footer {
+  padding-bottom: calc(var(--tabbar-h) + 90px + env(safe-area-inset-bottom, 0px));
+}
