@@ -255,6 +255,13 @@ input[type="number"] {
   text-decoration: none;
 }
 
+/* Every link carries both labels: the full one for the web ("THE RECIPES") and
+   a short one for the app's tab bar ("RECIPES"), because 72px of tab can't hold
+   "YOUR KITCHEN" at a legible size. Only one is ever rendered, and `display:
+   none` keeps the other out of the accessibility tree as well, so a screen
+   reader announces exactly what's on screen instead of both. */
+.nav-tab { display: none; }
+
 /* Bold + ink. Weight 700 is in every page's IBM Plex Mono request *only* for
    this — the sheet otherwise tops out at 500, and a synthesised bold smears at
    11px — so if this hover ever changes, drop `;700` from the font URL too.
@@ -274,12 +281,11 @@ input[type="number"] {
    lives on the inner <span> so the strip hugs the words instead of filling the
    44px touch target, and the tilt is a transform, so it never nudges the links
    either side of it. */
+/* Deliberately sets no `display`. As a flex item of the inline-flex link the
+   span is already blockified, so the tilt and vertical padding apply anyway —
+   and an explicit display here would out-specify the .nav-full / .nav-tab
+   hiding below and un-hide the wrong label on the current tab. */
 .nav-link[aria-current="page"] > span {
-  /* Belt and braces: as a flex item of the inline-flex link this is already
-     blockified (so the tilt and vertical padding apply, and it still hugs its
-     text), but it would go back to being an inline box — silently dropping
-     both — if .nav-link ever stopped being a flex container. */
-  display: inline-block;
   background: var(--tape);
   color: var(--ink);
   font-family: var(--font-marker);
@@ -3670,18 +3676,23 @@ input[type="number"] {
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
+/* Swap to the short labels: a tab is ~72px, which "YOUR KITCHEN" can only meet
+   by wrapping to two lines or shrinking past legible. "KITCHEN" fits on one
+   line with room to spare, so every tab now sits on a single baseline. */
+.is-native .nav-full { display: none; }
+.is-native .nav-tab { display: inline; }
+
 .is-native .nav-link {
   flex: 1 1 0;
   justify-content: center;
   text-align: center;
   min-height: var(--tabbar-h);
   padding: 0 2px;
-  font-size: 10px;
-  letter-spacing: 0.04em;
-  line-height: 1.15;
-  /* 360px across five tabs is 72px each — "YOUR KITCHEN" doesn't fit on one
-     line at a legible size, so let the labels wrap and centre them. */
-  white-space: normal;
+  /* Back up to the sheet's normal 11px now the labels are short — the previous
+     10px was bought purely to fit "YOUR KITCHEN". */
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
 }
 
 /* The tape still marks where you are, sized down to sit inside a tab. */
