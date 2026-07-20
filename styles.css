@@ -163,6 +163,19 @@ input[type="number"] {
   border-bottom: 1px solid var(--ink);
 }
 
+/* ...but not in the apps. On the web the rule sits directly under the browser
+   chrome and reads as the masthead's top edge. In an app the page IS the
+   screen, so there's nothing above it for the rule to sit against and it reads
+   as a black bar under the status bar — which is what Jake saw, first at the
+   very top and then again after it moved down. Paper now runs unbroken from the
+   status bar into the masthead.
+
+   Platform-scoped rather than width-scoped, unlike the two-column card rules
+   below: this is about there being no browser chrome above the page, which is a
+   property of being an app, not of being narrow. The mobile *website* still has
+   chrome above it, so it keeps the rule. */
+.is-native .masthead { border-top: none; }
+
 .mast-inner {
   padding: 28px var(--pad) 24px;
   display: flex;
