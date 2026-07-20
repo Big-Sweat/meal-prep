@@ -580,6 +580,26 @@ item marked.
 - Mobile: `.nav-sections` is `display: contents` so links and actions wrap as
   one flow; it becomes a real flex row at 768px. Don't give the actions their
   own row back — that cost 127px of nav above the first recipe.
+- **In the apps the same nav is a bottom tab bar** (`.is-native`, bottom of
+  `styles.css`). The web keeps the band; only the phone gets tabs. Measured
+  before: the first recipe card started 620px down a 360×800 screen, 78% of it;
+  after, 290px. Four things about it are load-bearing:
+  - **`.nav-sections` is what's fixed to the bottom, not `.mainnav`.** That's
+    what makes this need zero HTML: the action buttons are its *sibling*, so
+    they stay in flow up top instead of riding down with the tabs, and the five
+    pages with no actions get an empty `.mainnav-inner` that collapses itself.
+  - **The lift that puts SIGN IN on the wordmark's line is on `.nav-actions`,
+    not `.mainnav`.** `.nav-actions` only exists on the board, so the other
+    five pages can't get dragged up into their mastheads. Don't move it.
+  - **`z-index: 36`** — over `.plan-bar` (35), under the `.rail` drawer (40),
+    which is a full-screen overlay and should cover the tabs.
+  - **The bar absorbs `env(safe-area-inset-bottom)` itself**, so `.plan-bar`,
+    `.apply-btn` and `.footer` clear `--tabbar-h` *plus* that inset and must not
+    pad for it a second time.
+  - Labels keep their web wording, so `THE RECIPES` and `YOUR KITCHEN` wrap to
+    two lines in a tab while `THE LOG` and `PREP GEAR` don't. Shortening them
+    would need either a text change (which hits the website) or duplicate
+    markup; left ragged on purpose.
 
 ## Cache-busting — do not skip this
 
