@@ -393,9 +393,15 @@
       if (u && u.id && !account) account = { id: u.id, name: u.name, email: u.email };
       render();
     });
-    // If onChange never comes (offline / a cold CDN dropped the SDK), give up
-    // loudly rather than spinning forever.
-    setTimeout(function () { if (ready) return; ready = true; unreachable = true; render(); }, 8000);
+    // If onChange never comes (a stalled CDN fetch), give up rather than
+    // spinning forever — but slowly, and only claim "can't reach" when the SDK
+    // genuinely never landed. See the long note on the same timer in profile.js.
+    setTimeout(function () {
+      if (ready) return;
+      ready = true;
+      unreachable = !(MiseAuth.isReady && MiseAuth.isReady());
+      render();
+    }, 15000);
   } else {
     // No Supabase configured: the forum needs the backend, so say so plainly.
     ready = true;

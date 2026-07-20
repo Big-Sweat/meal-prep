@@ -294,9 +294,20 @@ in rough sync when you change the workflow described here.
   - The button is **not shown when auth is unreachable** — the `unreachable`
     branch already says so, and a sign-in button there would just fail.
 - Supabase resolves **asynchronously**, so the page renders a loading state
-  first and `MiseAuth.onChange` drives the real render. There's an 8s timeout
-  that says "can't reach the sign-in service" rather than spinning forever —
-  the apps bundle the recipes for offline use, but auth needs the network.
+  first and `MiseAuth.onChange` drives the real render. A **15s** last-resort
+  timeout stops it spinning forever (same timer in `profile.js`, `log.js` and
+  `forum.js` — change one, change all three). Two things about it are
+  deliberate and were got wrong once:
+  - **It only fires on a slow-but-alive network.** A genuinely offline device
+    fails the jsDelivr script tag fast, and `auth.js`'s `onerror` notifies
+    immediately — so a longer wait costs an offline visitor nothing, while 8s
+    was routinely outrun by a cold SDK fetch on a thin connection.
+  - **It only says "can't reach the sign-in service" when the SDK never
+    landed** (`unreachable = !MiseAuth.isReady()`). If the client exists,
+    `getSession` is merely slow, and it renders the ordinary signed-out view —
+    which `onChange` corrects moments later. It used to claim "can't reach"
+    unconditionally, which was both false on a cold load *and* hid the Sign in
+    button at exactly the moment someone wanted it.
 - **Standing allergies** are the one filter saved to an account: the board loads
   with them on, every visit. Changing a chip on the *board* is session-only and
   never rewrites the account — a temporary "what's this look like without dairy"
