@@ -37,6 +37,12 @@
 
   --rail-w: 300px;
   --pad: 20px;
+
+  /* The top safe-area inset, from whichever platform reports it: Capacitor's
+     SystemBars plugin sets --safe-area-inset-top on <html> for Android, env()
+     is the iOS path. Neither exists in a desktop browser, so this is 0 there
+     and every rule below is a no-op on the web. */
+  --inset-top: var(--safe-area-inset-top, env(safe-area-inset-top, 0px));
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -54,7 +60,34 @@ body {
   font-family: var(--font-display);
   font-size: 16px;
   line-height: 1.5;
-  border-top: 5px solid var(--ink);
+  /* The apps draw edge-to-edge, so the strip behind the status bar belongs to
+     the page — and it should read as page. The 5px rule used to live here, on
+     <body>, which painted it as a dark sliver up there instead; it has moved to
+     .masthead, below this padding, so paper fills the status bar area.
+
+     Two sources because two platforms: Capacitor's SystemBars plugin sets
+     --safe-area-inset-top on <html> for Android, env() is the iOS path. Both
+     are absent in a desktop browser, so the 0px fallback keeps the web
+     identical to before. */
+  padding-top: var(--inset-top);
+}
+
+/* The status bar strip, held in paper. body's padding above covers it at rest,
+   but that scrolls away — and what slid under it was the ink filter bar, which
+   left the system's dark status-bar icons drawn on near-black. This strip is
+   fixed, so the status bar reads as page at every scroll position and those
+   icons stay legible. Sits over .mobile-bar (30) and .plan-bar (35) but under
+   the .rail drawer (40), which pads its own top inset. Zero-height on the web. */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--inset-top);
+  background: var(--paper);
+  z-index: 38;
+  pointer-events: none;
 }
 
 .mono { font-family: var(--font-mono); }
@@ -121,7 +154,14 @@ input[type="number"] {
 
 /* ---------- masthead ---------- */
 
-.masthead { border-bottom: 1px solid var(--ink); }
+/* The 5px rule was on <body> until it turned into a dark sliver behind the
+   phone's status bar. Here it sits below body's safe-area padding, so it reads
+   as the masthead's top edge — which is what it always looked like — and the
+   status bar gets paper above it. Identical on the web, where the inset is 0. */
+.masthead {
+  border-top: 5px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
+}
 
 .mast-inner {
   padding: 28px var(--pad) 24px;
@@ -252,7 +292,11 @@ input[type="number"] {
 
 .mobile-bar {
   position: sticky;
-  top: 0;
+  /* Pins below the status-bar strip, not under it. This used to be top:0 with
+     the inset as padding-top, which put the padding there at every scroll
+     position — once Android started reporting a real inset, the bar carried
+     24px of dead space above "Filter recipes" even sitting mid-page. */
+  top: var(--inset-top);
   z-index: 30;
   display: flex;
   align-items: center;
@@ -260,9 +304,7 @@ input[type="number"] {
   gap: 12px;
   background: var(--ink);
   color: var(--paper);
-  /* env() is 0 where there's no inset, so this only bites under an iOS status
-     bar / notch; sticky at top:0 would otherwise pin the bar under it. */
-  padding: env(safe-area-inset-top) var(--pad) 0;
+  padding: 0 var(--pad);
 }
 
 .mobile-filter-btn {
